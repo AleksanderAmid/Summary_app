@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartDoc — Medical Summary</title>
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='19' font-size='19'%3E%F0%9F%A9%BA%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<div class="layout">
+
+  <!-- ============ Sidebar ============ -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">SmartDoc</div>
+      <button class="new-chat" id="btn-new">
+        <span class="new-chat-plus">+</span> New summary
+      </button>
+    </div>
+
+    <div class="recents">
+      <div class="recents-label">Recents</div>
+      <ul id="history-list" class="history-list"></ul>
+      <div id="history-empty" class="history-empty hidden">No summaries yet</div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="avatar">SD</div>
+      <div class="user-meta">
+        <div class="user-name">SmartDoc</div>
+        <div class="user-plan">Local · Ollama</div>
+      </div>
+      <span id="status-dot" class="status-dot" title="Checking model status…"></span>
+    </div>
+  </aside>
+
+  <!-- ============ Main ============ -->
+  <main class="main">
+
+    <!-- Home view -->
+    <section id="view-home" class="view">
+      <div class="plan-chip">
+        Gemma 3 12B-IT · few-shot · <span class="chip-strong">study winner</span>
+      </div>
+      <h1 class="greeting"><span id="greeting-text">Afternoon</span>, Doctor</h1>
+
+      <div class="input-card">
+        <div class="tabs">
+          <button class="tab active" data-tab="file">Upload file</button>
+          <button class="tab" data-tab="text">Paste text</button>
+        </div>
+
+        <div id="pane-file" class="pane">
+          <div id="dropzone" class="dropzone">
+            <input type="file" id="file-input" accept=".pdf,.docx,.txt,.json,.png,.jpg,.jpeg" hidden>
+            <div class="dz-icon">⤴</div>
+            <div class="dz-title">Drop a patient journal here</div>
+            <div class="dz-sub">or <button class="linklike" id="btn-browse">browse files</button> — PDF, DOCX, TXT, JSON, PNG, JPG</div>
+            <div id="file-chip" class="file-chip hidden">
+              <span id="file-chip-name"></span>
+              <button id="file-chip-remove" title="Remove">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="pane-text" class="pane hidden">
+          <textarea id="text-input" rows="9"
+            placeholder="Paste the Swedish patient journal text here…"></textarea>
+        </div>
+
+        <div class="card-footer">
+          <div class="footer-hint">Scanned pages are transcribed locally with Gemma 3 12B</div>
+          <div class="footer-actions">
+            <span class="model-label">Gemma 3 12B <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></span>
+            <button id="btn-send" class="send-btn" disabled title="Generate summary">
+              <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="status-banner" class="status-banner hidden"></div>
+    </section>
+
+    <!-- Progress view -->
+    <section id="view-progress" class="view hidden">
+      <h2 class="run-title" id="progress-title">Processing…</h2>
+      <div class="stages" id="stages"></div>
+      <div id="progress-error" class="error-box hidden"></div>
+      <button id="btn-cancel-view" class="ghost-btn hidden">Back to start</button>
+    </section>
+
+    <!-- Result view -->
+    <section id="view-result" class="view hidden">
+      <div class="result-head">
+        <h2 class="run-title" id="result-title"></h2>
+        <div class="result-date" id="result-date"></div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Clinical summary</div>
+        <div id="summary-text" class="summary-text"></div>
+        <div class="summary-actions">
+          <button id="btn-copy" class="ghost-btn">Copy</button>
+          <button id="btn-download" class="ghost-btn">Download .txt</button>
+        </div>
+      </div>
+
+      <details class="panel" id="panel-source">
+        <summary>Source text (model input)</summary>
+        <div class="panel-body"><pre id="source-text"></pre></div>
+      </details>
+
+      <details class="panel" id="panel-run">
+        <summary>Run details</summary>
+        <div class="panel-body" id="run-body"></div>
+      </details>
+
+      <div class="disclaimer">
+        Research artefact — generated summaries must be reviewed by a clinician
+        before any clinical use (thesis §4.6: omission &amp; hallucination findings).
+      </div>
+    </section>
+
+  </main>
+</div>
+<script src="/assets/app.js"></script>
+</body>
+</html>

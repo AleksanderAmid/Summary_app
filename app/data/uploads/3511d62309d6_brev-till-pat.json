@@ -1,0 +1,137 @@
+{
+  "source_file": "EHR-Journals\\1\\brev-till-pat.pdf",
+  "file_name": "brev-till-pat.pdf",
+  "doc_type": "letter",
+  "file_type": ".pdf",
+  "model": "qwen3-vl:8b",
+  "pages": [
+    {
+      "page_num": 1,
+      "native_text": "Havets Vårdcentral, Backvägen 321, 29600 Stockholm\n2024-12-04 | 19380708-5786\nJosefin Christina Lovisa Andersson\nTrädgårdsstigen 02 LGH 1109\n65423 Örebro\nHej Filippa!\nJag har fått svar på röntgen av hjärnan som visar på tecken som kan stämma me demens. Jag har därför\nskickat remiss till minnesmottagningen som är experter på området för att få deras hjälp med bedömning\noch höra om dom tror det finns något att göra i behandlingsväg.\nVänligen,\nHans Forsell\nLäkare, Havets VC\nAdress\nTelefon\nE-post\nOrg Kustens Vårdcentral\n[telefon borttagen]\n[e-post borttagen]\n[org nr borttagen]\nBackvägen 321\nFax\nHemsida\n29600 Stockholm\n[telefon borttagen]\n[webbplats borttagen]\nSida 1 av 1",
+      "is_scanned": false,
+      "method": "vision_model",
+      "text": "Havets Vårdcentral  \nHavets Vårdcentral, Backvägen 321, 29600 Stockholm  \n\n2024-12-04 | 19380708-5786  \n\nJosefin Christina Lovisa Andersson  \nTrädgårdsstigen 02 LGH 1109  \n65423 Örebro  \n\nHej Filippa!  \n\nJag har fått svar på röntgen av hjärnan som visar på tecken som kan stämma med demens. Jag har därför skickat remiss till minnesmottagningen som är experter på området för att få deras hjälp med bedömning och höra om dom tror det finns något att göra i behandlingsväg.  \n\nVänligen,  \nHans Forsell  \nLäkare, Havets VC  \n\nAdress  \nHavets Vårdcentral  \nBackvägen 321  \n29600 Stockholm  \n\nTelefon  \n[telefon borttagen]  \nFax  \n[telefon borttagen]  \n\nE-post  \n[e-post borttagen]  \nHemsida  \n[webbplats borttagen]  \n\nOrg Nr  \n[org nr borttagen]  \n\nSida 1 av 1",
+      "inference_time_seconds": 52.04,
+      "phi_found": [
+        {
+          "type": "ORG",
+          "replacement": "Havets Vårdcentral"
+        },
+        {
+          "type": "ORG",
+          "replacement": "Havets Vårdcentral"
+        },
+        {
+          "type": "ADDRESS",
+          "replacement": "Backvägen 321"
+        },
+        {
+          "type": "POSTAL_CODE",
+          "replacement": "29600"
+        },
+        {
+          "type": "LOC",
+          "replacement": "Mölndal"
+        },
+        {
+          "type": "PERSONNUMMER",
+          "replacement": "19380708-5786"
+        },
+        {
+          "type": "PER",
+          "replacement": "Josefin Christina Lovisa Andersson"
+        },
+        {
+          "type": "ADDRESS",
+          "replacement": "Trädgårdsstigen 02"
+        },
+        {
+          "type": "POSTAL_CODE",
+          "replacement": "65423"
+        },
+        {
+          "type": "LOC",
+          "replacement": "Örebro"
+        },
+        {
+          "type": "PER",
+          "replacement": "Filippa"
+        },
+        {
+          "type": "PER",
+          "replacement": "Hans Forsell"
+        },
+        {
+          "type": "ORG",
+          "replacement": "Havets Vårdcentral"
+        },
+        {
+          "type": "ADDRESS",
+          "replacement": "Backvägen 321"
+        },
+        {
+          "type": "POSTAL_CODE",
+          "replacement": "29600"
+        },
+        {
+          "type": "LOC",
+          "replacement": "Mölndal"
+        },
+        {
+          "type": "PHONE",
+          "replacement": "[telefon borttagen]"
+        },
+        {
+          "type": "PHONE",
+          "replacement": "[telefon borttagen]"
+        },
+        {
+          "type": "EMAIL",
+          "replacement": "[e-post borttagen]"
+        },
+        {
+          "type": "URL",
+          "replacement": "[webbplats borttagen]"
+        },
+        {
+          "type": "ORG_NUMBER",
+          "replacement": "[org nr borttagen]"
+        },
+        {
+          "type": "NAME_PART",
+          "replacement": "Stockholm"
+        },
+        {
+          "type": "NAME_PART",
+          "replacement": "Stockholm"
+        },
+        {
+          "type": "NAME_PART",
+          "replacement": "Havets"
+        }
+      ]
+    }
+  ],
+  "total_pages": 1,
+  "transcription_time_seconds": 52.07,
+  "errors": [],
+  "full_text": "Havets Vårdcentral  \nHavets Vårdcentral, Backvägen 321, 29600 Stockholm  \n\n2024-12-04 | 19380708-5786  \n\nJosefin Christina Lovisa Andersson  \nTrädgårdsstigen 02 LGH 1109  \n65423 Örebro  \n\nHej Filippa!  \n\nJag har fått svar på röntgen av hjärnan som visar på tecken som kan stämma med demens. Jag har därför skickat remiss till minnesmottagningen som är experter på området för att få deras hjälp med bedömning och höra om dom tror det finns något att göra i behandlingsväg.  \n\nVänligen,  \nHans Forsell  \nLäkare, Havets VC  \n\nAdress  \nHavets Vårdcentral  \nBackvägen 321  \n29600 Stockholm  \n\nTelefon  \n[telefon borttagen]  \nFax  \n[telefon borttagen]  \n\nE-post  \n[e-post borttagen]  \nHemsida  \n[webbplats borttagen]  \n\nOrg Nr  \n[org nr borttagen]  \n\nSida 1 av 1",
+  "deidentification": {
+    "total_phi_replaced": 24,
+    "phi_by_type": {
+      "ORG": 3,
+      "ADDRESS": 3,
+      "POSTAL_CODE": 3,
+      "LOC": 3,
+      "PERSONNUMMER": 1,
+      "PER": 3,
+      "PHONE": 2,
+      "EMAIL": 1,
+      "URL": 1,
+      "ORG_NUMBER": 1,
+      "NAME_PART": 3
+    },
+    "pipeline_version": "1.1",
+    "timestamp": "2026-04-07T21:10:54.240898"
+  }
+}
