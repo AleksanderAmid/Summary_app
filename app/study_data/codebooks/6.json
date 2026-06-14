@@ -1,0 +1,606 @@
+{
+  "Catherine Ann Dahlgren": {
+    "fake": "Nils Kurt Sundberg",
+    "type": "PER"
+  },
+  "19620608-0522": {
+    "fake": "19620113-8044",
+    "type": "PERSONNUMMER"
+  },
+  "Hönö Vårdcentral": {
+    "fake": "Kustens Vårdcentral",
+    "type": "ORG"
+  },
+  "Minkebergsvägen 3 A": {
+    "fake": "Järnvägsstigen 9",
+    "type": "ADDRESS"
+  },
+  "475 40": {
+    "fake": "84768",
+    "type": "POSTAL_CODE"
+  },
+  "HÖNÖ": {
+    "fake": "Örebro",
+    "type": "LOC"
+  },
+  "KAPAREVÄGEN 4": {
+    "fake": "Skogsvägen 838",
+    "type": "ADDRESS"
+  },
+  "47542": {
+    "fake": "86578",
+    "type": "POSTAL_CODE"
+  },
+  "Bahadorani Pejman": {
+    "fake": "Mio Larsson",
+    "type": "PER"
+  },
+  "Hönö Vårdcentral AB": {
+    "fake": "Solbackens Vårdcentral",
+    "type": "ORG"
+  },
+  "USA": {
+    "fake": "Borlänge",
+    "type": "LOC"
+  },
+  "Solhöjden": {
+    "fake": "Umeå",
+    "type": "LOC"
+  },
+  "Sylvia Pettersson": {
+    "fake": "Alva Lindgren",
+    "type": "PER"
+  },
+  "Johan Linse": {
+    "fake": "Alf Persson",
+    "type": "PER"
+  },
+  "Caroline Carlsson": {
+    "fake": "Elizabeth Persson",
+    "type": "PER"
+  },
+  "Omvårdnadsjournal  \nImporterad": {
+    "fake": "Gustav Eriksson",
+    "type": "PER"
+  },
+  "Bengt Sköld": {
+    "fake": "Erik Khalil",
+    "type": "PER"
+  },
+  "Dokument  \nRöntgensvar  \nRtg": {
+    "fake": "Lena Karin Nordin",
+    "type": "PER"
+  },
+  "Pernilla Hermansson": {
+    "fake": "Tina Lidén",
+    "type": "PER"
+  },
+  "dr Estrand": {
+    "fake": "Valentina Ibrahim",
+    "type": "PER"
+  },
+  "Arne Estrand": {
+    "fake": "Tommy Åström",
+    "type": "PER"
+  },
+  "Recept  \nIbumetin Tablett": {
+    "fake": "Hans Martin Eriksson",
+    "type": "PER"
+  },
+  "Hisingsskauten": {
+    "fake": "Karlskoga",
+    "type": "LOC"
+  },
+  "Catherine": {
+    "fake": "Söderström",
+    "type": "PER"
+  },
+  "Arne Eistrand": {
+    "fake": "Lars Larsson",
+    "type": "PER"
+  },
+  "Gunnar Kenne": {
+    "fake": "Daniel Åkesson",
+    "type": "PER"
+  },
+  "Hisingsakuten": {
+    "fake": "Landskrona",
+    "type": "LOC"
+  },
+  "Erica Thorén": {
+    "fake": "Emma Jönsson",
+    "type": "PER"
+  },
+  "Dokument  \nÖvriga": {
+    "fake": "Conny Eriksson",
+    "type": "PER"
+  },
+  "Läkarjournal  \nKontakt Läk": {
+    "fake": "Joakim Abdul Karlsson",
+    "type": "PER"
+  },
+  "Dokument  \n  Övriga": {
+    "fake": "Nelly Eklund",
+    "type": "PER"
+  },
+  "Läkarjournal  \n  Kontakt Läk": {
+    "fake": "Margareta Stephanie Sandberg",
+    "type": "PER"
+  },
+  "Dokument  \nRemissvar  \nOrtopedmott": {
+    "fake": "Olov Per Södergren",
+    "type": "PER"
+  },
+  "Annika Svensson": {
+    "fake": "Birgitta Byström",
+    "type": "PER"
+  },
+  "Sköld": {
+    "fake": "Thor",
+    "type": "PER"
+  },
+  "Länsförsäkringar": {
+    "fake": "Dalens Vårdcentral",
+    "type": "ORG"
+  },
+  "Elisabeth Andersson": {
+    "fake": "Martina Wahlström",
+    "type": "PER"
+  },
+  "Velmers": {
+    "fake": "Lundström",
+    "type": "PER"
+  },
+  "Dr Sköld": {
+    "fake": "Hans Werner",
+    "type": "PER"
+  },
+  "Berith Milefors": {
+    "fake": "Catharina Dahl",
+    "type": "PER"
+  },
+  "Öckerö vårdcentral": {
+    "fake": "Ängelholm",
+    "type": "LOC"
+  },
+  "Camilla Nilsson": {
+    "fake": "Elsa Dahlberg",
+    "type": "PER"
+  },
+  "Andriette Velmers": {
+    "fake": "Birgitta Rosén",
+    "type": "PER"
+  },
+  "XS": {
+    "fake": "Katarina",
+    "type": "PER"
+  },
+  "Kirurg Lundby": {
+    "fake": "Umeå",
+    "type": "LOC"
+  },
+  "Wiebke Plate": {
+    "fake": "Tanja Engström",
+    "type": "PER"
+  },
+  "Björnhuvudsvägen 54": {
+    "fake": "Skogsvägen 1",
+    "type": "ADDRESS"
+  },
+  "47531": {
+    "fake": "65521",
+    "type": "POSTAL_CODE"
+  },
+  "Öckerö": {
+    "fake": "Stockholm",
+    "type": "LOC"
+  },
+  "19 620608-0522": {
+    "fake": "19620417-7783",
+    "type": "PERSONNUMMER"
+  },
+  "Kaparevägen 4": {
+    "fake": "Idrottsgränd 541",
+    "type": "ADDRESS"
+  },
+  "475 42": {
+    "fake": "30676",
+    "type": "POSTAL_CODE"
+  },
+  "Hönö": {
+    "fake": "Uddevalla",
+    "type": "LOC"
+  },
+  "Minkebergsvägen 3A": {
+    "fake": "Kyrkovägen 793",
+    "type": "ADDRESS"
+  },
+  "Ausra Saxvik": {
+    "fake": "Olivia Gustafsson",
+    "type": "PER"
+  },
+  "010-4733970": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "031-7127668": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Göteborg": {
+    "fake": "Eskilstuna",
+    "type": "LOC"
+  },
+  "620608-0522": {
+    "fake": "19620424-5044",
+    "type": "PERSONNUMMER"
+  },
+  "Skatteverket": {
+    "fake": "Kustens Vårdcentral",
+    "type": "ORG"
+  },
+  "Pensionsmyndigheten": {
+    "fake": "Kustens Vårdcentral",
+    "type": "ORG"
+  },
+  "kommunal": {
+    "fake": "Dalens Vårdcentral",
+    "type": "ORG"
+  },
+  "www.lansforsakringar.se.": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "Cathrine Dahlgren": {
+    "fake": "Siv Backman",
+    "type": "PER"
+  },
+  "Bohuslän": {
+    "fake": "Alingsås",
+    "type": "LOC"
+  },
+  "401 01 Göteborg": {
+    "fake": "Varberg",
+    "type": "LOC"
+  },
+  "031-123456": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "www.lansforsakringar.se*": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "Tobias Skånberg": {
+    "fake": "Stig Byström",
+    "type": "PER"
+  },
+  "404 84": {
+    "fake": "95336",
+    "type": "POSTAL_CODE"
+  },
+  "http://www.svenskforsakring.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "tobias.skanberg@lansforsakringar.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "Strandvägen 35": {
+    "fake": "Kyrkgatan 069",
+    "type": "ADDRESS"
+  },
+  "473 37": {
+    "fake": "72050",
+    "type": "POSTAL_CODE"
+  },
+  "Dahlgren Catherine": {
+    "fake": "Christopher Petersson",
+    "type": "PER"
+  },
+  "0761-662160": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Camilla Andersson": {
+    "fake": "Linnéa Jonsson",
+    "type": "PER"
+  },
+  "SLU": {
+    "fake": "Dalens Vårdcentral",
+    "type": "ORG"
+  },
+  "Allégatan 6": {
+    "fake": "Grangatan 4",
+    "type": "ADDRESS"
+  },
+  "413 01": {
+    "fake": "87146",
+    "type": "POSTAL_CODE"
+  },
+  "GÖTEBORG": {
+    "fake": "Piteå",
+    "type": "LOC"
+  },
+  "719 14": {
+    "fake": "61862",
+    "type": "POSTAL_CODE"
+  },
+  "DAHLGREN": {
+    "fake": "Sjöström",
+    "type": "PER"
+  },
+  "CATHERINE ANN": {
+    "fake": "Björn Nygren",
+    "type": "PER"
+  },
+  "031-969397": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Göran Sigholm": {
+    "fake": "Micael Augustsson",
+    "type": "PER"
+  },
+  "Höö vårdcentral": {
+    "fake": "Landskrona",
+    "type": "LOC"
+  },
+  "Rem": {
+    "fake": "Jensen",
+    "type": "PER"
+  },
+  "Almvägen 1": {
+    "fake": "Fabriksvägen 6",
+    "type": "ADDRESS"
+  },
+  "475 41": {
+    "fake": "29374",
+    "type": "POSTAL_CODE"
+  },
+  "Aleris": {
+    "fake": "Malmö",
+    "type": "LOC"
+  },
+  "Axesshuset": {
+    "fake": "Helsingborg",
+    "type": "LOC"
+  },
+  "Backavägen 3": {
+    "fake": "Nygatan 206",
+    "type": "ADDRESS"
+  },
+  "417 05": {
+    "fake": "56329",
+    "type": "POSTAL_CODE"
+  },
+  "031-657676": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "031-657688": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Dahlgren": {
+    "fake": "Hallgren",
+    "type": "PER"
+  },
+  "Vivelvindsgatan 8A": {
+    "fake": "Strandstigen 85",
+    "type": "ADDRESS"
+  },
+  "417 02": {
+    "fake": "98709",
+    "type": "POSTAL_CODE"
+  },
+  "417 02 Göteborg": {
+    "fake": "Helsingborg",
+    "type": "LOC"
+  },
+  "Cederlund": {
+    "fake": "Jensen",
+    "type": "PER"
+  },
+  "Claes-Göran": {
+    "fake": "Borgström",
+    "type": "PER"
+  },
+  "Claes-Göran Cederlund": {
+    "fake": "Berit Berg",
+    "type": "PER"
+  },
+  "031-7127660": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Dr Bengt Sköld": {
+    "fake": "Lars Mio Kjellberg",
+    "type": "PER"
+  },
+  "031-7127689": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "+46761662160": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "cathyd84@gmail.com": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "AG": {
+    "fake": "RC",
+    "type": "INITIALS"
+  },
+  "RR": {
+    "fake": "IX",
+    "type": "INITIALS"
+  },
+  "Rebecca Maria Richter": {
+    "fake": "Helene Jenny Håkansson",
+    "type": "PER"
+  },
+  "Kristin Graf": {
+    "fake": "Linn Nielsen",
+    "type": "PER"
+  },
+  "info@honovardcentral.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "www.honovardcentral.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "556451-5764": {
+    "fake": "[org nr borttagen]",
+    "type": "ORG_NUMBER"
+  },
+  "Adam Goldberg": {
+    "fake": "Alvar Skoog",
+    "type": "PER"
+  },
+  "Adam Goldberg Hönö Vårdcentral": {
+    "fake": "Svante Rafael Gert Ali",
+    "type": "PER"
+  },
+  "Rebecka Maria Richter Hönö": {
+    "fake": "Ruth Victoria Inger Björkman",
+    "type": "PER"
+  },
+  "Rebecka Richter": {
+    "fake": "Monika Fransson",
+    "type": "PER"
+  },
+  "Kristin Graf Hönö Vårdcentral": {
+    "fake": "Hilma Cecilia Christine Lundquist",
+    "type": "PER"
+  },
+  "Nr\nHönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Catherine Ann": {
+    "fake": "Lovisa Nordström",
+    "type": "PER"
+  },
+  "KG": {
+    "fake": "PL",
+    "type": "INITIALS"
+  },
+  "Plate Hönö Vårdcentral": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "WP": {
+    "fake": "BM",
+    "type": "INITIALS"
+  },
+  "Andriette Velmers Hönö Vårdcentral": {
+    "fake": "Karin Louise Andrea Sandström",
+    "type": "PER"
+  },
+  "AV": {
+    "fake": "CO",
+    "type": "INITIALS"
+  },
+  "Pernilla Hermansson Hönö Vårdcentral": {
+    "fake": "Josefin Barbro Amanda Lundgren",
+    "type": "PER"
+  },
+  "PH": {
+    "fake": "ÖJ",
+    "type": "INITIALS"
+  },
+  "dr Plate": {
+    "fake": "Olov Lindell",
+    "type": "PER"
+  },
+  "Frölunda": {
+    "fake": "Skellefteå",
+    "type": "LOC"
+  },
+  "Plate": {
+    "fake": "Lindberg",
+    "type": "PER"
+  },
+  "Wiebke": {
+    "fake": "Hellström",
+    "type": "PER"
+  },
+  "Carin Börjesson Hönö Vårdcentral": {
+    "fake": "Valborg Lovis Margareta Salomonsson",
+    "type": "PER"
+  },
+  "CB": {
+    "fake": "ZÖ",
+    "type": "INITIALS"
+  },
+  "Carin  Börjesson Hönö Vårdcentral": {
+    "fake": "Lina Elisabet Michaela Ahlqvist",
+    "type": "PER"
+  },
+  "427 50": {
+    "fake": "84665",
+    "type": "POSTAL_CODE"
+  },
+  "Billdal": {
+    "fake": "Borås",
+    "type": "LOC"
+  },
+  "Kungsporten": {
+    "fake": "Växjö",
+    "type": "LOC"
+  },
+  "Sockenvägen 2": {
+    "fake": "Björkstigen 5",
+    "type": "ADDRESS"
+  },
+  "ÖCKERÖ": {
+    "fake": "Växjö",
+    "type": "LOC"
+  },
+  "Gruvgatan 8": {
+    "fake": "Ringvägen 54",
+    "type": "ADDRESS"
+  },
+  "42130": {
+    "fake": "44328",
+    "type": "POSTAL_CODE"
+  },
+  "VÄSTRA": {
+    "fake": "Varberg",
+    "type": "LOC"
+  },
+  "www.honovardcentral.se)": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "Adress\nHönö Vårdcentral": {
+    "fake": "Parkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Angered's Närsjukhus": {
+    "fake": "Piteå",
+    "type": "LOC"
+  },
+  "Angereds Närsjukhus": {
+    "fake": "Sandviken",
+    "type": "LOC"
+  },
+  "450 27": {
+    "fake": "70744",
+    "type": "POSTAL_CODE"
+  },
+  "Mimmi Tang": {
+    "fake": "Helena Nordin",
+    "type": "PER"
+  },
+  "Wiebe Plate": {
+    "fake": "Lisbet Hedlund",
+    "type": "PER"
+  }
+}

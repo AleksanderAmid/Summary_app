@@ -1,10 +1,11 @@
-"""HTTP server for the Medical Summary app — Python stdlib only.
+"""HTTP server for the Medical Summary app — Python standard library only.
 
-Run with the project virtual environment (needs requests / pymupdf /
-python-docx, all already installed):
+The app folder is self-contained: study data is bundled in study_data/, and
+the only third-party package is PyMuPDF (optional, for PDF files). Run from
+any location with any Python 3.10+:
 
-    .venv\\Scripts\\python.exe -m app.backend.server        (from repo root)
-or simply double-click app\\run_app.bat
+    python backend/server.py          (from inside the app folder)
+or simply double-click run_app.bat
 
 The UI is then available at http://localhost:8765.
 
@@ -29,14 +30,17 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-# Allow running both as a module (-m app.backend.server) and as a script.
-APP_ROOT = Path(__file__).resolve().parent.parent
-REPO_ROOT = APP_ROOT.parent
-if __package__ in (None, ""):
-    sys.path.insert(0, str(REPO_ROOT))
-    from app.backend import history, pipeline, summarization, transcription
-else:
-    from . import history, pipeline, summarization, transcription
+# The backend modules import each other as plain top-level modules, so the
+# folder works wherever it is moved (and whatever it is renamed to).
+BACKEND_DIR = Path(__file__).resolve().parent
+APP_ROOT = BACKEND_DIR.parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
+
+import history            # noqa: E402
+import pipeline           # noqa: E402
+import summarization      # noqa: E402
+import transcription      # noqa: E402
 
 FRONTEND_DIR = APP_ROOT / "frontend"
 # PORT env var (set by dev-preview tooling) overrides the default; when it is
@@ -122,6 +126,7 @@ class Handler(BaseHTTPRequestHandler):
                     "tag": transcription.VISION_MODEL,
                     "available": transcription.vision_model_available() if alive else False,
                 },
+                "pdf_support": transcription.pdf_support_available(),
             })
 
         if path == "/api/history":

@@ -1,10 +1,11 @@
 """De-anonymization stage for the Medical Summary app.
 
 The thesis de-identification pipeline (src/deidentification/) replaced real
-PHI with consistent fake values and stored a per-patient code book at
-
-    data/deidentified/<patient_id>/_mapping.json
-    structure: { "<real value>": {"fake": "<fake value>", "type": "<PHI type>"} }
+PHI with consistent fake values and stored a per-patient code book
+(structure: { "<real value>": {"fake": "<fake value>", "type": "<PHI type>"} }).
+The app ships with bundled copies at app/study_data/codebooks/<patient_id>.json
+(copied from data/deidentified/<patient_id>/_mapping.json) so the folder is
+self-contained and movable to another device.
 
 De-anonymization inverts that code book: every fake value found in the
 generated summary is replaced by the corresponding real value, so the final
@@ -28,8 +29,7 @@ import re
 from pathlib import Path
 
 APP_ROOT = Path(__file__).resolve().parent.parent
-REPO_ROOT = APP_ROOT.parent
-DEIDENTIFIED_DIR = REPO_ROOT / "data" / "deidentified"
+CODEBOOK_DIR = APP_ROOT / "study_data" / "codebooks"
 
 # Patient detection relies on DISTINCTIVE fake values only. The study's
 # Faker-based pipeline reused generic surnames/cities ("Larsson",
@@ -104,14 +104,12 @@ def _is_distinctive(pair: dict) -> bool:
 def load_all_mappings() -> dict[str, list[dict]]:
     """patient_id -> cleaned mapping pairs, for every study patient."""
     mappings: dict[str, list[dict]] = {}
-    if not DEIDENTIFIED_DIR.is_dir():
+    if not CODEBOOK_DIR.is_dir():
         return mappings
-    for patient_dir in sorted(DEIDENTIFIED_DIR.iterdir()):
-        mapping_file = patient_dir / "_mapping.json"
-        if patient_dir.is_dir() and mapping_file.is_file():
-            pairs = _load_mapping(mapping_file)
-            if pairs:
-                mappings[patient_dir.name] = pairs
+    for mapping_file in sorted(CODEBOOK_DIR.glob("*.json")):
+        pairs = _load_mapping(mapping_file)
+        if pairs:
+            mappings[mapping_file.stem] = pairs
     return mappings
 
 

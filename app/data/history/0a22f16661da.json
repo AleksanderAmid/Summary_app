@@ -1,0 +1,87 @@
+{
+  "id": "0a22f16661da",
+  "name": "remiss-från-kir-lågtkalium",
+  "created_at": 1781103216.1717997,
+  "input": {
+    "type": "file",
+    "filename": "remiss-från-kir-lågtkalium.pdf",
+    "method": "pdf",
+    "pages": [
+      {
+        "page_num": 1,
+        "method": "vision_model",
+        "chars": 1096
+      },
+      {
+        "page_num": 2,
+        "method": "vision_model",
+        "chars": 2154
+      },
+      {
+        "page_num": 3,
+        "method": "vision_model",
+        "chars": 503
+      }
+    ],
+    "chars": 3805,
+    "words": 494
+  },
+  "source_text": "--- Sida 1 ---\n\nRemiss typ Allmänremiss\n\nAvsändare Personnummer sida\nSsk Helleblad, Jenny 19360326-4825 1 (1)\nKirurgavdelning 132 S\n413 45 Göteborg Namn\n031-3421000 ARVIDSSON, RIGMOR MARGARETA\n\nMottagare TJOLMENÄGEN 25 A\nFloöv Vårdcentral 47550 HALSÖ\nTel hem :\nTel arbete :\nTel mobil: 070-57070195\n\nAkutundersökning : Undersökningsplats\nAkutsvar : Telefon akutsvar :\nOnskad undersökning Förevarande undersökning\nUppföljning\n\nFrågeställning / Anmälan\nHej!\n89-årig kvinna som vårdats inneliggande för biliär pankreatit 251117-251119. På ultraljud sett multipla konkrement i gallblåsan. Initialt förhöjda transaminaser samt bilirubin som har sjunkit fint, bedöms som stenavlagring. På avdelningen noterats kalium på 3,1 (3,0-5,2). I samråd med specialistläkare Lisa Gunnarsson rekommenderas uppföljning av patientens kalium samt ställningsstagande till eventuell behandling via vårdcentral.\n\nTacksam uppföljning av kaliumvärde samt ställningsstagande till eventuell behandling.\n\nMVH\nJenny Helleblad\nAvancerad specialistsköterska\n\nI samråd med doktor Lisa Gunnarsson\n\nSvar Handläggare Undersökningsdatum\n\n\n\nUtlåtande\n\n--- Sida 2 ---\n\nSahlgrenska Universitetssjukhuset 19 36032-4825  Sida 1 av 2\nKirurgiabcd 132 S ARVIDSSON, RIGMOR MARGARETA\nTJOLMENVÄGEN 25 A\n47550 HÄLSÖ\n070-5970195 (mobil)\n\n2025-11-19 12:15 SLUTANTECKNING, LÄKARE Kirurgiavdelning 132 Sahlgrenska\n(KiR07)  Ssk\nSsk Helleblad, Jenny [“lisu21”]\n2025-11-19 12:15 jenne12\n\nHuvuddiagnos K851 Billär akut pankreatit\nBidiagnos 1409 Förraaktsfilmer\nBidiagnos 1109 Essentiell hypertoni\nBidiagnos E676 Hypokalemi\nAnsvarig läkare Lisa Gunnarsson\nVårdtid 2025-11-16 – 2025-11-26\nInskrivning i slutenvård p g Billär pankreatit\na\nTidigare sjukdomar / Nuvarande sjukdomar\nFörmaksflimmer, hypertoni, gastrit, depression\n\nAktuellt 89-årig kvinna som sökt akut på grund av generella\nbuksmärtor som successivt förvärrats under dagen och\nkräkningar. På AKO temp 36 två val puls på 120 slag/min.\nStegade transaminaser, bilirubin och CRP samt högt amylas.\nBedöms som pankreatit. Inläggd för vård enligt pankreatit PM.\nSammanfattning av vårdtid 251117 Genomgår ett uttrajdat gallblåsa som visar multipla\nsmå konkrement. Respiratoriskt cirkulatorisk stabil, initial snål\ndiures. Förbättras snabbt, ingen smärta och sjunkande\nprover. Då pankreatit bedöms vara på basen av gallsten\ndiskuteras kolecystektomi. Patienten har bättre och helst\ninte vill operera om det inte absolut behövs beslutas att\navstå operation i nuläget.\n\nKommentar till provsvar Kalium 3,1 (3,0 - 5,2) -> uppföljning via vårdcentral\nJoniserat kalcium 1,38 -> ingen åtgärd i nuläget\n\nASAT 0,96 (1,5. 5,0)\nALAT 2,0 (2,5. 3,2. 4,9)\nALP 2,5 (2,7. 4,9. 6,0)\nBilirubin 36 ( < 20)\nGGT 118 (8-55)\n\nBedömning, åtgärd 251119 strokeski akut pankreatit. Stenavläggande kan\npatienten att få till hemmet. Om återinsjuknar uppmanas\nkolecystektomi diskuteras patientens åtgärder till\nåterinläggning. Patienten möts idag för utskrivningsinformation\nBetr ej åtgärd tills vidare vid vårdavgörande\n\nSammanfattning 251119: Utskriven från inläggning ur pankreatit. Uppföljning via vårdcentral.\nUtrustad med telefonnummer till kirurgmottagningen.\n\nEpikris: Telefonkontakt, Jenny Helleblad, 2025-11-26\nMed vänliga hälsningar\nLisa Gunnarsson, läkare  2025-11-19 12:15\nSahlgrenska Universitetssjukhuset\n\n--- Sida 3 ---\n\nSahlgrenska Universitetssjsh\t19 360326-4825\tSida 2 av 2\nKirurgiadv 132 S\tARVIDSSON, RIGMOR MARGARETA\n\n\t\t\tTJOLMENVÄGEN 25 A\n\t\t\t47550 HALSÖ\n\t\t\t070-5970195 (mobil)\n\ntill\nKorrespondens\tKopia Slutanteckning till Hönö vårdcentral\n\t\tRemiss Till Hönö vårdcentral för uppföljning av kalium.\nAktuell\tEnligt Pascal\nläkemedsordination\tInga ändringar\n\n\n\nUtskrif gjort av: Sandin, Desiree, Sekr 2025-11-19 14:15\nUtskrif begärd av: Spec SSK J.Helleblad/Läk L.Gunnesson och skall till : Hönö vårdcentral för uppföljning",
+  "summary_raw": "89-årig kvinna inlagd för akut biliär pankreatit (2025-11-16 till 2025-11-26) med buksmärtor, kräkningar och stegrade transaminaser samt bilirubin. Ultraljud visade multipla konkrement i gallblåsan. Initialt förhöjt kalium (3,1), vilket kräver uppföljning via vårdcentral.  Patienten har förmaksflimmer, hypertoni, gastrit och depression som tidigare diagnoser. Kolecystektomi avråddes initialt men diskuteras vid återinsjuknande. Utskriven med instruktioner om att kontakta kirurgmottagningen vid behov. Remiss till Floöv Vårdcentral för kaliumuppföljning.",
+  "summary": "89-årig kvinna inlagd för akut biliär pankreatit (2025-11-16 till 2025-11-26) med buksmärtor, kräkningar och stegrade transaminaser samt bilirubin. Ultraljud visade multipla konkrement i gallblåsan. Initialt förhöjt kalium (3,1), vilket kräver uppföljning via vårdcentral.  Patienten har förmaksflimmer, hypertoni, gastrit och depression som tidigare diagnoser. Kolecystektomi avråddes initialt men diskuteras vid återinsjuknande. Utskriven med instruktioner om att kontakta kirurgmottagningen vid behov. Remiss till Floöv Vårdcentral för kaliumuppföljning.",
+  "deanonymization": {
+    "patient_id": null,
+    "detection_hits": 0,
+    "replacements": []
+  },
+  "phi_screen": {
+    "personnummer": 2,
+    "phone": 4,
+    "postal_code": 5
+  },
+  "telemetry": {
+    "model": "gemma3:12b-it-q4_K_M",
+    "wall_seconds": 17.44,
+    "prompt_eval_count": 7709,
+    "eval_count": 180,
+    "num_ctx": 8192,
+    "may_truncate": false
+  },
+  "stages": [
+    {
+      "key": "transcribe",
+      "label": "Transcribing file to text...",
+      "status": "done",
+      "detail": "3 pages (3 via Gemma 3 12B-IT), 3805 characters",
+      "seconds": 74.3
+    },
+    {
+      "key": "anonymize",
+      "label": "Anonymizing content...",
+      "status": "done",
+      "detail": "11 identifier(s) processed",
+      "seconds": 25.8
+    },
+    {
+      "key": "summarize",
+      "label": "Summarizing...",
+      "status": "done",
+      "detail": "180 tokens in 17.44 s",
+      "seconds": 17.4
+    },
+    {
+      "key": "deanonymize",
+      "label": "De-anonymizing...",
+      "status": "done",
+      "detail": "",
+      "seconds": 0.0
+    },
+    {
+      "key": "complete",
+      "label": "Summary complete",
+      "status": "done",
+      "detail": "remiss-från-kir-lågtkalium",
+      "seconds": null
+    }
+  ]
+}

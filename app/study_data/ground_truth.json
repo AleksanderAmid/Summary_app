@@ -1,0 +1,456 @@
+{
+  "patients": [
+    {
+      "patient_id": 1,
+      "source": {
+        "num_documents": 4,
+        "total_words": 507,
+        "total_chars": 3735,
+        "documents": [
+          {
+            "filename": "00_patient_profile.pdf",
+            "doc_type": "patient_profile",
+            "word_count": 66,
+            "char_count": 547
+          },
+          {
+            "filename": "journal_1.pdf",
+            "doc_type": "journal",
+            "word_count": 219,
+            "char_count": 1686
+          },
+          {
+            "filename": "letter_2.docx",
+            "doc_type": "letter",
+            "word_count": 149,
+            "char_count": 896
+          },
+          {
+            "filename": "visit_note_2.pdf",
+            "doc_type": "visit_note",
+            "word_count": 73,
+            "char_count": 606
+          }
+        ]
+      },
+      "summaries": [
+        {
+          "doctor_id": 1,
+          "doctor_name": "Adam",
+          "experience_years": 16,
+          "text": "som läkare\nOrganbaserat:\nHjärta Kärl:\nHypertoni som behandlas med Amlodipin 10mg och Salures 5mg. Pats far hade hjärtinfarkt vid 58 års ålder.  \n\nKronologiskt:\n2026 Okt: Brev pat. Normala provsvar men fortsatt högt BT. Lägger till Salures 5mg 1x1.\n2026 April :  Läkarbesök, uppföljning blodtryck. Doshöjning Amlodipin från 5 till 10mg pga ej optimalt BT.\n2024 Maj: Läkartelefonkontakt, normala prover.",
+          "word_count": 59,
+          "char_count": 401
+        },
+        {
+          "doctor_id": 2,
+          "doctor_name": "Faraidoun",
+          "experience_years": 14,
+          "text": "som läkare\n38 årig kvinna med underbehandlad hypertoni känd ärftlighet för hjärt-och kärlsjukdomar. Ingen relevanta symtom. Normalt el-och lipidstatus men utebliven effekt av dosökning av Amlodipin till 10mg 1x1 och där läggs till en ny blodtrycksmedicin Salures 5mg 1x1. Målblodtryck 135/85.",
+          "word_count": 41,
+          "char_count": 292
+        },
+        {
+          "doctor_id": 3,
+          "doctor_name": "Pontus",
+          "experience_years": 3,
+          "text": "som läkare\n\nTablettbehandlad hypertoni (debut 2023) \nMedicinerar med amlodipin 10mg 1x1 + salures 5 mg 1x1. Behandling fortfarande under utvärdering. \nÄrftlighet för hjärtinfarkt då far hade hjärtinfarkt innan 60 åå.",
+          "word_count": 30,
+          "char_count": 216
+        },
+        {
+          "doctor_id": 4,
+          "doctor_name": "Charlotte",
+          "experience_years": 5,
+          "text": "som läkare\n\n- Medicinska sjukdomar\nEssentiell hypertoni sedan 35 års åldern.\nHeriditet: Far hjärtinfarkt.",
+          "word_count": 14,
+          "char_count": 105
+        },
+        {
+          "doctor_id": 5,
+          "doctor_name": "Armin",
+          "experience_years": 8,
+          "text": "som läkare\n\n38-årig kvinna med essentiell hypertoni sedan 2023, medicinerar med tablett Amlodipine 10 mg och nyligen tillagd Tablett Salures 5 mg. Hereditet för hjärt-kärlsjukdomar, fader med hjärtinfarkt vid 58 års ålder. Vid senast årskontroll inga symptom, senast kontakt stabil blodtryck och provsvar inkluderande lipidstatus, blodstatus, njurstatus samtliga normala. Målblodtryck < 140/90 mmHg.",
+          "word_count": 53,
+          "char_count": 399
+        }
+      ],
+      "num_summaries": 5,
+      "summary_word_counts": [
+        59,
+        41,
+        30,
+        14,
+        53
+      ],
+      "avg_summary_words": 39.4,
+      "compression_ratio_avg": 12.87
+    },
+    {
+      "patient_id": 2,
+      "source": {
+        "num_documents": 6,
+        "total_words": 905,
+        "total_chars": 6881,
+        "documents": [
+          {
+            "filename": "00_patient_profile.pdf",
+            "doc_type": "patient_profile",
+            "word_count": 80,
+            "char_count": 633
+          },
+          {
+            "filename": "journal_1.docx",
+            "doc_type": "journal",
+            "word_count": 226,
+            "char_count": 1706
+          },
+          {
+            "filename": "lab_2.docx",
+            "doc_type": "lab",
+            "word_count": 131,
+            "char_count": 1216
+          },
+          {
+            "filename": "letter_5.docx",
+            "doc_type": "letter",
+            "word_count": 104,
+            "char_count": 659
+          },
+          {
+            "filename": "referral_3.docx",
+            "doc_type": "referral",
+            "word_count": 140,
+            "char_count": 1006
+          },
+          {
+            "filename": "visit_note_2.docx",
+            "doc_type": "visit_note",
+            "word_count": 224,
+            "char_count": 1661
+          }
+        ]
+      },
+      "summaries": [
+        {
+          "doctor_id": 1,
+          "doctor_name": "Adam",
+          "experience_years": 16,
+          "text": "som läkare\n\nOrganbaserat:\nHjärta/Kärl:\nHypertoni – Amlodipin och Losartan. Hereditet för ischemisk hjärtsjukdom. F.d. rökare, 10 års rökning. \nHyperlipedemi: Tar Rosuvastatin 10mg i primärpreventivs syfte. LDL 4.2 (2026).\nAEKG och UCG 2025: LAH block, diskret ST sänkning V2-3. Uppfattas som normalt. Systolisk blåsljud PM I2 dx, med lätt aortaskleros, ingen uppföljning behövs.\nLätt typ 2 diabetes. Står på Metformin 850mg x2. \nObesitas BMI 32 (2025)\nMetabolism:\nTyp 2 diabetes/Nedsatt glukostolerans. Står på Metformin 850mg x2. \nObesitas BMI 32 (2025)\nMage/tarm:\nEsomeprazol 20mg 1x1 pga reflux/dyspepsi. \n\nKronologiskt:\n2026 feb: Läkarbesök, hälsokontroll. Pga Hereditet, hypertoni, LDL 4.2 och typ 2 diabetes sätts Rosuvastatin 10 mg in i primärpreventivt syfte. Även blodtrycket anses dåligt kontrollerat och Losartan 50 1x1 sätts in. Pat ska mäta BT hemma i 2v.  Labb visar gukos 6.2 men oklart om fastande eller ej. \n2025 feb: AEKG och UCG: LAH block, diskret ST sänkning V2-3. Uppfattas som normalt. Systolisk blåsljud PM I2 dx, med lätt aortaskleros, ingen uppföljning behövs.\n2024 okt: Remiss till medicinmottagning pga bröstsmärtor. Önskar AEKG.\n2024 maj: Brev till pat, rekommenderar insättning av Amlodipin 5 mg 1x1 pga högt blodtryck.",
+          "word_count": 184,
+          "char_count": 1249
+        },
+        {
+          "doctor_id": 2,
+          "doctor_name": "Faraidoun",
+          "experience_years": 14,
+          "text": "som läkare\n\n67 årig man med tablettbehandlad hypertoni, hyperlipidemi, och diabetes II. Utöver detta obesitas, förre denna rökare och Känd ärftlighet för hjärt- och kärlsjukdomar.  Nyligen genomför en AEKG som var normalt och UCG med lätt ateroskleros för övrigt normalt.",
+          "word_count": 40,
+          "char_count": 271
+        },
+        {
+          "doctor_id": 3,
+          "doctor_name": "Pontus",
+          "experience_years": 3,
+          "text": "som läkare\nTablettbehandlad hypertoni (debut 2024) \nMedicinerar med Amlodipin 5 mg 1x1 och Losartan 50 mg 1x1. \nTablettbehandlad hyperlipidemi \nRosuvastatin 10 mg (primärprevention). Senaste LDL 4,2 utan behandling. \nTablettbehandlad diabetes \nMetformin \n10 paketår. Viss obesitas med BMI på 32. Oklart avseende hereditet. \n2025 utredd för ansträngningskorrelerade bröstsmärtor på kardiologen. \nUCG: Lätt aortaskleros, inget behov av uppföljning. Övriga klaffar u.a. God EF, normalt PA-tryck. \nArbets-EKG normalt.",
+          "word_count": 65,
+          "char_count": 513
+        },
+        {
+          "doctor_id": 4,
+          "doctor_name": "Charlotte",
+          "experience_years": 5,
+          "text": "som läkare\n\n- Medicinska sjukdomar\nAstma\nAllergi\nHypotyreos\nUtredningar: Rtg pulm augusti 2025: Diskreta fibrotiska förändringar basalt bilateralt, möjligtvis efter tidigare infektion.\n- Kirurgiska sjukdomar\nBröstcancer\n- Psykiatriska sjukdomar\nRecidiverande depression, SSRI\n\n- Medicinska sjukdomar\nEssentiell hypertoni\nGastroesofagal reflux\nDiabetes Melliutus typ 2\nHyperlipidemi\nObesitas, BMI 32\nSystolisk blåsljud PM IC2 dxt.\nUtredningar: Genomgått normalt arbets-ekg och UCG (EF 55-60%, lätt aortaskleros) på universitessjukhuset 2025 pga bröstsmärtor.\n- Sociala förutsättningar\nF.d rökare, 10 pkt år.\nHeriditet: Ischemisk hjärtsjukdom faders sida. Hypertoni mor.",
+          "word_count": 82,
+          "char_count": 668
+        },
+        {
+          "doctor_id": 5,
+          "doctor_name": "Armin",
+          "experience_years": 8,
+          "text": "som läkare\n67-årig man med DMII och hypertoni (sedan 2024) tablettbehandlad. Även besvär med gastroesofageal reflux. Obesitas BMI 32 Tablettbehandlad med Losartan 50mg 1x1, Amlodipin 5 mg 1x1, Esomeprazole 20 mg 1x1, Metformin 850 mg 1x2, Rosuvastatin 10 mg 1x1. Pappa och bror med ischemisk hjärtsjukdom, mamma med hypertoni, själv rökare sedan 10 år. Senast årskontroll sämre blodtryckskontroll och LDL ej optimala varför Losartan och Rosuvastatin satts in. På grund av anginösa symptom har utfört arbets-EKG hos specialist inom internmedicin som visade sig vara normal. Även gjort UCG som visade sig vara väsentligen normal med lätt aortaskleros.",
+          "word_count": 97,
+          "char_count": 649
+        }
+      ],
+      "num_summaries": 5,
+      "summary_word_counts": [
+        184,
+        40,
+        65,
+        82,
+        97
+      ],
+      "avg_summary_words": 93.6,
+      "compression_ratio_avg": 9.67
+    },
+    {
+      "patient_id": 3,
+      "source": {
+        "num_documents": 7,
+        "total_words": 1270,
+        "total_chars": 9517,
+        "documents": [
+          {
+            "filename": "00_patient_profile.pdf",
+            "doc_type": "patient_profile",
+            "word_count": 83,
+            "char_count": 658
+          },
+          {
+            "filename": "journal_1.docx",
+            "doc_type": "journal",
+            "word_count": 619,
+            "char_count": 4434
+          },
+          {
+            "filename": "lab_2.docx",
+            "doc_type": "lab",
+            "word_count": 122,
+            "char_count": 1139
+          },
+          {
+            "filename": "lab_7.pdf",
+            "doc_type": "lab",
+            "word_count": 134,
+            "char_count": 1032
+          },
+          {
+            "filename": "letter_5.docx",
+            "doc_type": "letter",
+            "word_count": 121,
+            "char_count": 736
+          },
+          {
+            "filename": "referral_3.docx",
+            "doc_type": "referral",
+            "word_count": 91,
+            "char_count": 649
+          },
+          {
+            "filename": "referral_reply_4.docx",
+            "doc_type": "referral_reply",
+            "word_count": 100,
+            "char_count": 869
+          }
+        ]
+      },
+      "summaries": [
+        {
+          "doctor_id": 1,
+          "doctor_name": "Adam",
+          "experience_years": 16,
+          "text": "som läkare\nOrganbaserat:\nMetabolism:\nLevxinbehandlad hypotyreos. Dos 75 ug 1x1. \nPsyk:\nSertralin för stämningsläge har 50mg Sertalin nu. Uppehåll med Sertralin ett par år men pga recidiv återinsattes denna 2024. \nLungor:\nAstma sedan barndomen, blev värre 2025 och fick då Bufomix. Rtg pulm 2025 normal frånsett mindre ospecifika restförändringar basalt bilateralt. \nAllergi:\nAllergibesvär på våren, bättre sista åren\nNjurar:\nStegrat kreatinin 149 (2025)\nRörelseapparat:\nTrokanteritbesvär, sjukgymnastik (2024)\n\nKronologiskt:\n2026 jan: Brev till pat ang högt kreatinin.  Rek ny provtagning. \n2025 dec: Labb visar kreatinin på 149. Senaste krea dec 2024 var enbart 94. \n2025 juni/aug: Läkarbesök pga dyspne. Misstanke om astmaförvärring och får testa Bufomix. Även rtg pulm beställs som var normal. \n2024 dec: Telefonkontakt läkare ang uppföljning Sertralin. Mår klart bättre.\n2024 nov: Telefonkontakt läkare. Pat uppger yrsel troligen av Sertralin. Etablerat kontakt med sjukgymnast ang trokanterit. \n2024 sep: Läkarbesök pga trötthet och nedstämdhet som bedöms som depression, Sertralin återinsätts. Även trokanteritbesvär, rek. Sjukgymnastik.  Sjukskrives 50% i 2v. Remiss psykolog. \n2005 feb: Röntgen pulm, troligen normal, svar föreligger ej.",
+          "word_count": 170,
+          "char_count": 1245
+        },
+        {
+          "doctor_id": 2,
+          "doctor_name": "Faraidoun",
+          "experience_years": 14,
+          "text": "som läkare\n74 årig kvinna med levaxin substituerad hypotyreos, inhalation behandlad astma och tidigare bröstcancer. Har haft perioder med nedstämdhet och dålig complaince till SSRI. Numera står på Sertralin 50 mg och remitterad till psykologen. Är under uppföljning för avvikande njurvärde.",
+          "word_count": 41,
+          "char_count": 290
+        },
+        {
+          "doctor_id": 3,
+          "doctor_name": "Pontus",
+          "experience_years": 3,
+          "text": "som läkare\nDepression (debut 2024)\nMedicinerar med Sertralin 50 mg. God effekt och uppfattas va i remission men kvarstår på behandling.\nTidigare episod 2021 som framgångsrikt behandlades med Sertralin.\nLevaxinsubstituerad hypotyreos (okänd debut)\nOkänd dosering Levaxin och senaste värde på TSH.\nAstma (debut barndom)\nSäsongsbunden sedan barndomen, Buventol vb. Nyligen insatt Bufomix 160/4,5 ug 1-2 inhalationer/dag. Under utvärdering.\nSenaste lungröntgen gjorde aug-2025 visat väsentligen normala förhållanden.\nOkänt när senaste spirometri gjordes.\nNjursvikt  (dec-2025)\nProvtagning dec-2025 uppdagats krea på 149 (jämfört 94 ett år tidigare). Under utredning.\nTrokanterbursit (2024)\nHöftsmärta bilateralt. Behandlats konservativt med sjukgymnastik.",
+          "word_count": 94,
+          "char_count": 751
+        },
+        {
+          "doctor_id": 4,
+          "doctor_name": "Charlotte",
+          "experience_years": 5,
+          "text": "som läkare\n\n- Medicinska sjukdomar\nAstma\nAllergi\nHypotyreos\nUtredningar: Rtg pulm augusti 2025: Diskreta fibrotiska förändringar basalt bilateralt, möjligtvis efter tidigare infektion.\n- Kirurgiska sjukdomar\nBröstcancer\n- Psykiatriska sjukdomar\nRecidiverande depression, SSRI",
+          "word_count": 32,
+          "char_count": 275
+        },
+        {
+          "doctor_id": 5,
+          "doctor_name": "Armin",
+          "experience_years": 8,
+          "text": "som läkare\n74 årig kvinna med depression (tablettbehandlad), astma, bröstcancer och hypotyreos. Medicinerar med Sertralin 50 mg 1x1, Salbutamol 100 1-2 vb och Levotyroxin 75 mikrogram 1x1. Nyligen insatt på Bufomix 160 1 inh 1-2 per dag. Normal röntgen lungor 2025-08-07. Nyligen besvär med dyspne vid ansträngning utan bröstsmärtor varför misstanke kring astmaförsämring och insatt på Bufomix. Depression som behandlas med Sertralin med god effekt. Tidigare depression 2021. PHQ utfört visar 17 p, indikerar medelsvår till svår depression. Senaste psykiska status inga suicidtankar eller dödsönskemål. Trochanteritbesvär som behandlas via sjukgymnast",
+          "word_count": 90,
+          "char_count": 651
+        }
+      ],
+      "num_summaries": 5,
+      "summary_word_counts": [
+        170,
+        41,
+        94,
+        32,
+        90
+      ],
+      "avg_summary_words": 85.4,
+      "compression_ratio_avg": 14.87
+    },
+    {
+      "patient_id": 4,
+      "source": {
+        "num_documents": 1,
+        "total_words": 1436,
+        "total_chars": 10140,
+        "documents": [
+          {
+            "filename": "Patient4 - journaltext.docx",
+            "doc_type": "journal",
+            "word_count": 1436,
+            "char_count": 10140
+          }
+        ]
+      },
+      "summaries": [
+        {
+          "doctor_id": 1,
+          "doctor_name": "Adam",
+          "experience_years": 16,
+          "text": "som läkare\nOrganbaserat:\nMage/tarm:\nFörstoppningsproblematik som behandlas med Movicol och Klyx vb. Selektivt ätande. \nRörelseapparaten: \nRecidiverande piggluxationer, som dock borde försvinna med tiden enligt ortoped. \n\nKronologiskt:\n2019 mars:  Provtagning\n2019 feb: Läkarbesök pga magproblem. Selektivt ätande, mor orolig men ligger bra i tillväxtkurvan. Prover beställs. \n2019 jan: Kontakt via 1177, äter dålig. Bokar läkartid.\n2018 juli: BVC besök. 5 årskontroll. Väsentligen normal kontroll. Haft besvär med återkommande armbågsluxationer men det ska försvinna med tiden enl Överläkare Petterson. Vaccineras med TetraVac.\n2017 dec: Läkarbesök spår efter posttraumatisk bula på pannan sedan 4v. Lugnande besked. \n2017 sep: Flera ssk kontakter ang förstoppning och kräkningar. Info om att man också sökt akutmottagningen och man konstaterat förstoppning där. Bokas till läkare. På läkarbesök ordineras Movicol 1x2 samt Klyx vb. \n2017 juli: BVC 4 års kontroll. Välmående. Man ska kontrollera om synen nästa år igen. \n2016 sep: Remissvar om att recidiverande pigluxationer försvinner med tiden och att ingen behandling behövs. \n2016 aug: BVC besök med läkare. Piggluxationer har skett 4 gånger på 2 år både höger och vänster. Remiss till barnortoped ang detta. Annars normal kontroll.",
+          "word_count": 181,
+          "char_count": 1286
+        },
+        {
+          "doctor_id": 2,
+          "doctor_name": "Faraidoun",
+          "experience_years": 14,
+          "text": "som läkare\n5,5 årig pojke boende med mamma och pappa, ha en äldre syster. Haft återkommande problem med armbågsluxation som bedömdes av ortopeden som vanligt för hans ålder och haft behandling mot förstoppning. För övrigt socialt med många kompisar och fritidsaktivitet.  Söker för att föräldrarna tycker att pojken är selektiv i matätandet och är oroliga för tillväxten även så pojken följer sina tillväxtkurvor hyfsad bra.",
+          "word_count": 65,
+          "char_count": 424
+        },
+        {
+          "doctor_id": 3,
+          "doctor_name": "Pontus",
+          "experience_years": 3,
+          "text": "som läkare\nUtveckling: Normal utveckling på 3, 4 och 5-årsbesök. Ligger bra till i tillväxtkurva.\nÅterkommande pigluxationer. Specialist konsulterad men inte motiverat med utredning/behandling i nuläget, bedöms växa bort.\nFörstoppningsproblematik, debut 4 års ålder. Behandlat med Klyx och Movicol.\nSelektivt ätande, sökt för vid 5,5 års ålder. Under utredning där man inväntar provsvar.\nFöljer svenskt vaccinationsprogram.",
+          "word_count": 56,
+          "char_count": 423
+        },
+        {
+          "doctor_id": 4,
+          "doctor_name": "Charlotte",
+          "experience_years": 5,
+          "text": "som läkare\n\n- Medicinska sjukdomar\nUtredningar Pågående utredning av dåligt kostintag och hematom\n\n- kirurgiska sjukdomar\nPiglux x flera som barn\nFörstoppningsproblematik 2017 - Movikol + kostförändring\nUtredningar\n\n- Psykiatriska sjukdomar\n\n\n- Sociala förutsättningar\nBor med båda föräldrar och storasyster\nGår i förskola\nHeriditet",
+          "word_count": 44,
+          "char_count": 332
+        },
+        {
+          "doctor_id": 5,
+          "doctor_name": "Armin",
+          "experience_years": 8,
+          "text": "som läkare\nEn 6-årig pojke med normal tillväxt, har tidigare förstoppningsproblem behandlats med Movicol och koständringar. Bra psykosociala förhållanden. Bor med mamma, pappa. Aktiv kille, deltar i bandy och fotboll. Sökt senast för matselektivitet. Kräsen med mat. Vikt 20kg längd 111,5cm. Tillväxt bra trots matselektivitet. Haft besvär med återkommande armbågsluxationer, ortoped bedömt det som vanligt i åldern och att det försvinner med tiden. Haft en gång trauma mot huvud, med bula som bedömts som övergående. Som mindre haft besvär med förstoppning som behandlats med Klyx bl.a vid akutare period. Behandlats med Movicol regelbundet.",
+          "word_count": 93,
+          "char_count": 642
+        }
+      ],
+      "num_summaries": 5,
+      "summary_word_counts": [
+        181,
+        65,
+        56,
+        44,
+        93
+      ],
+      "avg_summary_words": 87.8,
+      "compression_ratio_avg": 16.36
+    },
+    {
+      "patient_id": 5,
+      "source": {
+        "num_documents": 4,
+        "total_words": 1213,
+        "total_chars": 8442,
+        "documents": [
+          {
+            "filename": "pat5 journal_.docx",
+            "doc_type": "journal",
+            "word_count": 690,
+            "char_count": 4798
+          },
+          {
+            "filename": "pat5 lab_.docx",
+            "doc_type": "lab",
+            "word_count": 232,
+            "char_count": 1678
+          },
+          {
+            "filename": "pat5 letter_.docx",
+            "doc_type": "letter",
+            "word_count": 101,
+            "char_count": 619
+          },
+          {
+            "filename": "pat5 referral_reply.docx",
+            "doc_type": "referral_reply",
+            "word_count": 190,
+            "char_count": 1347
+          }
+        ]
+      },
+      "summaries": [
+        {
+          "doctor_id": 1,
+          "doctor_name": "Adam",
+          "experience_years": 16,
+          "text": "som läkare\nOrganbaserat:\nRörelseapparat:\nKostbandsopererad höger knäled vid 21 års ålder.  \nMetabolism:\n Möjligt nedsatt glukostolerans (fasteglukos 6,0, 2025)\nLungor: \nAstma, tar ICS. Möjlig exacerbation feb 2026.\nPsyk: \nRecidiverande depression, Sertralin 50mg 1x1, försökt till autoseponering 2025 pga  viktökning, men recidiv i form av irritabilitet varför den återinsattes, \nÖron: \nIrriterade hörselgångar 2024 som terracortrilbehandlades. \nMage/tarm: \nGastroskopi 2022 som visar lätt gastrit, fick Omeprazol i 6v med nedtrappande dos. \nNeurologi:\nEpilepsi utan anfall på många år. Lamotriginbehandlas (100mgx2 2024)\nKronologiskt:\n2026 feb: Söker läkare för hosta/feber och dyspne. Tolkas som astmaexacerbation, får råd om att dubbla ICS. \n2025 juli/aug: Telefonkontakt med läkare och sjuksköterska. Pat autoseponerade Sertralin för 3-4 mnd sedan pga viktuppgång, men fick recidiv i form av irritabilitet. Sertralin återinsätts.\n2025 jan: Telefonkontakt läkare ang milda magbesvär. Blodprover normala frånsett gränshögt fasteglukos på 6. \n2024 juni: Läkarbesök, årlig hälsokontroll. Vadkramp nattetid. Terracortril för klåda i öronen. Kontroll av Astma, depression och epilepsi utan förändring av behandling. \n2023 sep: Läkarbesök pga smärta i vänster knäled i 2 veckor. Rek. Sjukgymnastik. \n2022 aug: Gastroskopi pga intermittenta buksmärtor i epigastriet efter måltid/stress. Reflux. Man hittar lätt gastrit, neg. CLO test. Omeprazol 40mg i 2v, sedan 20mg i 2v sedan 10mg i 2v.",
+          "word_count": 199,
+          "char_count": 1484
+        },
+        {
+          "doctor_id": 2,
+          "doctor_name": "Faraidoun",
+          "experience_years": 14,
+          "text": "som läkare\n61 årig man som har familj och barn och jobbar som hantverkare. Står på Lamotrigin 100mg mot EP som varit anfallfri i många år, utöver denna behandling med inhalationer och Montelukast mot astma och SSRI behandling mot recidiverande depressioner. Följsamhet mot SSRI har varit svajigt pga. biverkning viktuppgång annars har funkat bra. Med avseende på Montelukast psykiska biverkning och patienten psykiska ohälsa, rekommenderas inte till patienten.",
+          "word_count": 68,
+          "char_count": 460
+        },
+        {
+          "doctor_id": 3,
+          "doctor_name": "Pontus",
+          "experience_years": 3,
+          "text": "som läkare\nSjukdomar\nEpilepsi – Står på Lamotrigin 100 mg x2. Välbehandlad, anfallsfri under många år.\nAstma – Behandlas med Giona och Montelukast stående samt Buventol vid behov. Försämring vid luftvägsinfektioner.\nDepression (okänd debut) – Behandlas med Sertralin. God effekt, vid försök till utsättning återfått symtom. Biverkan i form av viktuppgång.\nGastrit (2022). Diagnostiserad vid gastroskop. H.pylori-negativ. Behandlad med Omeprazol i nedtrappning.\nKorsbandsruptur (21 års ålder) höger knä – Åtgärdad kirurgiskt.\nUndersökningar\nGastroskopi 2022 – Tecken på mild refluxorsakad irritation i över esofagus. Mindre diafragmabråck.\nSocialt\nArbetar som hantverkare. Gift och har barn.",
+          "word_count": 93,
+          "char_count": 690
+        },
+        {
+          "doctor_id": 4,
+          "doctor_name": "Charlotte",
+          "experience_years": 5,
+          "text": "som läkare\n\n- Medicinska sjukdomar\nAstma. Exacerbation 2026 februari. Montelukast.\nEpilepsi - välbehandlad med Lamotrigin. Inga anfall på flera år.\nGastrit\nDiafragmabråck\nUtredningar: Gastroskopi 2022  Solbackens sjukhus pga buksmärtor - diafragmabråck\n- Kirurgiska sjukdomar\nKosbandsopererad höger knä vid 21 års ålder\n- Psykiatriska sjukdomar\nRecidiverande depression, Pausades pga viktuppgång 2025 men återinsattes pga försämrat mående.\n- Sociala förutsättningar\nArbetar som hantverkare",
+          "word_count": 61,
+          "char_count": 489
+        },
+        {
+          "doctor_id": 5,
+          "doctor_name": "Armin",
+          "experience_years": 8,
+          "text": "som läkare\n61 årig man EP utan anfall på flera år, står på Lamotrigine 100 mg 1x2 Astma som varit stabil, nyligen en exacerbation Dubblad ICS dos. Montelukast och Giona regelbundet. Depression, behandlas med Sertralin 50 mg 1x1, en episod avslutat på eget bevåg, då blivit sämre i mående och lättirriterad samt skrikit åt frun, varför återinsatts på Sertralin. Arbetar som hantverkare. Haft överbelastningstillstånd i knät efter fotbollsspel, bedömts som inget allvarligt. Prover tagna för magbesvär utan anmärkning Gjort gastroskopi som visade gastrit, H.pylori negativ. Insatt på dubbeldos PPI Omeprazole 40 mg 2x1 i två veckor som sedan nedtrappats",
+          "word_count": 99,
+          "char_count": 651
+        }
+      ],
+      "num_summaries": 5,
+      "summary_word_counts": [
+        199,
+        68,
+        93,
+        61,
+        99
+      ],
+      "avg_summary_words": 104.0,
+      "compression_ratio_avg": 11.66
+    }
+  ],
+  "totals": {
+    "num_patients": 5,
+    "num_source_documents": 22,
+    "total_source_words": 5331,
+    "total_source_chars": 38715,
+    "num_ground_truth_summaries": 25,
+    "avg_summary_words_overall": 82.0,
+    "min_summary_words": 14,
+    "max_summary_words": 199
+  }
+}

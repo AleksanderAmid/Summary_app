@@ -1,0 +1,77 @@
+{
+  "id": "02cebdf88b28",
+  "name": "journal_1",
+  "created_at": 1781273006.279658,
+  "input": {
+    "type": "file",
+    "filename": "journal_1.pdf",
+    "method": "pdf",
+    "pages": [
+      {
+        "page_num": 1,
+        "method": "native",
+        "chars": 1686
+      }
+    ],
+    "chars": 1702,
+    "words": 223
+  },
+  "source_text": "--- Sida 1 ---\n\nPatient 1 - 306 (S) — journal\nSyntetisk patientdata | 38 år F | Diagnoser: Essentiell hypertoni, Trötthet\nJournalsida 1 av 1\nJournal\nSödermalms Husläkarmottagning\nPatienttyp: Vårdavtal-\n19880910-0269\nJönsson, Julia\nTrädgårdsgatan 27, 90656 Umeå\nTelefon: 075-897 40 37\n2026-04-26 15:15 Besök läkare, Eva Holmgren, Spec allmänmedicin\nKontaktorsak: Essentiell hypertoni\nSökorsak\nHon söker för uppföljning av blodtryck. Senaste mätningen visade förhöjda värden.\nAnamnes\n38-årig kvinna med känd hypertoni sedan 3 år. Medicinerar med Amlodipin sedan tidigare.\nInga subjektiva besvär idag. Inga bröstsmärtor, dyspné eller synrubbningar. Hereditet\nför hjärt-kärlsjukdom (fadern hade hjärtinfarkt vid 58 års ålder).\nStatus\nAT: Gott. Opåverkad.\nBT: 148/90 mmHg (sittande, hö arm). Kontroll: 140/86 mmHg.\nPuls: 68/min, regelbunden.\nHjärta: Rena toner, inga blåsljud.\nLungor: Vesikulärt andningsljud bilateralt. Inga rassel.\nPerifera pulsar: Palpabla bilateralt.\nInga ödem.\nBedömning\nOtillräckligt kontrollerad hypertoni (BT 148/90). Målblodtryck < 140/90 mmHg ej uppnått.\nÖverväger dosjustering alternativt tillägg av ytterligare antihypertensivum.\nDiagnos: I10 Essentiell hypertoni\nBidiagnoser: R53.9 Trötthet\nÅtgärd\nLägger till amlodipin 5 mg → 10 mg.\nKost- och motionsråd givna. Rekommenderar daglig promenad 30 min.\nHemblodtrycksmätning x2 dagligen i 2 veckor.\nLab: Kreatinin, K+, Na+, lipidstatus om ej taget senaste 12 mån.\nAktuella läkemedel:\nAmlodipin 5 mg 1x1\nUppföljning: Återbesök om 4 veckor för blodtryckskontroll.\nSignerat: Eva Holmgren, leg. läkare\nSödermalms Husläkarmottagning\nSYNTETISK PATIENTDATA (ej riktig patient) — För läkargranskning/sammanfattning — Examensarbete Chalmers",
+  "summary_raw": "38-årig kvinna med känd essentiell hypertoni sedan tre år, medicinerar med Amlodipin. Söker för uppföljning av blodtryck som visat förhöjda värden vid senaste mätningen. Hereditet för hjärt-kärlsjukdom (fader hade hjärtinfarkt vid 58 års ålder). Status visar BT 148/90 mmHg, målblodtryck < 140/90 ej uppnått. Diagnos: Essentiell hypertoni och trötthet. Åtgärd: Dosökning Amlodipin från 5 mg till 10 mg. Kost- och motionsråd givna samt rekommendation om daglig promenad. Hemblodtrycksmätning i två veckor. Labprover beställda (Kreatinin, K+, Na+, lipidstatus). Uppföljning om fyra veckor för blodtryckskontroll.",
+  "summary": "38-årig kvinna med känd essentiell hypertoni sedan tre år, medicinerar med Amlodipin. Söker för uppföljning av blodtryck som visat förhöjda värden vid senaste mätningen. Hereditet för hjärt-kärlsjukdom (fader hade hjärtinfarkt vid 58 års ålder). Status visar BT 148/90 mmHg, målblodtryck < 140/90 ej uppnått. Diagnos: Essentiell hypertoni och trötthet. Åtgärd: Dosökning Amlodipin från 5 mg till 10 mg. Kost- och motionsråd givna samt rekommendation om daglig promenad. Hemblodtrycksmätning i två veckor. Labprover beställda (Kreatinin, K+, Na+, lipidstatus). Uppföljning om fyra veckor för blodtryckskontroll.",
+  "deanonymization": {
+    "patient_id": null,
+    "detection_hits": 0,
+    "replacements": []
+  },
+  "phi_screen": {
+    "personnummer": 1,
+    "phone": 1,
+    "postal_code": 2
+  },
+  "telemetry": {
+    "model": "gemma3:12b-it-q4_K_M",
+    "wall_seconds": 8.53,
+    "prompt_eval_count": 6853,
+    "eval_count": 215,
+    "num_ctx": 8192,
+    "may_truncate": false
+  },
+  "stages": [
+    {
+      "key": "transcribe",
+      "label": "Transcribing file to text...",
+      "status": "done",
+      "detail": "1 pages (0 via Gemma 3 12B-IT), 1702 characters",
+      "seconds": 0.1
+    },
+    {
+      "key": "anonymize",
+      "label": "Anonymizing content...",
+      "status": "done",
+      "detail": "4 identifier(s) processed",
+      "seconds": 22.5
+    },
+    {
+      "key": "summarize",
+      "label": "Summarizing...",
+      "status": "done",
+      "detail": "215 tokens in 8.53 s",
+      "seconds": 8.5
+    },
+    {
+      "key": "deanonymize",
+      "label": "De-anonymizing...",
+      "status": "done",
+      "detail": "",
+      "seconds": 0.0
+    },
+    {
+      "key": "complete",
+      "label": "Summary complete",
+      "status": "done",
+      "detail": "journal_1",
+      "seconds": null
+    }
+  ]
+}

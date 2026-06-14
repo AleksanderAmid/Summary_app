@@ -1,0 +1,138 @@
+{
+  "Hönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Minkebergsvägen 3A": {
+    "fake": "Aspgränd 84",
+    "type": "ADDRESS"
+  },
+  "475 40": {
+    "fake": "88241",
+    "type": "POSTAL_CODE"
+  },
+  "Hönö": {
+    "fake": "Eskilstuna",
+    "type": "LOC"
+  },
+  "031-7127660": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "031-7127689": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Adam Goldberg": {
+    "fake": "Noah Larsson",
+    "type": "PER"
+  },
+  "19750117-5199": {
+    "fake": "19750428-6670",
+    "type": "PERSONNUMMER"
+  },
+  "Östman": {
+    "fake": "Sundström",
+    "type": "PER"
+  },
+  "RANGELVÄGEN 3 A": {
+    "fake": "Idrottsvägen 465",
+    "type": "ADDRESS"
+  },
+  "47535": {
+    "fake": "24947",
+    "type": "POSTAL_CODE"
+  },
+  "GRÖTÖ": {
+    "fake": "Uppsala",
+    "type": "LOC"
+  },
+  "+46727394676": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Adam Goldberg Hönö Vårdcentral": {
+    "fake": "Sebastian Torbjörn Andrew Lindahl",
+    "type": "PER"
+  },
+  "AG": {
+    "fake": "XL",
+    "type": "INITIALS"
+  },
+  "Blank": {
+    "fake": "Skoglund",
+    "type": "PER"
+  },
+  "Kungälvs": {
+    "fake": "Sandviken",
+    "type": "LOC"
+  },
+  "Adam Goldberg Hön  \n\nAdress": {
+    "fake": "Hugo Anders Roy Gustafsson",
+    "type": "PER"
+  },
+  "Nr\nHönö Vårdcentral": {
+    "fake": "Björkens Vårdcentral",
+    "type": "ORG"
+  },
+  "info@honovardcentral.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "556451-5764": {
+    "fake": "[org nr borttagen]",
+    "type": "ORG_NUMBER"
+  },
+  "www.honovardcentral.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "Pernilla Hermansson Hönö Vårdcentral": {
+    "fake": "Birgitta Helena Kristina Eklund",
+    "type": "PER"
+  },
+  "Pernilla Hermansson": {
+    "fake": "Sofia Johansson",
+    "type": "PER"
+  },
+  "PH": {
+    "fake": "CG",
+    "type": "INITIALS"
+  },
+  "Höön": {
+    "fake": "Umeå",
+    "type": "LOC"
+  },
+  "Shams Hönö Vårdcentral": {
+    "fake": "Solbackens Vårdcentral",
+    "type": "ORG"
+  },
+  "Haseb Shams": {
+    "fake": "Kristina Juhlin",
+    "type": "PER"
+  },
+  "HS": {
+    "fake": "ÅW",
+    "type": "INITIALS"
+  },
+  "Frisk": {
+    "fake": "Lundberg",
+    "type": "PER"
+  },
+  "Elisabeth Helgesson Hönö Vårdcentral": {
+    "fake": "Marianne Marianne Jessica Carlsson",
+    "type": "PER"
+  },
+  "Hönö Vårdcentral with": {
+    "fake": "Björkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Elisabeth Helgesson": {
+    "fake": "Marianne Axelsson",
+    "type": "PER"
+  },
+  "EH": {
+    "fake": "DO",
+    "type": "INITIALS"
+  }
+}

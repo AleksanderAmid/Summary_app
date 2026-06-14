@@ -18,7 +18,11 @@ import time
 import traceback
 from pathlib import Path
 
-from . import anonymization, deanonymization, history, summarization, transcription
+import anonymization
+import deanonymization
+import history
+import summarization
+import transcription
 
 APP_ROOT = Path(__file__).resolve().parent.parent
 UPLOAD_DIR = APP_ROOT / "data" / "uploads"

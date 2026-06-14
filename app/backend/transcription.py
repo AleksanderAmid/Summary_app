@@ -18,16 +18,26 @@ scanned pages go through the vision model exactly as in the study.
 from __future__ import annotations
 
 import base64
-import io
 import json
 import re
 import time
+import zipfile
 from pathlib import Path
 from typing import Callable
+from xml.etree import ElementTree
 
-import requests
+import ollama_client
 
-OLLAMA_HOST = "http://localhost:11434"
+# PyMuPDF is the app's only third-party dependency, needed for PDF rendering
+# and text-layer extraction. Everything else works without it, so the import
+# is optional and PDF jobs get a clear error message instead.
+try:
+    import fitz  # PyMuPDF
+except ImportError:
+    fitz = None
+
+PDF_SUPPORT_HINT = ("PDF support requires the PyMuPDF package — run: "
+                    "python -m pip install pymupdf — then restart the app.")
 # Gemma 3 12B-IT is multimodal, so the same model handles transcription and
 # summarization (no model swap between stages). NOTE: this deviates from the
 # study, whose Phase-1 corpus was transcribed with Qwen3-VL-8B (chosen over
@@ -168,9 +178,8 @@ def transcribe_image_bytes(png_bytes: bytes, model: str = VISION_MODEL) -> str:
         }
         if "qwen" in model.lower():
             payload["think"] = False
-        r = requests.post(f"{OLLAMA_HOST}/api/generate", json=payload, timeout=600)
-        r.raise_for_status()
-        content = r.json().get("response", "")
+        content = ollama_client.post_json("/api/generate", payload,
+                                          timeout=600).get("response", "")
         content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
         content = sanitize_thinking_contamination(content)
         if (len(content) >= MIN_ACCEPTABLE_CHARS
@@ -186,7 +195,6 @@ def transcribe_image_bytes(png_bytes: bytes, model: str = VISION_MODEL) -> str:
 
 def _page_to_png(page, dpi: int = RENDER_DPI) -> bytes:
     """Render a PyMuPDF page to PNG bytes at the study's DPI."""
-    import fitz
     zoom = dpi / 72
     pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom))
     return pix.tobytes("png")
@@ -197,7 +205,8 @@ def _page_to_png(page, dpi: int = RENDER_DPI) -> bytes:
 # ------------------------------------------------------------------
 
 def transcribe_pdf(path: Path, progress: ProgressCb) -> dict:
-    import fitz
+    if fitz is None:
+        raise RuntimeError(PDF_SUPPORT_HINT)
     doc = fitz.open(str(path))
     n = len(doc)
     pages = []
@@ -225,30 +234,33 @@ def transcribe_pdf(path: Path, progress: ProgressCb) -> dict:
     }
 
 
+_DOCX_NS = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+
+
 def transcribe_docx(path: Path) -> dict:
-    from docx import Document
-    doc = Document(str(path))
-    paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
-    for table in doc.tables:
-        for row in table.rows:
-            row_text = " | ".join(c.text.strip() for c in row.cells if c.text.strip())
-            if row_text:
-                paragraphs.append(row_text)
-    text = "\n".join(paragraphs)
-    return {"full_text": text, "pages": [], "seconds": 0.0, "method": "docx"}
+    """Extract DOCX text with the standard library (zip + XML).
+
+    A .docx is a zip whose word/document.xml holds every paragraph as a
+    <w:p> with the text in <w:t> runs; iterating in document order also
+    covers table-cell paragraphs.
+    """
+    with zipfile.ZipFile(str(path)) as z:
+        xml = z.read("word/document.xml")
+    root = ElementTree.fromstring(xml)
+    paragraphs = []
+    for p in root.iter(f"{_DOCX_NS}p"):
+        text = "".join(t.text or "" for t in p.iter(f"{_DOCX_NS}t"))
+        if text.strip():
+            paragraphs.append(text)
+    return {"full_text": "\n".join(paragraphs), "pages": [], "seconds": 0.0,
+            "method": "docx"}
 
 
 def transcribe_image_file(path: Path, progress: ProgressCb) -> dict:
     progress(f"Running {VISION_MODEL_LABEL} on the image (~1–2 min)")
     t0 = time.perf_counter()
+    # Ollama accepts PNG and JPEG base64 payloads directly — no conversion.
     data = path.read_bytes()
-    if path.suffix.lower() not in (".png",):
-        # normalise to PNG for the Ollama payload
-        from PIL import Image
-        img = Image.open(io.BytesIO(data)).convert("RGB")
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-        data = buf.getvalue()
     text = transcribe_image_bytes(data)
     return {"full_text": text,
             "pages": [{"page_num": 1, "method": "vision_model", "chars": len(text)}],
@@ -305,10 +317,8 @@ def transcribe_file(path: Path, progress: ProgressCb) -> dict:
 
 
 def vision_model_available() -> bool:
-    try:
-        r = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=3)
-        r.raise_for_status()
-        tags = [m.get("name", "") for m in r.json().get("models", [])]
-        return VISION_MODEL in tags
-    except Exception:
-        return False
+    return VISION_MODEL in ollama_client.list_model_tags()
+
+
+def pdf_support_available() -> bool:
+    return fitz is not None

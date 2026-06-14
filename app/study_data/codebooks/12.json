@@ -1,0 +1,38 @@
+{
+  "19 410524-4139": {
+    "fake": "19410910-8136",
+    "type": "PERSONNUMMER"
+  },
+  "Johansson": {
+    "fake": "Andersson",
+    "type": "PER"
+  },
+  "Sverige": {
+    "fake": "Gävle",
+    "type": "LOC"
+  },
+  "Staden": {
+    "fake": "Norrköping",
+    "type": "LOC"
+  },
+  "Capiro sjukhus": {
+    "fake": "Helsingborg",
+    "type": "LOC"
+  },
+  "125 45": {
+    "fake": "13924",
+    "type": "POSTAL_CODE"
+  },
+  "Stadeng": {
+    "fake": "Ängelholm",
+    "type": "LOC"
+  },
+  "Gatan 12": {
+    "fake": "Trädgårdsvägen 538",
+    "type": "ADDRESS"
+  },
+  "www.capiro.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  }
+}

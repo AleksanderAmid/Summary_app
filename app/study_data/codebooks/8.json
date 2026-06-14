@@ -1,0 +1,234 @@
+{
+  "Hönö Vårdcentral": {
+    "fake": "Ängens Vårdcentral",
+    "type": "ORG"
+  },
+  "Minkebergsvägen 3A": {
+    "fake": "Strandvägen 60",
+    "type": "ADDRESS"
+  },
+  "475 40": {
+    "fake": "68350",
+    "type": "POSTAL_CODE"
+  },
+  "Hönö": {
+    "fake": "Göteborg",
+    "type": "LOC"
+  },
+  "031-7127660": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "031-7127689": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Adam Goldberg": {
+    "fake": "Mikael Lund",
+    "type": "PER"
+  },
+  "19920309-2441": {
+    "fake": "19920202-5905",
+    "type": "PERSONNUMMER"
+  },
+  "Lönn": {
+    "fake": "Eriksson",
+    "type": "PER"
+  },
+  "HÄSTENVÄGEN 20": {
+    "fake": "Skogsgatan 89",
+    "type": "ADDRESS"
+  },
+  "47542": {
+    "fake": "52104",
+    "type": "POSTAL_CODE"
+  },
+  "HÖNÖ": {
+    "fake": "Motala",
+    "type": "LOC"
+  },
+  "+46738496240": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "rebecka.lonn@live.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "Adam Goldberg Hönö Vårdcentral": {
+    "fake": "Lennart Sten Åke Hassan",
+    "type": "PER"
+  },
+  "AG": {
+    "fake": "FT",
+    "type": "INITIALS"
+  },
+  "Hönö Lab Hönö Vårdcentral": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "info@honovardcentral.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "www.honovardcentral.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "556451-5764": {
+    "fake": "[org nr borttagen]",
+    "type": "ORG_NUMBER"
+  },
+  "Rebecka Marianne": {
+    "fake": "Eva Ström",
+    "type": "PER"
+  },
+  "Lab Hönö Lab Hönö Vårdcentral": {
+    "fake": "Ängens Vårdcentral",
+    "type": "ORG"
+  },
+  "Läkare Adam Goldberg Hönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Nr\nHönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Kristin Graf Hönö Vårdcentral": {
+    "fake": "Filippa Tina Sonja Davidsson",
+    "type": "PER"
+  },
+  "Kristin Graf": {
+    "fake": "Helena Eriksson",
+    "type": "PER"
+  },
+  "KG": {
+    "fake": "Ingrid",
+    "type": "PER"
+  },
+  "Dr Goldberg": {
+    "fake": "Erik Nord",
+    "type": "PER"
+  },
+  "Viktoria Almstrand Ullnert Hönö": {
+    "fake": "Lena Gabriella Lovisa Carlsson",
+    "type": "PER"
+  },
+  "Viktoria Almstrand Ullnert": {
+    "fake": "Anette Elisabeth Sjöblom",
+    "type": "PER"
+  },
+  "VA": {
+    "fake": "HU",
+    "type": "INITIALS"
+  },
+  "Metabolit center AB": {
+    "fake": "Ängens Vårdcentral",
+    "type": "ORG"
+  },
+  "Metabolt center AB": {
+    "fake": "Solbackens Vårdcentral",
+    "type": "ORG"
+  },
+  "Plate Hönö Vårdcentral": {
+    "fake": "Dalens Vårdcentral",
+    "type": "ORG"
+  },
+  "WP": {
+    "fake": "GH",
+    "type": "INITIALS"
+  },
+  "Rebecca Lönn": {
+    "fake": "Karin Andersson",
+    "type": "PER"
+  },
+  "Adam Goldberg Kristin Graf": {
+    "fake": "Åke Mats Alexander Malm",
+    "type": "PER"
+  },
+  "Wiebke Plate": {
+    "fake": "Otto Larsson",
+    "type": "PER"
+  },
+  "Gunilla  Pettersson Hönö Vårdcentral": {
+    "fake": "Isabella Margareta Lisa Brodin",
+    "type": "PER"
+  },
+  "Gunilla  Pettersson": {
+    "fake": "Emelie Malm",
+    "type": "PER"
+  },
+  "GP": {
+    "fake": "XC",
+    "type": "INITIALS"
+  },
+  "Gunilla Pettersson Hönö Vårdcentral": {
+    "fake": "Maj-Britt Linda Birgitta Fransson",
+    "type": "PER"
+  },
+  "Gunilla Pettersson": {
+    "fake": "Märta Berg",
+    "type": "PER"
+  },
+  "45 Göteborg": {
+    "fake": "Halmstad",
+    "type": "LOC"
+  },
+  "mottagning@metaboltcenter.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "Julia Bådersjö": {
+    "fake": "Antonia Berggren",
+    "type": "PER"
+  },
+  "920309-2441": {
+    "fake": "19920609-1309",
+    "type": "PERSONNUMMER"
+  },
+  "Hästenvägen 16": {
+    "fake": "Furuvägen 3",
+    "type": "ADDRESS"
+  },
+  "Metabolt Center": {
+    "fake": "Kalmar",
+    "type": "LOC"
+  },
+  "Carlanderska": {
+    "fake": "Lund",
+    "type": "LOC"
+  },
+  "Rebecka Lönn": {
+    "fake": "Angelica Karlsson",
+    "type": "PER"
+  },
+  "Håstenvägen 16": {
+    "fake": "Industrigatan 011",
+    "type": "ADDRESS"
+  },
+  "Angelo": {
+    "fake": "Martinsson",
+    "type": "PER"
+  },
+  "av behandlande Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "konstant": {
+    "fake": "Georg",
+    "type": "PER"
+  },
+  "Metabolt Center AB": {
+    "fake": "Kustens Vårdcentral",
+    "type": "ORG"
+  },
+  "19 920309-2441": {
+    "fake": "19920607-2465",
+    "type": "PERSONNUMMER"
+  },
+  "Julia Bädersjö": {
+    "fake": "Anna Karlsson",
+    "type": "PER"
+  }
+}

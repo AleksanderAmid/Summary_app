@@ -1,0 +1,78 @@
+{
+  "id": "584bbfd5ad11",
+  "name": "brev-till-pat-covidvaccin",
+  "created_at": 1781103034.077521,
+  "input": {
+    "type": "file",
+    "filename": "brev-till-pat-covidvaccin.pdf",
+    "method": "pdf",
+    "pages": [
+      {
+        "page_num": 1,
+        "method": "native",
+        "chars": 858
+      }
+    ],
+    "chars": 874,
+    "words": 120
+  },
+  "source_text": "--- Sida 1 ---\n\nHönö Vårdcentral, Minkebergsvägen 3A, 475 40 Hönö\n2024-09-30 | 19360326-4825\nRigmor Margareta Arvidsson\nBOX 196\n47511 HÄLSÖ\nHej Rigmor Margareta Arvidsson\nFolkmyndighetens rekommendationer gällande covidvaccinering kvarstår. Detta innebär att alla personer\nfödda 1944 eller tidigare rekommenderas en påfyllnadsdos vaccin mot covid-19 under hösten 2024. Vid\nvaccinationstillfället erbjuds du också vaccin mot säsongsinfluensan. \nDu är välkommen att boka tid via vår app Hönö Vårdcentral, som finns där appar finns. Be gärna en\nanhörig om hjälp. \nAlternativt kan du ringa till oss och välja knappval 6, vaccination. \nHönö Vårdcentral\nMinkebergsvägen 3A\n475 40 Hönö\n031-7127660\nAdress\nTelefon\nE-post\nOrg Nr\nHönö Vårdcentral\n031-7127660\ninfo@honovardcentral.se\n556451-5764\nMinkebergsvägen 3A\nFax\nHemsida\n475 40 Hönö\n031-7127689\nwww.honovardcentral.se\nSida 1 av 1",
+  "summary_raw": "80 år gammal kvinna, född 1944, rekommenderas covidvaccin och influensavaccin under hösten 2024 enligt folkmyndighetens riktlinjer. Kan boka tid via app eller telefon (knappval 6).",
+  "summary": "80 år gammal kvinna, född 1944, rekommenderas covidvaccin och influensavaccin under hösten 2024 enligt folkmyndighetens riktlinjer. Kan boka tid via app eller telefon (knappval 6).",
+  "deanonymization": {
+    "patient_id": null,
+    "detection_hits": 0,
+    "replacements": []
+  },
+  "phi_screen": {
+    "personnummer": 1,
+    "phone": 3,
+    "email": 1,
+    "postal_code": 4
+  },
+  "telemetry": {
+    "model": "gemma3:12b-it-q4_K_M",
+    "wall_seconds": 91.63,
+    "prompt_eval_count": 6553,
+    "eval_count": 64,
+    "num_ctx": 8192,
+    "may_truncate": false
+  },
+  "stages": [
+    {
+      "key": "transcribe",
+      "label": "Transcribing file to text...",
+      "status": "done",
+      "detail": "1 pages (0 via Gemma 3 12B-IT), 874 characters",
+      "seconds": 0.1
+    },
+    {
+      "key": "anonymize",
+      "label": "Anonymizing content...",
+      "status": "done",
+      "detail": "9 identifier(s) processed",
+      "seconds": 13.7
+    },
+    {
+      "key": "summarize",
+      "label": "Summarizing...",
+      "status": "done",
+      "detail": "64 tokens in 91.63 s",
+      "seconds": 91.6
+    },
+    {
+      "key": "deanonymize",
+      "label": "De-anonymizing...",
+      "status": "done",
+      "detail": "",
+      "seconds": 0.1
+    },
+    {
+      "key": "complete",
+      "label": "Summary complete",
+      "status": "done",
+      "detail": "brev-till-pat-covidvaccin",
+      "seconds": null
+    }
+  ]
+}

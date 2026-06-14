@@ -1,0 +1,69 @@
+{
+  "id": "4ade8767a0ad",
+  "name": "pat5 lab_",
+  "created_at": 1781272845.4750211,
+  "input": {
+    "type": "file",
+    "filename": "pat5 lab_.docx",
+    "method": "docx",
+    "pages": [],
+    "chars": 1678,
+    "words": 232
+  },
+  "source_text": "Syntetisk Patient 205 - lab\nSyntetisk journal (Gemma 4 E4B)  |  Ålder: 61, Kön: ?  |  Diagnoser: Astma, Medelsvår depressiv episodJournalsida 1 av 1\nLaboratoriemedicin\nProvtagning: 2025-01-29 08:15\nSvar: 2025-01-30 13:45\nPatient: Johan Alm, 19650828-9516\nBeställare: Annica Ekman, Ängens Vårdcentral\n| Analys          | Resultat | Ref.intervall | Enhet   | Avvikande |\n|-----------------|----------|---------------|---------|-----------|\n| Na              | 142      | 135-145       | mmol/L  |           |\n| K               | 4.2      | 3.5-5.0       | mmol/L  |           |\n| Krea            | 98       | 45-105        | µmol/L  | H         |\n| Cystatin C      | 11.2     | 6.5-11.0      | mg/L    | H         |\n| eGFR            | 72        | >60           | mL/min  |           |\n| fP-Glukos       | 6.0      | 4.0-6.0       | mmol/L  | H         |\n| HbA1c           | 39      | <42           | mmol/mol| H         |\n| ASAT            | 0.7      | 0.5-1.1      | mmol/L  |           |\n| GT               | 1.2      | 0.6-1.2       | mmol/L  |           |\n| HB              | 144       | 130-178        | µmol/L  | H         |\n**Kommentar:**\nLätt förhöjda kreatininvärde och cystatin C. Dessa värden indikerar en försiktig minskning av njurfunktionen (eGFR 72 mL/min), vilket är något under det optimala intervallet. Det bör övervägas att utreda orsaken till denna förändring i samråd med er.\nVidare ses förhöjt fP-Glukos och HbA1c, vilket tyder på ett ökat blodsocker. Med tanke på patientens anamnes är en uppföljning av glukostoleransen och eventuell justering av livsstilsråd eller medicinering lämpligt. Vänliga hälsningar,\n[Signatur]\nDr. Anna Persson, Laboratorieläkare",
+  "summary_raw": "61 årig man med astma och depressiv episod. Nyligen provtagning visar lätt förhöjt kreatinin och cystatin C vilket indikerar en försiktig minskning av njurfunktionen (eGFR 72 mL/min). Förhöjt fasteglukos och HbA1c tyder på ökat blodsocker, vilket bör följas upp med livsstilsråd eller medicinering.",
+  "summary": "61 årig man med astma och depressiv episod. Nyligen provtagning visar lätt förhöjt kreatinin och cystatin C vilket indikerar en försiktig minskning av njurfunktionen (eGFR 72 mL/min). Förhöjt fasteglukos och HbA1c tyder på ökat blodsocker, vilket bör följas upp med livsstilsråd eller medicinering.",
+  "deanonymization": {
+    "patient_id": null,
+    "detection_hits": 0,
+    "replacements": []
+  },
+  "phi_screen": {
+    "personnummer": 1
+  },
+  "telemetry": {
+    "model": "gemma3:12b-it-q4_K_M",
+    "wall_seconds": 18.03,
+    "prompt_eval_count": 6812,
+    "eval_count": 93,
+    "num_ctx": 8192,
+    "may_truncate": false
+  },
+  "stages": [
+    {
+      "key": "transcribe",
+      "label": "Transcribing file to text...",
+      "status": "done",
+      "detail": "1678 characters extracted",
+      "seconds": 0.0
+    },
+    {
+      "key": "anonymize",
+      "label": "Anonymizing content...",
+      "status": "done",
+      "detail": "1 identifier(s) processed",
+      "seconds": 19.2
+    },
+    {
+      "key": "summarize",
+      "label": "Summarizing...",
+      "status": "done",
+      "detail": "93 tokens in 18.03 s",
+      "seconds": 18.0
+    },
+    {
+      "key": "deanonymize",
+      "label": "De-anonymizing...",
+      "status": "done",
+      "detail": "",
+      "seconds": 0.1
+    },
+    {
+      "key": "complete",
+      "label": "Summary complete",
+      "status": "done",
+      "detail": "pat5 lab_",
+      "seconds": null
+    }
+  ]
+}

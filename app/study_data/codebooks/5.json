@@ -1,0 +1,442 @@
+{
+  "Hönö Vårdcentral": {
+    "fake": "Parkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Minkebergsvägen 3A": {
+    "fake": "Strandtorget 6",
+    "type": "ADDRESS"
+  },
+  "475 40": {
+    "fake": "18271",
+    "type": "POSTAL_CODE"
+  },
+  "Hönö": {
+    "fake": "Stockholm",
+    "type": "LOC"
+  },
+  "031-7127660": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "031-7127689": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Adam Goldberg": {
+    "fake": "Erik Andersson",
+    "type": "PER"
+  },
+  "19800106-9320": {
+    "fake": "19800514-3865",
+    "type": "PERSONNUMMER"
+  },
+  "Paduch Abrahamsson": {
+    "fake": "Björn Olsson",
+    "type": "PER"
+  },
+  "VARVSVÄGEN 12": {
+    "fake": "Skolgränd 18",
+    "type": "ADDRESS"
+  },
+  "47550": {
+    "fake": "94141",
+    "type": "POSTAL_CODE"
+  },
+  "HÄLSÖ": {
+    "fake": "Norrköping",
+    "type": "LOC"
+  },
+  "+46762077173": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "diana@elida.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "Adam Goldberg Hönö Vårdcentral": {
+    "fake": "Kjell Mark Robert Isaksson",
+    "type": "PER"
+  },
+  "AG": {
+    "fake": "ÅC",
+    "type": "INITIALS"
+  },
+  "konstant": {
+    "fake": "Frida",
+    "type": "PER"
+  },
+  "Maria Johansson Hönö Vårdcentral": {
+    "fake": "Ann-Marie Ingeborg Ingrid Augustsson",
+    "type": "PER"
+  },
+  "Maria Johansson": {
+    "fake": "Astrid Nilsson",
+    "type": "PER"
+  },
+  "MJ": {
+    "fake": "LI",
+    "type": "INITIALS"
+  },
+  "Elisabeth Helgesson Hönö Vårdcentral": {
+    "fake": "Marie Carina Bella Nilsson",
+    "type": "PER"
+  },
+  "Elisabeth Helgesson": {
+    "fake": "Marie Fransson",
+    "type": "PER"
+  },
+  "EH": {
+    "fake": "HY",
+    "type": "INITIALS"
+  },
+  "Fredrika Hälsjö Hönö Vårdcentral": {
+    "fake": "Ängens Vårdcentral",
+    "type": "ORG"
+  },
+  "info@honovardcentral.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "www.honovardcentral.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "556451-5764": {
+    "fake": "[org nr borttagen]",
+    "type": "ORG_NUMBER"
+  },
+  "Fredrika  Hålsjö Hönö Vårdcentral": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Nr\nHönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Fredrika Hälsjö": {
+    "fake": "Sarah Olsson",
+    "type": "PER"
+  },
+  "FH": {
+    "fake": "ÅL",
+    "type": "INITIALS"
+  },
+  "Martin Lydebrant Hönö Vårdcentral": {
+    "fake": "Alf Ernst Andreas Persson",
+    "type": "PER"
+  },
+  "Martin Lydebrant": {
+    "fake": "Nils Lilja",
+    "type": "PER"
+  },
+  "ML": {
+    "fake": "XÅ",
+    "type": "INITIALS"
+  },
+  "Fredrika  Hålsjö": {
+    "fake": "Kristina Holmberg",
+    "type": "PER"
+  },
+  "Martin  Lydebrant Hönö Vårdcentral": {
+    "fake": "Erik Lars Nils Berg",
+    "type": "PER"
+  },
+  "Martin  Lydebrant": {
+    "fake": "Emil Karlsson",
+    "type": "PER"
+  },
+  "Dr": {
+    "fake": "August",
+    "type": "PER"
+  },
+  "Goldberg": {
+    "fake": "Sandberg",
+    "type": "PER"
+  },
+  "Inga Diana": {
+    "fake": "Elisabet Johnsson",
+    "type": "PER"
+  },
+  "Pernilla Hermansson Hönö Vårdcentral": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Pernilla Hermansson": {
+    "fake": "Gunilla Boström",
+    "type": "PER"
+  },
+  "PH": {
+    "fake": "LM",
+    "type": "INITIALS"
+  },
+  "Adress\nHönö Vårdcentral": {
+    "fake": "Ängens Vårdcentral",
+    "type": "ORG"
+  },
+  "Gruvatan 8": {
+    "fake": "Örnsköldsvik",
+    "type": "LOC"
+  },
+  "42130": {
+    "fake": "63536",
+    "type": "POSTAL_CODE"
+  },
+  "Västra Frölunda": {
+    "fake": "Västerås",
+    "type": "LOC"
+  },
+  "Minkebergsvägen 3a": {
+    "fake": "Ängsgränd 238",
+    "type": "ADDRESS"
+  },
+  "Inga Diana Paduch Abrahamsson": {
+    "fake": "Viola Anna Irene Vallin",
+    "type": "PER"
+  },
+  "Shadi Ghassemi Jahani": {
+    "fake": "Lars Mattias Rask",
+    "type": "PER"
+  },
+  "info@ortopedspecialistensh.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "556911-0256": {
+    "fake": "[org nr borttagen]",
+    "type": "ORG_NUMBER"
+  },
+  "www.ortopedspecialistensh.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "SH": {
+    "fake": "Annika",
+    "type": "PER"
+  },
+  "Gruvgatan 8": {
+    "fake": "Granvägen 4",
+    "type": "ADDRESS"
+  },
+  "Patient\nHönö Vårdcentral": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "Skaraborg": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "0771-407740": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Shadi Ghasemi Jahani": {
+    "fake": "Jeanette Olof Eriksson",
+    "type": "PER"
+  },
+  "421 30": {
+    "fake": "13832",
+    "type": "POSTAL_CODE"
+  },
+  "VÄSTRA": {
+    "fake": "Göteborg",
+    "type": "LOC"
+  },
+  "805 25": {
+    "fake": "18505",
+    "type": "POSTAL_CODE"
+  },
+  "Diana": {
+    "fake": "Gun",
+    "type": "PER"
+  },
+  "Universitetssjukhuset": {
+    "fake": "Linköping",
+    "type": "LOC"
+  },
+  "Martin Lydebrant  \n\nDatum": {
+    "fake": "Dennis Jan Åberg",
+    "type": "PER"
+  },
+  "Sahlgrenska Universitetssjukhuset": {
+    "fake": "Solbackens Vårdcentral",
+    "type": "ORG"
+  },
+  "Martin  Lydebrant\n Datum": {
+    "fake": "Valentin Bruno Westerlund",
+    "type": "PER"
+  },
+  "Kungsporten": {
+    "fake": "Örebro",
+    "type": "LOC"
+  },
+  "427 50": {
+    "fake": "83865",
+    "type": "POSTAL_CODE"
+  },
+  "Billdal": {
+    "fake": "Karlskoga",
+    "type": "LOC"
+  },
+  "Diana Paduch Abrahamsson": {
+    "fake": "Anna Ingeborg Larsson",
+    "type": "PER"
+  },
+  "Fredrika  Hålsjö\n Datum": {
+    "fake": "Emma Margaretha Pedersen",
+    "type": "PER"
+  },
+  "Fredrika Hälsjö  \n\nDatum": {
+    "fake": "Anna Marie Eklund",
+    "type": "PER"
+  },
+  "Fredrika Hålsjö": {
+    "fake": "Lena Burman",
+    "type": "PER"
+  },
+  "Capio Lundby Specialistsjukhus": {
+    "fake": "Kristianstad",
+    "type": "LOC"
+  },
+  "Adam Goldberg\n Datum": {
+    "fake": "Johannes Kjell Jansson",
+    "type": "PER"
+  },
+  "läkare\nHönö Vårdcentral": {
+    "fake": "Solbackens Vårdcentral",
+    "type": "ORG"
+  },
+  "Fredrika": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Bildal": {
+    "fake": "Kristianstad",
+    "type": "LOC"
+  },
+  "153 39": {
+    "fake": "37411",
+    "type": "POSTAL_CODE"
+  },
+  "Region Halland": {
+    "fake": "Ängelholm",
+    "type": "LOC"
+  },
+  "475 41": {
+    "fake": "43521",
+    "type": "POSTAL_CODE"
+  },
+  "Diana Abrahamsson": {
+    "fake": "Vera Ivarsson",
+    "type": "PER"
+  },
+  "19 800106-9320": {
+    "fake": "19800806-1080",
+    "type": "PERSONNUMMER"
+  },
+  "Varysvägen 12": {
+    "fake": "Stortorget 067",
+    "type": "ADDRESS"
+  },
+  "Hälsö": {
+    "fake": "Linköping",
+    "type": "LOC"
+  },
+  "02\nHönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Varvsvägen 12": {
+    "fake": "Gentorget 100",
+    "type": "ADDRESS"
+  },
+  "Capiro": {
+    "fake": "Solbackens Vårdcentral",
+    "type": "ORG"
+  },
+  "Lundby Specialistsjukhus": {
+    "fake": "Jönköping",
+    "type": "LOC"
+  },
+  "Hönö vårdcentral": {
+    "fake": "Falun",
+    "type": "LOC"
+  },
+  "Abrahamsson Diana": {
+    "fake": "Olov Lundberg",
+    "type": "PER"
+  },
+  "76 Göteborg": {
+    "fake": "Karlskoga",
+    "type": "LOC"
+  },
+  "Wieselgrensplan 2": {
+    "fake": "Västerås",
+    "type": "LOC"
+  },
+  "556737-9432": {
+    "fake": "[org nr borttagen]",
+    "type": "ORG_NUMBER"
+  },
+  "www.capiolundbyarnsjuhus.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "VARSVÄGEN 12": {
+    "fake": "Grangränd 21",
+    "type": "ADDRESS"
+  },
+  "SG": {
+    "fake": "ÅG",
+    "type": "INITIALS"
+  },
+  "Tinel": {
+    "fake": "Strömberg",
+    "type": "PER"
+  },
+  "info@ortopedspecialistens.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "www.ortopedspecialistens.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "Helena Gustavsson Gonzalez": {
+    "fake": "Märta Anita Hansson",
+    "type": "PER"
+  },
+  "Halland\nHönö Vårdcentral": {
+    "fake": "Björkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Helena Gustavsson": {
+    "fake": "Ingrid Carlsson",
+    "type": "PER"
+  },
+  "Bil": {
+    "fake": "Falun",
+    "type": "LOC"
+  },
+  "Karin Eng": {
+    "fake": "Johanna Håkansson",
+    "type": "PER"
+  },
+  "vårdadministratör Hönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Adress Hönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Minkebergsvägen 3A 475": {
+    "fake": "Umeå",
+    "type": "LOC"
+  },
+  "vårdadministratör\nHönö Vårdcentral": {
+    "fake": "Solbackens Vårdcentral",
+    "type": "ORG"
+  }
+}

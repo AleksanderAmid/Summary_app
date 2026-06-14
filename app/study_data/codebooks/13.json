@@ -1,0 +1,34 @@
+{
+  "19410524-4139": {
+    "fake": "19410522-9357",
+    "type": "PERSONNUMMER"
+  },
+  "Stadsgatan 12": {
+    "fake": "Kyrkostigen 87",
+    "type": "ADDRESS"
+  },
+  "123 45": {
+    "fake": "10698",
+    "type": "POSTAL_CODE"
+  },
+  "Staden": {
+    "fake": "Lund",
+    "type": "LOC"
+  },
+  "Johansson": {
+    "fake": "Andersson",
+    "type": "PER"
+  },
+  "John Johansson": {
+    "fake": "David Nilsson",
+    "type": "PER"
+  },
+  "Norrsjukhuset": {
+    "fake": "Uppsala",
+    "type": "LOC"
+  },
+  "Kalle Anderberg": {
+    "fake": "Johan Söderqvist",
+    "type": "PER"
+  }
+}

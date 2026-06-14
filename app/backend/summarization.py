@@ -26,9 +26,8 @@ import time
 from pathlib import Path
 from typing import Callable
 
-import requests
+import ollama_client
 
-OLLAMA_HOST = "http://localhost:11434"
 SUMMARIZER_MODEL = "gemma3:12b-it-q4_K_M"
 
 # Generation hyperparameters — identical to the thesis evaluation protocol.
@@ -40,8 +39,9 @@ GENERATION_OPTIONS = {
 }
 
 APP_ROOT = Path(__file__).resolve().parent.parent          # .../app
-REPO_ROOT = APP_ROOT.parent                                 # .../Examensarbetet
-GROUND_TRUTH_PATH = REPO_ROOT / "data" / "ground_truth" / "_master_ground_truth.json"
+# Bundled copy of data/ground_truth/_master_ground_truth.json so the app
+# folder is self-contained and can be moved to another device.
+GROUND_TRUTH_PATH = APP_ROOT / "study_data" / "ground_truth.json"
 
 ProgressCb = Callable[[str], None]
 
@@ -173,9 +173,7 @@ def summarize(source_text: str, progress: ProgressCb | None = None) -> dict:
         "think": False,
     }
     t0 = time.perf_counter()
-    r = requests.post(f"{OLLAMA_HOST}/api/generate", json=payload, timeout=900)
-    r.raise_for_status()
-    data = r.json()
+    data = ollama_client.post_json("/api/generate", payload, timeout=900)
     summary = (data.get("response") or "").strip()
     # Defensive: drop a leading "## SAMMANFATTNING"-style header if the model
     # still echoes the prompt's section marker.
@@ -195,17 +193,8 @@ def summarize(source_text: str, progress: ProgressCb | None = None) -> dict:
 
 
 def summarizer_model_available() -> bool:
-    try:
-        r = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=3)
-        r.raise_for_status()
-        tags = [m.get("name", "") for m in r.json().get("models", [])]
-        return SUMMARIZER_MODEL in tags
-    except Exception:
-        return False
+    return SUMMARIZER_MODEL in ollama_client.list_model_tags()
 
 
 def ollama_alive() -> bool:
-    try:
-        return requests.get(f"{OLLAMA_HOST}/api/tags", timeout=3).ok
-    except Exception:
-        return False
+    return ollama_client.alive()

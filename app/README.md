@@ -23,18 +23,34 @@ de-anonymization, with staged progress and a persistent run history.
 
 ## Requirements
 
-- Ollama running locally (Windows tray app) with:
-  - `ollama pull gemma3:12b-it-q4_K_M` (summarizer + vision transcription, ~8 GB)
-- The project virtual environment `.venv` (already present; needs only
-  `requests`, `pymupdf`, `python-docx` — all installed). No web framework
-  required: the backend is Python standard library.
+The `app/` folder is **self-contained and portable**: copy it to any machine
+or user account and it runs. The study data it needs (the 25 physician
+reference summaries and the 13 de-anonymization code books) is bundled in
+`study_data/`. On the target machine you need:
+
+- **Python 3.10+** ([python.org](https://www.python.org/downloads/), check
+  "Add python.exe to PATH" during installation)
+- **Ollama** ([ollama.com](https://ollama.com/download)) with the model:
+  `ollama pull gemma3:12b-it-q4_K_M` (~8 GB)
+- *(optional)* **PyMuPDF** for PDF files: `python -m pip install pymupdf`.
+  The launcher installs it automatically when missing; without it the app
+  still runs and PDF uploads show an install hint. Everything else is the
+  Python standard library.
+
+## Setup on a new device
+
+Double-click **`setup.bat`** once. It checks for and installs everything in
+order — Python 3.10+, Ollama, the `gemma3:12b-it-q4_K_M` model (~8 GB pull),
+and PyMuPDF — using winget when available and the official installers
+otherwise, skipping whatever is already present. Safe to re-run at any time.
 
 ## Run
 
-Double-click `app\run_app.bat`, or from the repo root:
+Double-click `run_app.bat` (it finds Python, offers to install PyMuPDF, and
+opens the browser), or manually from inside the app folder:
 
 ```powershell
-.venv\Scripts\python.exe -m app.backend.server
+python backend\server.py
 ```
 
 The UI opens at **http://localhost:8765**.
@@ -66,7 +82,9 @@ The UI opens at **http://localhost:8765**.
 
 ```
 app/
-├── run_app.bat            # one-click launcher (uses ..\.venv)
+├── setup.bat / setup.ps1  # one-time installer: Python, Ollama, model, PyMuPDF
+├── run_app.bat            # one-click launcher (any Python 3.10+ on PATH)
+├── requirements.txt       # pymupdf only (optional, for PDF support)
 ├── backend/
 │   ├── server.py          # stdlib HTTP server + REST API (entry point)
 │   ├── pipeline.py        # staged job orchestration (background threads)
@@ -74,17 +92,26 @@ app/
 │   ├── summarization.py   # winning Gemma config + system-prompt builder
 │   ├── anonymization.py   # future stage (PHI screen today)
 │   ├── deanonymization.py # code-book inversion + patient auto-detection
+│   ├── ollama_client.py   # stdlib HTTP client for the Ollama API
 │   └── history.py         # JSON history store
 ├── frontend/
 │   ├── index.html         # single-page UI (cream/serif theme)
 │   ├── style.css
 │   └── app.js
+├── study_data/            # bundled copies of the study artifacts
+│   ├── ground_truth.json  #   25 physician summaries (from data/ground_truth/)
+│   └── codebooks/         #   13 per-patient code books (from data/deidentified/)
 ├── tests/
 │   └── test_deanonymization.py   # regression tests for the code-book inversion
 └── data/
     ├── history/           # one JSON per completed run
     └── uploads/           # uploaded source files
 ```
+
+Note: `study_data/` holds **copies** made from `data/ground_truth/` and
+`data/deidentified/` — if those study artifacts ever change, refresh the
+copies. The code books contain real↔fake identifier pairs, so the folder
+must be handled with the same care as the study data itself.
 
 ## Safety
 

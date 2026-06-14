@@ -1,0 +1,370 @@
+{
+  "Anton Gillis Staden Vårdcentral": {
+    "fake": "Andreas Max Tapio Magnusson",
+    "type": "PER"
+  },
+  "Anton Gillis": {
+    "fake": "Harry Berggren",
+    "type": "PER"
+  },
+  "AK": {
+    "fake": "AS",
+    "type": "INITIALS"
+  },
+  "Elise Turesson Staden Vårdcentral": {
+    "fake": "Elsa Gunnel Vilhelmina Sjölund",
+    "type": "PER"
+  },
+  "Elise Turesson": {
+    "fake": "Josefine Nilsson",
+    "type": "PER"
+  },
+  "Pfizer": {
+    "fake": "Dalens Vårdcentral",
+    "type": "ORG"
+  },
+  "Pall Staden Vårdcentral": {
+    "fake": "Dalens Vårdcentral",
+    "type": "ORG"
+  },
+  "Werner Pall": {
+    "fake": "Sven Jonsson",
+    "type": "PER"
+  },
+  "WP": {
+    "fake": "UC",
+    "type": "INITIALS"
+  },
+  "info@vardcentral.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "Akalla": {
+    "fake": "Umeå",
+    "type": "LOC"
+  },
+  "www.vardcentral.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "551234-5678": {
+    "fake": "[org nr borttagen]",
+    "type": "ORG_NUMBER"
+  },
+  "Kamilla Gustavsson Staden Vårdcentral": {
+    "fake": "Maria Margareta Fatima Ali",
+    "type": "PER"
+  },
+  "Kamilla Gustavsson": {
+    "fake": "Emelie Östberg",
+    "type": "PER"
+  },
+  "Anna Viktorsson": {
+    "fake": "Gunvor Östman",
+    "type": "PER"
+  },
+  "010-123456": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Staden": {
+    "fake": "Örnsköldsvik",
+    "type": "LOC"
+  },
+  "010-23456789": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "+4671234561": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Kristin Fredriksson Staden Vårdcentral": {
+    "fake": "Birgitta Karin Margareta Nilsson",
+    "type": "PER"
+  },
+  "Kristin Fredriksson": {
+    "fake": "Sally Månsson",
+    "type": "PER"
+  },
+  "KF": {
+    "fake": "GK",
+    "type": "INITIALS"
+  },
+  "Mattias Larsson": {
+    "fake": "Jan Levin",
+    "type": "PER"
+  },
+  "KG": {
+    "fake": "PO",
+    "type": "INITIALS"
+  },
+  "Sthlm": {
+    "fake": "Växjö",
+    "type": "LOC"
+  },
+  "Hans Svensson": {
+    "fake": "Klas Ekstrand",
+    "type": "PER"
+  },
+  "Dr Gillis": {
+    "fake": "Filip Kristoffersson",
+    "type": "PER"
+  },
+  "Pia Hansson Staden Vårdcentral": {
+    "fake": "Karin Åsa Viktoria Blixt",
+    "type": "PER"
+  },
+  "Pia Hansson": {
+    "fake": "Sonja Hall",
+    "type": "PER"
+  },
+  "PH": {
+    "fake": "KU",
+    "type": "INITIALS"
+  },
+  "Anna Viktorsson Staden Vårdcentral": {
+    "fake": "Sara Marianne Sara Nilsson",
+    "type": "PER"
+  },
+  "AV": {
+    "fake": "WJ",
+    "type": "INITIALS"
+  },
+  "Sthlm sjukhus": {
+    "fake": "Kalmar",
+    "type": "LOC"
+  },
+  "AG": {
+    "fake": "XT",
+    "type": "INITIALS"
+  },
+  "Sthlm Sjukhus": {
+    "fake": "Kristianstad",
+    "type": "LOC"
+  },
+  "Frans Hanson Staden Vårdcentral": {
+    "fake": "Olof Markus Olof Persson",
+    "type": "PER"
+  },
+  "Frans Hanson": {
+    "fake": "William Lindström",
+    "type": "PER"
+  },
+  "FH": {
+    "fake": "ET",
+    "type": "INITIALS"
+  },
+  "Emma Henriksson Staden Vårdcentral": {
+    "fake": "Linda Lillemor Elin Lindskog",
+    "type": "PER"
+  },
+  "Emma Henriksson": {
+    "fake": "Alva Aronsson",
+    "type": "PER"
+  },
+  "EH": {
+    "fake": "TL",
+    "type": "INITIALS"
+  },
+  "Hanson": {
+    "fake": "Olsson",
+    "type": "PER"
+  },
+  "19410524-4139": {
+    "fake": "19410614-2112",
+    "type": "PERSONNUMMER"
+  },
+  "Staden Vårdcentral": {
+    "fake": "Solbackens Vårdcentral",
+    "type": "ORG"
+  },
+  "Johansson": {
+    "fake": "Björkman",
+    "type": "PER"
+  },
+  "Stadsgatan 12": {
+    "fake": "Nytorget 77",
+    "type": "ADDRESS"
+  },
+  "123 45": {
+    "fake": "72330",
+    "type": "POSTAL_CODE"
+  },
+  "Bygatan 25A": {
+    "fake": "Skolgatan 3",
+    "type": "ADDRESS"
+  },
+  "12347": {
+    "fake": "81279",
+    "type": "POSTAL_CODE"
+  },
+  "Malin Jansson Staden Vårdcentral": {
+    "fake": "Marie Monika Maria Lindquist",
+    "type": "PER"
+  },
+  "Malin Jansson": {
+    "fake": "Louise Nilsson",
+    "type": "PER"
+  },
+  "MJ": {
+    "fake": "SG",
+    "type": "INITIALS"
+  },
+  "Christoffer Ander Staden Vårdcentral": {
+    "fake": "Allan Johan Staffan Berglund",
+    "type": "PER"
+  },
+  "Christoffer Ander": {
+    "fake": "Staffan Eriksson",
+    "type": "PER"
+  },
+  "CA": {
+    "fake": "IY",
+    "type": "INITIALS"
+  },
+  "Spanien": {
+    "fake": "Malmö",
+    "type": "LOC"
+  },
+  "Läkare Christoffer Ander Staden Vårdcentral": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Calle Noren Staden Vårdcentral": {
+    "fake": "Astrid Elisabeth Bengt Karlsson",
+    "type": "PER"
+  },
+  "Calle Noren": {
+    "fake": "Leif Jafari",
+    "type": "PER"
+  },
+  "CN": {
+    "fake": "RR",
+    "type": "INITIALS"
+  },
+  "dr Andersson": {
+    "fake": "Lucas Petersson",
+    "type": "PER"
+  },
+  "Canarieöarna": {
+    "fake": "Lund",
+    "type": "LOC"
+  },
+  "dr Larsson": {
+    "fake": "Rolf Lindström",
+    "type": "PER"
+  },
+  "Sand": {
+    "fake": "Karlsson",
+    "type": "PER"
+  },
+  "Joelson Staden Vårdcentral": {
+    "fake": "Kustens Vårdcentral",
+    "type": "ORG"
+  },
+  "SJ": {
+    "fake": "Parkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Cissi Berntson Staden Vårdcentral": {
+    "fake": "Fredrik Sven Inger Pettersson",
+    "type": "PER"
+  },
+  "CB": {
+    "fake": "VM",
+    "type": "INITIALS"
+  },
+  "Dr Andersson": {
+    "fake": "Emil Olsson",
+    "type": "PER"
+  },
+  "Vanessa Allen Staden Vårdcentral": {
+    "fake": "Thea Birgitta Helén Nilsson",
+    "type": "PER"
+  },
+  "Vanessa Allen": {
+    "fake": "Ingrid Dahlgren",
+    "type": "PER"
+  },
+  "Läkare Anton Gillis Staden Vårdcentral": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "VA": {
+    "fake": "VI",
+    "type": "INITIALS"
+  },
+  "Pall": {
+    "fake": "Lindblad",
+    "type": "PER"
+  },
+  "Kristin FredrikssonStaden Vårdcentral": {
+    "fake": "Solbackens Vårdcentral",
+    "type": "ORG"
+  },
+  "Granat Staden Vårdcentral": {
+    "fake": "Björkens Vårdcentral",
+    "type": "ORG"
+  },
+  "AT": {
+    "fake": "ÄN",
+    "type": "INITIALS"
+  },
+  "Alvin Granat": {
+    "fake": "Nils Eklund",
+    "type": "PER"
+  },
+  "Romberg": {
+    "fake": "Eriksson",
+    "type": "PER"
+  },
+  "Karolinska": {
+    "fake": "Kustens Vårdcentral",
+    "type": "ORG"
+  },
+  "Läkare Bertil Sand Staden Vårdcentral": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Bertil\nSand": {
+    "fake": "Mohamed Sundberg",
+    "type": "PER"
+  },
+  "EA": {
+    "fake": "ÅZ",
+    "type": "INITIALS"
+  },
+  "Bertil Sand Staden Vårdcentral": {
+    "fake": "Peter Bjarne Bernt Nilsson",
+    "type": "PER"
+  },
+  "Conny Nord Staden Vårdcentral": {
+    "fake": "Johan Kasper Håkan Holm",
+    "type": "PER"
+  },
+  "Carl Nord": {
+    "fake": "Per Karlsson",
+    "type": "PER"
+  },
+  "Läkare Conny Nord Staden Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Carl\nNord": {
+    "fake": "Ture Hägg",
+    "type": "PER"
+  },
+  "20\nStaden Vårdcentral": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Nord": {
+    "fake": "Häggström",
+    "type": "PER"
+  },
+  "Carl": {
+    "fake": "Patric",
+    "type": "PER"
+  }
+}

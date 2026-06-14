@@ -60,6 +60,8 @@ async function refreshStatus() {
       if (!s.vision.available)
         problems.push(`Vision model missing (file transcription disabled) — run: ollama pull ${s.vision.tag}`);
     }
+    if (s.pdf_support === false)
+      problems.push("PDF support disabled — run: python -m pip install pymupdf (then restart the app)");
     if (problems.length === 0) {
       dot.className = "status-dot ok";
       dot.title = `Ollama OK — ${s.summarizer.tag} + ${s.vision.tag}`;

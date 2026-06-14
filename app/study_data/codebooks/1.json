@@ -1,0 +1,846 @@
+{
+  "Hönö Vårdcentral": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "Minkebergsvägen 3A": {
+    "fake": "Backvägen 321",
+    "type": "ADDRESS"
+  },
+  "475 40": {
+    "fake": "29600",
+    "type": "POSTAL_CODE"
+  },
+  "Hönö": {
+    "fake": "Mölndal",
+    "type": "LOC"
+  },
+  "19381013-1684": {
+    "fake": "19380708-5786",
+    "type": "PERSONNUMMER"
+  },
+  "Dagmar Linnéa Birgitta Holmén": {
+    "fake": "Josefin Christina Lovisa Andersson",
+    "type": "PER"
+  },
+  "SANDLYCKEVÄGEN 2 A": {
+    "fake": "Trädgårdsstigen 02",
+    "type": "ADDRESS"
+  },
+  "47542": {
+    "fake": "65423",
+    "type": "POSTAL_CODE"
+  },
+  "HÖNÖ": {
+    "fake": "Örebro",
+    "type": "LOC"
+  },
+  "Birgitta": {
+    "fake": "Filippa",
+    "type": "PER"
+  },
+  "Martin Lydebrant": {
+    "fake": "Hans Forsell",
+    "type": "PER"
+  },
+  "031-7127660": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "031-7127689": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "info@honovardcentral.se": {
+    "fake": "[e-post borttagen]",
+    "type": "EMAIL"
+  },
+  "www.honovardcentral.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "556451-5764": {
+    "fake": "[org nr borttagen]",
+    "type": "ORG_NUMBER"
+  },
+  "Nr\nHönö Vårdcentral": {
+    "fake": "Kustens Vårdcentral",
+    "type": "ORG"
+  },
+  "Hönö Vårdcentral  \n\nAdress  \nHönö": {
+    "fake": "Ola Bror Ester Edström",
+    "type": "PER"
+  },
+  "Hönö Vårdcentral\nAdress\nTelefon": {
+    "fake": "Nils Helena Gerd Mattsson",
+    "type": "PER"
+  },
+  "19 381013-1684": {
+    "fake": "19380703-7043",
+    "type": "PERSONNUMMER"
+  },
+  "SANDLYCKE VÄGEN": {
+    "fake": "Varberg",
+    "type": "LOC"
+  },
+  "000 10": {
+    "fake": "78327",
+    "type": "POSTAL_CODE"
+  },
+  "Backavägen 3": {
+    "fake": "Ringgatan 5",
+    "type": "ADDRESS"
+  },
+  "417 05": {
+    "fake": "57672",
+    "type": "POSTAL_CODE"
+  },
+  "Göteborg": {
+    "fake": "Södertälje",
+    "type": "LOC"
+  },
+  "Adam Goldberg": {
+    "fake": "Olof Krantz",
+    "type": "PER"
+  },
+  "Holmén": {
+    "fake": "Norrman",
+    "type": "PER"
+  },
+  "Dagmar Linnéa Birgitta": {
+    "fake": "Inga Frida Lindahl",
+    "type": "PER"
+  },
+  "+46722220031": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Adam Goldberg Hönö Vårdcentral": {
+    "fake": "Åke Juhani Oscar Blomberg",
+    "type": "PER"
+  },
+  "AG": {
+    "fake": "ÄV",
+    "type": "INITIALS"
+  },
+  "Viktoria Almstrand Ullnert Hönö": {
+    "fake": "Regina Cajsa Margareta Brodin",
+    "type": "PER"
+  },
+  "Viktoria Almstrand Ullnert": {
+    "fake": "Lillemor Lillemor Högberg",
+    "type": "PER"
+  },
+  "VA": {
+    "fake": "UÖ",
+    "type": "INITIALS"
+  },
+  "Carin Börjesson Hönö Vårdcentral": {
+    "fake": "Nova Christina Gun Karlsson",
+    "type": "PER"
+  },
+  "CB": {
+    "fake": "LT",
+    "type": "INITIALS"
+  },
+  "Goldberg": {
+    "fake": "Törnqvist",
+    "type": "PER"
+  },
+  "Anna Grönstedt Millberg Hönö": {
+    "fake": "Stina Lily Jenny Svensson",
+    "type": "PER"
+  },
+  "Anna Grönstedt Millberg": {
+    "fake": "Annika Viola Holm",
+    "type": "PER"
+  },
+  "dr Joelsson": {
+    "fake": "Jonas Larsson",
+    "type": "PER"
+  },
+  "Gustav Joelsson Hönö Vårdcentral": {
+    "fake": "Antonio Pär Walter Norberg",
+    "type": "PER"
+  },
+  "Gustav Joelsson": {
+    "fake": "Kevin Berntsson",
+    "type": "PER"
+  },
+  "GJ": {
+    "fake": "GX",
+    "type": "INITIALS"
+  },
+  "Läkare Gustav Joelsson Hönö Vårdcentral": {
+    "fake": "Björkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Adress Hönö Vårdcentral": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Carin  Börjesson Hönö Vårdcentral": {
+    "fake": "Amanda Julia Elise Hansson",
+    "type": "PER"
+  },
+  "Gustav  Joelsson Hönö Vårdcentral": {
+    "fake": "Jonas Nils Stefan Krantz",
+    "type": "PER"
+  },
+  "Gustav  Joelsson": {
+    "fake": "John Jansson",
+    "type": "PER"
+  },
+  "Pontus Thorild Hönö Vårdcentral": {
+    "fake": "Axel Hans Jacob Magnusson",
+    "type": "PER"
+  },
+  "Pontus Thorild": {
+    "fake": "Sebastian Andersson",
+    "type": "PER"
+  },
+  "PT": {
+    "fake": "EI",
+    "type": "INITIALS"
+  },
+  "Läkare Gustav  Joelsson Hönö Vårdcentral": {
+    "fake": "Parkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Victoria Almstrand Ullnert Hönö": {
+    "fake": "Jenny Daniella Ann-Marie Edlund",
+    "type": "PER"
+  },
+  "Victoria Almstrand Ullnert": {
+    "fake": "Ann Sophie Jonsson",
+    "type": "PER"
+  },
+  "Camilla Nilsson Hönö Vårdcentral": {
+    "fake": "Birgit Ingrid Susanne Lundquist",
+    "type": "PER"
+  },
+  "Camilla Nilsson": {
+    "fake": "Teresa Ahlström",
+    "type": "PER"
+  },
+  "CN": {
+    "fake": "MU",
+    "type": "INITIALS"
+  },
+  "Kerstin Frankfelt Hönö Vårdcentral": {
+    "fake": "Majvor Susanne Anneli Larsson",
+    "type": "PER"
+  },
+  "Kerstin Frankfelt": {
+    "fake": "Signe Nordström",
+    "type": "PER"
+  },
+  "KF": {
+    "fake": "OR",
+    "type": "INITIALS"
+  },
+  "Martin Lydebrant Hönö Vårdcentral": {
+    "fake": "Mikael Karl Erik Rydberg",
+    "type": "PER"
+  },
+  "ML": {
+    "fake": "IS",
+    "type": "INITIALS"
+  },
+  "Camilla  Nilsson Hönö Vårdcentral": {
+    "fake": "Sofia Lisbeth Märta Andersson",
+    "type": "PER"
+  },
+  "Camilla  Nilsson": {
+    "fake": "Anita Hansson",
+    "type": "PER"
+  },
+  "Martin  Lydebrant Hönö Vårdcentral": {
+    "fake": "Bo Casper Joakim Wikström",
+    "type": "PER"
+  },
+  "Martin  Lydebrant": {
+    "fake": "Niklas Larsson",
+    "type": "PER"
+  },
+  "Blank": {
+    "fake": "Söderman",
+    "type": "PER"
+  },
+  "SANDLYCKEVÄGEN 2": {
+    "fake": "Skogsgatan 50",
+    "type": "ADDRESS"
+  },
+  "Fredrika Hälsjö Hönö Vårdcentral": {
+    "fake": "Eva Maya Rose Svensson",
+    "type": "PER"
+  },
+  "Fredrika Hälsjö": {
+    "fake": "Mira Forsman",
+    "type": "PER"
+  },
+  "FH": {
+    "fake": "ÖA",
+    "type": "INITIALS"
+  },
+  "Rena": {
+    "fake": "Marit",
+    "type": "PER"
+  },
+  "Hönö Vårdcentral Minkebergsvägen 3A": {
+    "fake": "Borlänge",
+    "type": "LOC"
+  },
+  "dr Lydebrant": {
+    "fake": "Johan Persson",
+    "type": "PER"
+  },
+  "Fredrika  Hålsjö Hönö Vårdcentral": {
+    "fake": "Alma Eva Rose-Marie Edvardsson",
+    "type": "PER"
+  },
+  "Fredrika  Hålsjö": {
+    "fake": "Vega Frisk",
+    "type": "PER"
+  },
+  "Peneti": {
+    "fake": "Lundin",
+    "type": "PER"
+  },
+  "Pernilla Hermansson Hönö Vårdcentral": {
+    "fake": "Astrid Caroline Ulrika Wester",
+    "type": "PER"
+  },
+  "Pernilla Hermansson": {
+    "fake": "Emma Lindkvist",
+    "type": "PER"
+  },
+  "PH": {
+    "fake": "WY",
+    "type": "INITIALS"
+  },
+  "Elisabeth Helgesson Hönö Vårdcentral": {
+    "fake": "Helena Elsa Berit Jakobsson",
+    "type": "PER"
+  },
+  "Elisabeth Helgesson": {
+    "fake": "Ida Söderberg",
+    "type": "PER"
+  },
+  "EH": {
+    "fake": "DW",
+    "type": "INITIALS"
+  },
+  "Hålsjö": {
+    "fake": "Modig",
+    "type": "PER"
+  },
+  "Grekland": {
+    "fake": "Trelleborg",
+    "type": "LOC"
+  },
+  "Andriette Velmers": {
+    "fake": "Malgorzata Gustafsson",
+    "type": "PER"
+  },
+  "AV": {
+    "fake": "SZ",
+    "type": "INITIALS"
+  },
+  "475 40 Hönö": {
+    "fake": "Skövde",
+    "type": "LOC"
+  },
+  "MD\nHönö Vårdcentral": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "Andriette Velmers Hönö Vårdcentral": {
+    "fake": "Ewa Lena Stella Karlsson",
+    "type": "PER"
+  },
+  "Atle": {
+    "fake": "Nordin",
+    "type": "PER"
+  },
+  "Solhöjden": {
+    "fake": "Halmstad",
+    "type": "LOC"
+  },
+  "Läkare Martin Lydebrant Hönö Vårdcentral": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "Jörnstrand Hönö Vårdcentral": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "Solveig Jörnstrand": {
+    "fake": "Juni Lundell",
+    "type": "PER"
+  },
+  "SJ": {
+    "fake": "HT",
+    "type": "INITIALS"
+  },
+  "Jörnestrand Hönö Vårdcentral": {
+    "fake": "Parkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Solveig Jörnestrand": {
+    "fake": "Eva Persson",
+    "type": "PER"
+  },
+  "Dr Lydebrant": {
+    "fake": "Josefin Mattsson",
+    "type": "PER"
+  },
+  "dr Goldberg": {
+    "fake": "Johan Ekelund",
+    "type": "PER"
+  },
+  "KE": {
+    "fake": "GD",
+    "type": "INITIALS"
+  },
+  "Läkare Martin  Lydebrant Hönö Vårdcentral": {
+    "fake": "Solbackens Vårdcentral",
+    "type": "ORG"
+  },
+  "Kristin Graf Hönö Vårdcentral": {
+    "fake": "Agneta Marie Annica Nyberg",
+    "type": "PER"
+  },
+  "Kristin Graf": {
+    "fake": "Ilona Dahlberg",
+    "type": "PER"
+  },
+  "EA": {
+    "fake": "IO",
+    "type": "INITIALS"
+  },
+  "Lydebrant Hönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Nilsson": {
+    "fake": "Vikström",
+    "type": "PER"
+  },
+  "Gunilla Pettersson Hönö Vårdcentral": {
+    "fake": "Ingrid Majken Wilma Pedersen",
+    "type": "PER"
+  },
+  "Gunilla Pettersson": {
+    "fake": "Lilian Thulin",
+    "type": "PER"
+  },
+  "GP": {
+    "fake": "MI",
+    "type": "INITIALS"
+  },
+  "Gunilla  Pettersson Hönö Vårdcentral": {
+    "fake": "Katarina Elin Margareta Blomberg",
+    "type": "PER"
+  },
+  "Gunilla  Pettersson": {
+    "fake": "Helena Källström",
+    "type": "PER"
+  },
+  "Linnea Karin Alderblad Hönö": {
+    "fake": "Hilda Ida Sofia Ekstrand",
+    "type": "PER"
+  },
+  "Linnea Karin Alderblad": {
+    "fake": "Lena Ragnhild Niklasson",
+    "type": "PER"
+  },
+  "LA": {
+    "fake": "ÅÅ",
+    "type": "INITIALS"
+  },
+  "Kristin Graf Kristin Graf": {
+    "fake": "Christina Brita Beatrice Ali",
+    "type": "PER"
+  },
+  "KG": {
+    "fake": "OJ",
+    "type": "INITIALS"
+  },
+  "UVI": {
+    "fake": "Kustens Vårdcentral",
+    "type": "ORG"
+  },
+  "Bengt Sköld": {
+    "fake": "Michael Larsson",
+    "type": "PER"
+  },
+  "Öckerö kommun": {
+    "fake": "Karlskrona",
+    "type": "LOC"
+  },
+  "556451-5760": {
+    "fake": "[org nr borttagen]",
+    "type": "ORG_NUMBER"
+  },
+  "Bengt Sköld Kristin Graf": {
+    "fake": "Måns Christer Linus Olofsson",
+    "type": "PER"
+  },
+  "Dr Goldberg": {
+    "fake": "Lotta Wallin",
+    "type": "PER"
+  },
+  "Maria Johansson Hönö Vårdcentral": {
+    "fake": "Annie Emma Margareta Andersson",
+    "type": "PER"
+  },
+  "Maria Johansson": {
+    "fake": "Ulla Jacobsson",
+    "type": "PER"
+  },
+  "MJ": {
+    "fake": "ÖF",
+    "type": "INITIALS"
+  },
+  "Wilson Hönö Vårdcentral": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Lisa Wilson": {
+    "fake": "Margareta Lundberg",
+    "type": "PER"
+  },
+  "Maria Johansson Maria Johansson": {
+    "fake": "Barbro Marie Eva Åberg",
+    "type": "PER"
+  },
+  "LW": {
+    "fake": "KZ",
+    "type": "INITIALS"
+  },
+  "Läkare Adam Goldberg Hönö Vårdcentral": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "Plate Hönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "WP": {
+    "fake": "CV",
+    "type": "INITIALS"
+  },
+  "Wiebke Plate": {
+    "fake": "Sam Holmgren",
+    "type": "PER"
+  },
+  "Mölndal": {
+    "fake": "Stockholm",
+    "type": "LOC"
+  },
+  "Wiebke Plate Hönö Vårdcentral": {
+    "fake": "Havets Vårdcentral",
+    "type": "ORG"
+  },
+  "Sahlgrenska": {
+    "fake": "Uddevalla",
+    "type": "LOC"
+  },
+  "Nilsson Hönö Vårdcentral": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Wiebke": {
+    "fake": "Bergdahl",
+    "type": "PER"
+  },
+  "Carl Nilsson Hönö Vårdcentral": {
+    "fake": "Valentin Rikard Niklas Lundgren",
+    "type": "PER"
+  },
+  "Carl Nilsson": {
+    "fake": "Jim Nord",
+    "type": "PER"
+  },
+  "Carl  Nilsson Hönö Vårdcentral": {
+    "fake": "Parkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Carl\nNilsson": {
+    "fake": "Victor Fransson",
+    "type": "PER"
+  },
+  "Läkare Carl Nilsson Hönö Vårdcentral": {
+    "fake": "Parkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Eriksson Hönö Vårdcentral": {
+    "fake": "Dalens Vårdcentral",
+    "type": "ORG"
+  },
+  "Anna Maria Eriksson": {
+    "fake": "Mila Jennifer Knutsson",
+    "type": "PER"
+  },
+  "031-7120031": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Läkare Carl  Nilsson Hönö Vårdcentral": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Mölndal Sjukhus": {
+    "fake": "Karlskoga",
+    "type": "LOC"
+  },
+  "Mölndals sjukhus": {
+    "fake": "Sundsvall",
+    "type": "LOC"
+  },
+  "Läk Kernell Grahn": {
+    "fake": "Ebba Anders Hägg",
+    "type": "PER"
+  },
+  "031-3421000": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "0722-220031": {
+    "fake": "[telefon borttagen]",
+    "type": "PHONE"
+  },
+  "Simon Kernell Grahn": {
+    "fake": "Rolf Edward Dahlström",
+    "type": "PER"
+  },
+  "431 80": {
+    "fake": "95494",
+    "type": "POSTAL_CODE"
+  },
+  "14760": {
+    "fake": "78313",
+    "type": "POSTAL_CODE"
+  },
+  "Hönö vårdcentral": {
+    "fake": "Ängelholm",
+    "type": "LOC"
+  },
+  "HOLMÉN": {
+    "fake": "Jonsson",
+    "type": "PER"
+  },
+  "381013-1684": {
+    "fake": "19380815-8624",
+    "type": "PERSONNUMMER"
+  },
+  "Forsström": {
+    "fake": "Ali",
+    "type": "PER"
+  },
+  "Angelica": {
+    "fake": "Elsa",
+    "type": "PER"
+  },
+  "Teva Sweden AB": {
+    "fake": "Parkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Accord Healthcare AB": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Novartis Sverige AB": {
+    "fake": "Kustens Vårdcentral",
+    "type": "ORG"
+  },
+  "Pfizer AB": {
+    "fake": "Parkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Orifarm": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "10 mikrogram Orifarm AB": {
+    "fake": "Ängens Vårdcentral",
+    "type": "ORG"
+  },
+  "GlaxoSmithKline AB": {
+    "fake": "Björkens Vårdcentral",
+    "type": "ORG"
+  },
+  "AstraZeneca AB": {
+    "fake": "Björkens Vårdcentral",
+    "type": "ORG"
+  },
+  "BIRGITTA": {
+    "fake": "Helena",
+    "type": "PER"
+  },
+  "Maria": {
+    "fake": "Maja",
+    "type": "PER"
+  },
+  "Maria Roupe": {
+    "fake": "Gerda Larsson",
+    "type": "PER"
+  },
+  "Rosuvastatin": {
+    "fake": "Skövde",
+    "type": "LOC"
+  },
+  "Pia Linton Dahlöf": {
+    "fake": "Åsa Evy Larsson",
+    "type": "PER"
+  },
+  "Medicinmottagningen Mölndal": {
+    "fake": "Karlstad",
+    "type": "LOC"
+  },
+  "VÄGEN 2 A": {
+    "fake": "Idrottsgatan 3",
+    "type": "ADDRESS"
+  },
+  "till Hönö Vårdcentral": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Burgerfeldt": {
+    "fake": "Hagström",
+    "type": "PER"
+  },
+  "19050": {
+    "fake": "93374",
+    "type": "POSTAL_CODE"
+  },
+  "Medicinmottagningen": {
+    "fake": "Linköping",
+    "type": "LOC"
+  },
+  "ST Bungerfeldt": {
+    "fake": "Maja Gustafsson",
+    "type": "PER"
+  },
+  "Johanna Bungerfeldt": {
+    "fake": "Freja Gustafsson",
+    "type": "PER"
+  },
+  "Svar\nHandläggare\nUtlåtande\nUndersökningsdatum": {
+    "fake": "Hjördis Axel Berndt Bertilsson",
+    "type": "PER"
+  },
+  "Sahlgrenska Universitetssjukhuset": {
+    "fake": "Stadsdelens Vårdcentral",
+    "type": "ORG"
+  },
+  "Universitetssjukhuset": {
+    "fake": "Björkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Martin  Lydebrant\n Datum": {
+    "fake": "Oscar Alan Berg",
+    "type": "PER"
+  },
+  "ST Burgerfeldt": {
+    "fake": "Lars Jonsson",
+    "type": "PER"
+  },
+  "Johanna Burgerfeldt": {
+    "fake": "Eva Wallin",
+    "type": "PER"
+  },
+  "Johanna Läk": {
+    "fake": "Antonia Andersson",
+    "type": "PER"
+  },
+  "Holter": {
+    "fake": "Jönsson",
+    "type": "PER"
+  },
+  "Säve": {
+    "fake": "Norrköping",
+    "type": "LOC"
+  },
+  "Kungälv": {
+    "fake": "Nyköping",
+    "type": "LOC"
+  },
+  "Karolina": {
+    "fake": "Tindra",
+    "type": "PER"
+  },
+  "Hauptmann": {
+    "fake": "Asplund",
+    "type": "PER"
+  },
+  "läkare\nHönö Vårdcentral": {
+    "fake": "Ekens Vårdcentral",
+    "type": "ORG"
+  },
+  "Dr Martin Lydebrant": {
+    "fake": "Jörgen Robin Larsson",
+    "type": "PER"
+  },
+  "www.sahlgrenskas.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "431 41": {
+    "fake": "58677",
+    "type": "POSTAL_CODE"
+  },
+  "www.sahlgrenska.se": {
+    "fake": "[webbplats borttagen]",
+    "type": "URL"
+  },
+  "41 Mölndal": {
+    "fake": "Växjö",
+    "type": "LOC"
+  },
+  "Sara Psy": {
+    "fake": "Britt-Mari Jansson",
+    "type": "PER"
+  },
+  "Primärvård Hönö Vårdcentral": {
+    "fake": "Björkens Vårdcentral",
+    "type": "ORG"
+  },
+  "Martin Lydebrant  \nDatum": {
+    "fake": "Milton Alfred Johnsson",
+    "type": "PER"
+  },
+  "Peter Berglund": {
+    "fake": "Fredrik Granberg",
+    "type": "PER"
+  },
+  "Päivi": {
+    "fake": "Samuelsson",
+    "type": "PER"
+  },
+  "Sara Grip": {
+    "fake": "Lena Persson",
+    "type": "PER"
+  },
+  "Sara": {
+    "fake": "Christin",
+    "type": "PER"
+  },
+  "Sara Griphammar": {
+    "fake": "Monica Svensson",
+    "type": "PER"
+  },
+  "DAGMAR LINNÉA": {
+    "fake": "Ingegärd Johnson",
+    "type": "PER"
+  },
+  "Rooth": {
+    "fake": "Gustafsson",
+    "type": "PER"
+  },
+  "Lina": {
+    "fake": "Helena",
+    "type": "PER"
+  }
+}

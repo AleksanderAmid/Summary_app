@@ -11,8 +11,8 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from app.backend import deanonymization as d
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
+import deanonymization as d
 
 src = json.loads(Path('data/deidentified/1/journal.json').read_text(encoding='utf-8'))
 source_text = src.get('full_text') or '\n'.join(p.get('text', '') for p in src['pages'])
