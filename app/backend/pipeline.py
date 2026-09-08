@@ -12,6 +12,7 @@ Jobs run on a background thread; the frontend polls /api/jobs/<id>.
 """
 from __future__ import annotations
 
+import copy
 import random
 import threading
 import time
@@ -37,6 +38,7 @@ STAGE_DEFS = [
 
 _jobs: dict[str, dict] = {}
 _jobs_lock = threading.Lock()
+_updates_paused = False
 
 
 def _new_stages() -> list[dict]:
@@ -47,7 +49,7 @@ def _new_stages() -> list[dict]:
 def get_job(job_id: str) -> dict | None:
     with _jobs_lock:
         job = _jobs.get(job_id)
-        return dict(job) if job else None
+        return copy.deepcopy(job) if job else None
 
 
 def _set_stage(job_id: str, key: str, status: str | None = None,
@@ -67,10 +69,33 @@ def _set_stage(job_id: str, key: str, status: str | None = None,
                 break
 
 
+def active_job_count() -> int:
+    with _jobs_lock:
+        return sum(job["status"] == "running" for job in _jobs.values())
+
+
+def pause_for_update() -> None:
+    global _updates_paused
+    with _jobs_lock:
+        if any(job["status"] == "running" for job in _jobs.values()):
+            raise RuntimeError("A summary is still running. Install the update when it finishes.")
+        if _updates_paused:
+            raise RuntimeError("An update is already being installed.")
+        _updates_paused = True
+
+
+def resume_after_update() -> None:
+    global _updates_paused
+    with _jobs_lock:
+        _updates_paused = False
+
+
 def start_job(payload: dict) -> str:
-    """payload: {'text': str} or {'filename': str, 'content': bytes}."""
+    """Accept text, a legacy single file, or an ordered list of files."""
     job_id = history.new_id()
     with _jobs_lock:
+        if _updates_paused:
+            raise RuntimeError("An update is being installed. Please try again after the app restarts.")
         _jobs[job_id] = {
             "id": job_id,
             "status": "running",
@@ -85,6 +110,10 @@ def start_job(payload: dict) -> str:
 
 
 def _derive_name(payload: dict, source_text: str) -> str:
+    if payload.get("files"):
+        files = payload["files"]
+        first = Path(files[0]["filename"]).stem
+        return first if len(files) == 1 else f"{first} + {len(files) - 1} documents"
     if payload.get("filename"):
         return Path(payload["filename"]).stem
     # First meaningful line: skip page markers ("--- Sida 1 ---") and
@@ -120,36 +149,47 @@ def _run_job(job_id: str, payload: dict) -> None:
 def _execute(job_id: str, payload: dict) -> dict:
     # ---------------- Stage 1: transcription ----------------
     t0 = time.perf_counter()
-    if payload.get("filename"):
-        _set_stage(job_id, "transcribe", status="active",
-                   detail=f"Reading {payload['filename']}")
+    files = payload.get("files")
+    if files is None and payload.get("filename"):
+        files = [payload]
+    if files:
+        _set_stage(job_id, "transcribe", status="active")
         UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-        safe_name = Path(payload["filename"]).name
-        upload_path = UPLOAD_DIR / f"{job_id}_{safe_name}"
-        upload_path.write_bytes(payload["content"])
+        documents, texts = [], []
+        for index, document in enumerate(files, 1):
+            safe_name = Path(document["filename"]).name
+            label = f"Document {index} of {len(files)}: {safe_name}"
+            _set_stage(job_id, "transcribe", detail=f"{label} — reading")
+            # The index keeps equal filenames from different folders distinct.
+            upload_path = UPLOAD_DIR / f"{job_id}_{index:02d}_{safe_name}"
+            upload_path.write_bytes(document["content"])
 
-        def cb(detail: str) -> None:
-            _set_stage(job_id, "transcribe", detail=detail)
+            def cb(detail: str, label: str = label) -> None:
+                _set_stage(job_id, "transcribe", detail=f"{label} — {detail}")
 
-        trans = transcription.transcribe_file(upload_path, cb)
-        source_text = trans["full_text"]
-        if not source_text.strip():
-            raise RuntimeError("Transcription produced no text — the file may be "
-                               "empty or unreadable.")
-        n_vision = sum(1 for p in trans["pages"] if p["method"] == "vision_model")
-        n_pages = len(trans["pages"])
-        detail = (f"{n_pages} pages ({n_vision} via {transcription.VISION_MODEL_LABEL}), "
-                  f"{len(source_text)} characters"
-                  if n_pages else f"{len(source_text)} characters extracted")
-        _set_stage(job_id, "transcribe", status="done", detail=detail,
+            trans = transcription.transcribe_file(upload_path, cb)
+            text = trans["full_text"].strip()
+            if not text:
+                raise RuntimeError(f"{safe_name}: no text could be extracted. "
+                                   "Remove or replace this document and try again.")
+            documents.append({"filename": safe_name, "method": trans["method"],
+                              "pages": trans["pages"], "chars": len(text),
+                              "words": len(text.split())})
+            texts.append(text if len(files) == 1 else
+                         f"--- Document {index}: {safe_name} ---\n{text}")
+        source_text = "\n\n".join(texts)
+        input_info = {"type": "file" if len(files) == 1 else "files",
+                      "filename": documents[0]["filename"] if len(files) == 1 else None,
+                      "files": documents, "document_count": len(documents)}
+        if len(files) == 1:
+            input_info.update(method=documents[0]["method"], pages=documents[0]["pages"])
+        _set_stage(job_id, "transcribe", status="done",
+                   detail=f"{len(files)} document(s), {len(source_text)} characters extracted",
                    seconds=time.perf_counter() - t0)
-        input_info = {"type": "file", "filename": safe_name,
-                      "method": trans["method"], "pages": trans["pages"]}
     else:
         source_text = (payload.get("text") or "").strip()
         if not source_text:
             raise RuntimeError("No input text provided.")
-        trans = None
         _set_stage(job_id, "transcribe", status="skipped",
                    detail="Pasted text — no transcription needed",
                    seconds=time.perf_counter() - t0)

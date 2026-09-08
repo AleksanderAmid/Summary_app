@@ -151,6 +151,10 @@ def summarize(source_text: str, progress: ProgressCb | None = None) -> dict:
     user_prompt = build_user_prompt(source_text)
     num_ctx, may_truncate = choose_num_ctx(system_prompt, user_prompt)
 
+    if may_truncate:
+        raise RuntimeError("The combined documents exceed the model context limit. "
+                           "Use fewer or shorter documents so no source text is silently omitted.")
+
     if progress:
         n_ref = len(load_doctor_summaries())
         progress(f"Gemma 3 12B-IT — {n_ref} physician reference summaries in the "

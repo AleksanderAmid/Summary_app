@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.venv/
+app/data/history/
+app/data/uploads/
+app/data/logs/
+SmartDoc.lnk

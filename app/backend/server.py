@@ -5,13 +5,17 @@ the only third-party package is PyMuPDF (optional, for PDF files). Run from
 any location with any Python 3.10+:
 
     python backend/server.py          (from inside the app folder)
-or simply double-click run_app.bat
+or double-click SmartDoc.vbs to launch without a console
 
 The UI is then available at http://localhost:8765.
 
 API
+    GET    /api/health                lightweight health and instance identity
+    GET    /api/updates               cached update status
+    POST   /api/updates/check         check origin for a newer version
+    POST   /api/updates/install       download, install, and restart
     GET    /api/status                Ollama + model availability
-    POST   /api/jobs                  start a run  {text} | {filename, content_b64}
+    POST   /api/jobs                  start a run  {text} | {files: [{filename, content_b64}]}
     GET    /api/jobs/<id>             job progress + result
     GET    /api/history               sidebar list
     GET    /api/history/<id>          full record
@@ -20,12 +24,12 @@ API
 """
 from __future__ import annotations
 
-import base64
 import json
 import os
 import re
 import sys
 import threading
+import uuid
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -41,6 +45,8 @@ import history            # noqa: E402
 import pipeline           # noqa: E402
 import summarization      # noqa: E402
 import transcription      # noqa: E402
+import uploads
+from updater import Updater, UpdateError, BUSY_PHASES
 
 FRONTEND_DIR = APP_ROOT / "frontend"
 # PORT env var (set by dev-preview tooling) overrides the default; when it is
@@ -58,7 +64,7 @@ MIME = {
     ".ico": "image/x-icon",
 }
 
-MAX_UPLOAD_BYTES = 64 * 1024 * 1024  # 64 MB decoded
+INSTANCE_ID = uuid.uuid4().hex
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -75,18 +81,41 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _read_json_body(self) -> dict:
-        length = int(self.headers.get("Content-Length") or 0)
-        if length <= 0:
-            return {}
-        raw = self.rfile.read(length)
         try:
-            text = raw.decode("utf-8")
-        except UnicodeDecodeError:
-            text = raw.decode("latin-1")
-        try:
-            return json.loads(text)
-        except Exception:
-            return {}
+            if self.headers.get("Transfer-Encoding"):
+                raise uploads.UploadError("Use Content-Length for requests.")
+            length = int(self.headers.get("Content-Length") or 0)
+            if length < 0:
+                raise ValueError()
+            if length > uploads.MAX_REQUEST_BYTES:
+                raise uploads.UploadError("Documents exceed the 64 MB combined limit.", 413)
+            if self.headers.get_content_type() != "application/json":
+                raise uploads.UploadError("Use application/json for this request.", 415)
+            self.connection.settimeout(60)
+            raw = self.rfile.read(length)
+            if len(raw) != length:
+                raise ValueError()
+            body = json.loads(raw.decode("utf-8"))
+            if not isinstance(body, dict):
+                raise ValueError()
+            return body
+        except uploads.UploadError:
+            self.close_connection = True
+            raise
+        except (ValueError, UnicodeDecodeError, TimeoutError):
+            self.close_connection = True
+            raise uploads.UploadError("Invalid JSON request.") from None
+
+    def _local_request(self):
+        port = self.server.server_address[1]
+        hosts = {f"localhost:{port}", f"127.0.0.1:{port}", f"[::1]:{port}"}
+        host = self.headers.get("Host", "")
+        origin = self.headers.get("Origin")
+        if host not in hosts or (origin and origin != f"http://{host}"):
+            self.close_connection = True
+            self._send_json({"error": "Only requests from this local app are allowed."}, 403)
+            return False
+        return True
 
     def _send_file(self, path: Path) -> None:
         if not path.is_file():
@@ -97,6 +126,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type",
                          MIME.get(path.suffix.lower(), "application/octet-stream"))
         self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
 
@@ -106,6 +136,8 @@ class Handler(BaseHTTPRequestHandler):
 
     # ------------------------------------------------ GET
     def do_GET(self):
+        if not self._local_request():
+            return
         path = self.path.split("?")[0]
 
         if path == "/" or path == "/index.html":
@@ -113,6 +145,15 @@ class Handler(BaseHTTPRequestHandler):
         if path.startswith("/assets/"):
             name = Path(path[len("/assets/"):]).name  # no traversal
             return self._send_file(FRONTEND_DIR / name)
+
+        if path == "/api/health":
+            return self._send_json({"app": "SmartDoc", "instance_id": INSTANCE_ID, "pid": os.getpid()})
+
+        if path == "/api/updates":
+            state = self.server.updater.snapshot()
+            state["instance_id"] = INSTANCE_ID
+            state["active_jobs"] = pipeline.active_job_count()
+            return self._send_json(state)
 
         if path == "/api/status":
             alive = summarization.ollama_alive()
@@ -150,40 +191,36 @@ class Handler(BaseHTTPRequestHandler):
 
     # ------------------------------------------------ POST
     def do_POST(self):
+        if not self._local_request():
+            return
         path = self.path.split("?")[0]
-        # Read the body unconditionally: leaving it unread on an error path
-        # desynchronizes the HTTP/1.1 keep-alive connection (the next request
-        # on the socket would be parsed out of the leftover body bytes).
-        body = self._read_json_body()
+        try:
+            body = self._read_json_body()
+        except uploads.UploadError as exc:
+            return self._send_json({"error": str(exc)}, exc.status)
+
+        if path == "/api/updates/check":
+            self.server.updater.request_check()
+            return self._send_json({"ok": True}, 202)
+        if path == "/api/updates/install":
+            try:
+                self.server.updater.request_install()
+                return self._send_json({"ok": True, "instance_id": INSTANCE_ID}, 202)
+            except (UpdateError, RuntimeError) as exc:
+                return self._send_json({"error": str(exc)}, 409)
+
+        if self.server.updater.snapshot()["phase"] in BUSY_PHASES:
+            return self._send_json({"error": "An update is being installed. Please wait for the app to restart."}, 409)
 
         if path == "/api/jobs":
-            payload: dict = {}
-            # A present filename routes to the file branch even when the
-            # payload is empty, so a 0-byte upload gets a clear error
-            # instead of falling through to the text branch.
-            if body.get("filename") or body.get("content_b64"):
-                try:
-                    content = base64.b64decode(body.get("content_b64") or "")
-                except Exception:
-                    return self._send_json({"error": "invalid base64 payload"}, 400)
-                if not content:
-                    return self._send_json({"error": "uploaded file is empty"}, 400)
-                if len(content) > MAX_UPLOAD_BYTES:
-                    return self._send_json({"error": "file too large (max 64 MB)"}, 413)
-                filename = (body.get("filename") or "upload").strip()
-                ext = Path(filename).suffix.lower()
-                if ext not in transcription.SUPPORTED_EXTENSIONS:
-                    return self._send_json(
-                        {"error": f"unsupported file type '{ext}' — supported: "
-                                  + ", ".join(transcription.SUPPORTED_EXTENSIONS)}, 400)
-                payload = {"filename": filename, "content": content}
-            elif (body.get("text") or "").strip():
-                payload = {"text": body["text"]}
-            else:
-                return self._send_json({"error": "provide 'text' or "
-                                                 "'filename'+'content_b64'"}, 400)
-            job_id = pipeline.start_job(payload)
-            return self._send_json({"job_id": job_id}, 202)
+            try:
+                payload = uploads.parse_payload(body)
+                job_id = pipeline.start_job(payload)
+                return self._send_json({"job_id": job_id}, 202)
+            except uploads.UploadError as exc:
+                return self._send_json({"error": str(exc)}, exc.status)
+            except RuntimeError as exc:
+                return self._send_json({"error": str(exc)}, 409)
 
         m = re.fullmatch(r"/api/history/([0-9a-f]+)/rename", path)
         if m:
@@ -198,6 +235,10 @@ class Handler(BaseHTTPRequestHandler):
 
     # ------------------------------------------------ DELETE
     def do_DELETE(self):
+        if not self._local_request():
+            return
+        if self.server.updater.snapshot()["phase"] in BUSY_PHASES:
+            return self._send_json({"error": "Please wait for the app to restart."}, 409)
         m = re.fullmatch(r"/api/history/([0-9a-f]+)", self.path.split("?")[0])
         if m:
             if history.delete_record(m.group(1)):
@@ -207,21 +248,36 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
+    from runtime import open_log, spawn_server
+    # pythonw has no stdout/stderr. Keep startup and server errors available.
+    log = open_log()
+    sys.stdout = sys.stderr = log
     (APP_ROOT / "data" / "history").mkdir(parents=True, exist_ok=True)
     (APP_ROOT / "data" / "uploads").mkdir(parents=True, exist_ok=True)
-
     server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
+    restart_requested = threading.Event()
+
+    def restart():
+        restart_requested.set()
+        # Return the install response before the listening socket is closed.
+        threading.Timer(1.0, server.shutdown).start()
+
+    server.updater = Updater(APP_ROOT.parent, pipeline.pause_for_update,
+                             pipeline.resume_after_update, restart)
+    server.updater.start()
     url = f"http://localhost:{PORT}"
-    print(f"Medical Summary app running at {url}")
-    print(f"  summarizer: {summarization.SUMMARIZER_MODEL}")
-    print(f"  vision:     {transcription.VISION_MODEL}")
-    print("Press Ctrl+C to stop.")
+    print(f"SmartDoc running at {url}", flush=True)
     if AUTO_OPEN_BROWSER:
         threading.Timer(0.8, lambda: webbrowser.open(url)).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        server.shutdown()
+        pass
+    finally:
+        server.updater.stop()
+        server.server_close()
+    if restart_requested.is_set():
+        spawn_server(PORT)
 
 
 if __name__ == "__main__":

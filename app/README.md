@@ -46,8 +46,12 @@ otherwise, skipping whatever is already present. Safe to re-run at any time.
 
 ## Run
 
-Double-click `run_app.bat` (it finds Python, offers to install PyMuPDF, and
-opens the browser), or manually from inside the app folder:
+Double-click **`SmartDoc.vbs`** to open the app without a console window.
+It reuses the server when SmartDoc is already running. `run_app.bat` remains
+a compatibility launcher, but Windows may briefly show its console; use
+`SmartDoc.vbs` or a shortcut to it for a fully quiet launch.
+
+Run `setup.bat` first on a new device. You can also start manually from the app folder:
 
 ```powershell
 python backend\server.py
@@ -57,8 +61,13 @@ The UI opens at **http://localhost:8765**.
 
 ## Using the app
 
-1. **Upload a file** (primary) — PDF, DOCX, TXT, PNG/JPG, or one of the
-   study's own transcription JSON files — or **paste text**.
+1. **Upload up to 10 documents for the same patient** — PDF, DOCX, TXT,
+   PNG/JPG, or transcription JSON — or **paste text**. Browse or drop several
+   files at once; add more or remove individual files before sending. The
+   combined upload limit is **64 MB**. Files are transcribed in selection
+   order, labelled by filename, and combined into **one summary and one history
+   entry**. Progress identifies the current document. An unreadable file stops
+   the run; oversized model input is rejected instead of silently truncated.
 2. The progress indicator walks through the stages of the specification:
    - *Transcribing file to text...* — native text layer when available;
      scanned pages go through Gemma 3 12B-IT vision (~1–2 min per page)
@@ -121,3 +130,44 @@ hallucination findings. All inference is local (Ollama on this machine); no
 patient text leaves the workstation. Note that `app/data/` will contain
 patient text and restored identifiers once the app is used on study
 documents — treat it with the same care as `data/`.
+
+## App updates
+
+With the full Git clone and Git installed, the backend checks the branch tracked
+on `origin` at startup and every **30 minutes**. Use **Check for updates** at the
+bottom of the sidebar to check immediately. Checking only reads the remote
+version; it does not download or change application files.
+
+A notification appears at the bottom when an update is available. Click
+**Download and install** to fetch the update, install it, check that its backend
+imports successfully, and restart the hidden server. The open page reconnects
+and reloads. **Later** dismisses that version's notification for this page session.
+
+Installation waits for the user to finish any running summary. New jobs are
+blocked during installation. Updates require a clean code checkout and a
+fast-forward from the current version; local edits or divergent commits are
+kept and reported instead of overwritten. Runtime uploads and history are
+excluded from the clean-code check, and releases that change tracked
+`app/data/` files require a manual update. A failed backend preflight restores
+the previous Git version without restarting. If a release needs additional
+dependencies, run its setup instructions before retrying the update.
+
+The app folder still runs when copied without Git; only automatic updating
+requires the complete clone. When developing, commit and publish changes to
+the tracked branch before testing distribution to other installations.
+Server and launcher errors are logged to `app/data/logs/smartdoc.log`.
+
+## Verification
+
+From the repository root:
+
+```powershell
+python -B -m unittest discover -s app/tests -p test_improvements.py -v
+node --check app/frontend/app.js
+```
+
+These tests use synthetic text, mocked model responses, and temporary local Git
+remotes. They verify batch validation, combined input, API errors, update
+conflicts, rollback, data preservation, and a real server restart. The original
+`test_deanonymization.py` still needs the external study corpus described in that
+file; it is not included in this portable test suite.

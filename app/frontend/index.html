@@ -25,6 +25,7 @@
       <div id="history-empty" class="history-empty hidden">No summaries yet</div>
     </div>
 
+    <div class="update-check"><button id="btn-check-updates" class="linklike">Check for updates</button><span id="update-check-label"></span></div>
     <div class="sidebar-bottom">
       <div class="avatar">SD</div>
       <div class="user-meta">
@@ -47,20 +48,20 @@
 
       <div class="input-card">
         <div class="tabs">
-          <button class="tab active" data-tab="file">Upload file</button>
+          <button class="tab active" data-tab="file">Upload documents</button>
           <button class="tab" data-tab="text">Paste text</button>
         </div>
 
         <div id="pane-file" class="pane">
           <div id="dropzone" class="dropzone">
-            <input type="file" id="file-input" accept=".pdf,.docx,.txt,.json,.png,.jpg,.jpeg" hidden>
+            <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt,.json,.png,.jpg,.jpeg" hidden>
             <div class="dz-icon">⤴</div>
-            <div class="dz-title">Drop a patient journal here</div>
+            <div class="dz-title">Drop up to 10 documents here</div>
             <div class="dz-sub">or <button class="linklike" id="btn-browse">browse files</button> — PDF, DOCX, TXT, JSON, PNG, JPG</div>
-            <div id="file-chip" class="file-chip hidden">
-              <span id="file-chip-name"></span>
-              <button id="file-chip-remove" title="Remove">✕</button>
-            </div>
+            <div class="dz-limit">Documents for the same patient · One combined summary · 64 MB total</div>
+            <div id="file-count" class="file-count hidden" aria-live="polite"></div>
+            <ul id="file-list" class="file-list" aria-label="Selected documents"></ul>
+            <div id="file-error" class="file-error hidden" role="alert"></div>
           </div>
         </div>
 
@@ -125,6 +126,17 @@
 
   </main>
 </div>
+<aside id="update-toast" class="update-toast hidden" aria-label="App updates">
+  <div class="update-toast-copy" role="status" aria-live="polite">
+    <strong id="update-title">An update is available</strong>
+    <p id="update-message"></p>
+  </div>
+  <div class="update-toast-actions">
+    <button id="btn-install-update" class="primary-btn">Download and install</button>
+    <button id="btn-retry-update" class="ghost-btn hidden">Retry</button>
+    <button id="btn-dismiss-update" class="ghost-btn">Later</button>
+  </div>
+</aside>
 <script src="/assets/app.js"></script>
 </body>
 </html>

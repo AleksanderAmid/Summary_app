@@ -9,7 +9,11 @@ const views = {
   result: $("#view-result"),
 };
 
-let selectedFile = null;       // {name, b64}
+const MAX_DOCUMENTS = 10;
+const MAX_UPLOAD_BYTES = 64 * 1024 * 1024;
+let selectedFiles = [];
+let submitting = false;
+let updateInstalling = false;
 let activeHistoryId = null;
 let viewingJobId = null;       // job whose progress view is currently on screen
 
@@ -134,27 +138,76 @@ function setTab(name) {
 
 function updateSendEnabled() {
   const fileTab = !$("#pane-file").classList.contains("hidden");
-  const ready = fileTab ? !!selectedFile : $("#text-input").value.trim().length > 0;
-  $("#btn-send").disabled = !ready;
+  const ready = fileTab ? selectedFiles.length > 0 : $("#text-input").value.trim().length > 0;
+  $("#btn-send").disabled = !ready || submitting || updateInstalling;
+  $("#btn-browse").disabled = submitting || updateInstalling;
+  $("#file-input").disabled = submitting || updateInstalling;
 }
 
-function acceptFile(file) {
-  const okExt = [".pdf", ".docx", ".txt", ".json", ".png", ".jpg", ".jpeg"];
-  const dot = file.name.lastIndexOf(".");
-  const ext = dot > 0 ? file.name.slice(dot).toLowerCase() : "";
-  if (!okExt.includes(ext)) {
-    alert(`Unsupported file type "${ext}".\nSupported: ${okExt.join(", ")}`);
-    return;
+function fileError(message = "") {
+  $("#file-error").textContent = message;
+  $("#file-error").classList.toggle("hidden", !message);
+}
+
+function renderFiles() {
+  const list = $("#file-list");
+  list.innerHTML = "";
+  for (const file of selectedFiles) {
+    const chip = document.createElement("li");
+    chip.className = "file-chip";
+    const name = document.createElement("span");
+    name.textContent = file.name;
+    name.title = file.name;
+    const remove = document.createElement("button");
+    remove.textContent = "×";
+    remove.setAttribute("aria-label", "Remove " + file.name);
+    remove.disabled = submitting || updateInstalling;
+    remove.addEventListener("click", () => {
+      selectedFiles = selectedFiles.filter((item) => item !== file);
+      fileError();
+      renderFiles();
+    });
+    chip.append(name, remove);
+    list.appendChild(chip);
   }
-  const reader = new FileReader();
-  reader.onload = () => {
-    const b64 = reader.result.split(",", 2)[1];
-    selectedFile = { name: file.name, b64 };
-    $("#file-chip-name").textContent = file.name;
-    $("#file-chip").classList.remove("hidden");
-    updateSendEnabled();
-  };
-  reader.readAsDataURL(file);
+  const bytes = selectedFiles.reduce((total, file) => total + file.size, 0);
+  $("#file-count").textContent = selectedFiles.length + " / " + MAX_DOCUMENTS + " documents · " + (bytes / 1024 / 1024).toFixed(1) + " MB";
+  $("#file-count").classList.toggle("hidden", selectedFiles.length === 0);
+  updateSendEnabled();
+}
+
+function acceptFiles(files) {
+  if (submitting || updateInstalling) return;
+  const okExt = [".pdf", ".docx", ".txt", ".json", ".png", ".jpg", ".jpeg"];
+  const key = (file) => file.name + ":" + file.size + ":" + file.lastModified;
+  const known = new Set(selectedFiles.map(key));
+  const additions = [];
+  for (const file of Array.from(files)) {
+    if (known.has(key(file))) continue;
+    known.add(key(file));
+    const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+    if (!okExt.includes(ext)) return fileError(file.name + ": unsupported file type.");
+    if (file.size === 0) return fileError(file.name + ": this document is empty.");
+    additions.push(file);
+  }
+  const next = [...selectedFiles, ...additions];
+  if (next.length > MAX_DOCUMENTS)
+    return fileError("You can add up to 10 documents. Remove a document before adding more.");
+  if (next.reduce((sum, file) => sum + file.size, 0) > MAX_UPLOAD_BYTES)
+    return fileError("The selected documents exceed the 64 MB combined limit.");
+  selectedFiles = next;
+  fileError();
+  renderFiles();
+}
+
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve({ filename: file.name, content_b64: String(reader.result).split(",", 2)[1] });
+    reader.onerror = () => reject(new Error("Could not read " + file.name + ". Select it again."));
+    reader.onabort = () => reject(new Error("Reading " + file.name + " was cancelled."));
+    reader.readAsDataURL(file);
+  });
 }
 
 /* ---------------- job lifecycle ---------------- */
@@ -265,20 +318,25 @@ const STAGE_SKELETON = [
 ];
 
 async function startJob() {
+  if (submitting || updateInstalling || $("#btn-send").disabled) return;
   const fileTab = !$("#pane-file").classList.contains("hidden");
-  const body = fileTab
-    ? { filename: selectedFile.name, content_b64: selectedFile.b64 }
-    : { text: $("#text-input").value };
-
-  $("#btn-send").disabled = true;
+  const files = selectedFiles.slice();
+  const pastedText = $("#text-input").value;
+  submitting = true;
+  renderFiles();
   try {
+    const body = fileTab
+      ? { files: await Promise.all(files.map(readFile)) }
+      : { text: pastedText };
     const { job_id } = await api("/api/jobs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
     viewingJobId = job_id;
-    $("#progress-title").textContent = fileTab ? selectedFile.name : "Pasted text";
+    $("#progress-title").textContent = fileTab
+      ? (files.length === 1 ? files[0].name : "Combined summary · " + files.length + " documents")
+      : "Pasted text";
     $("#progress-error").classList.add("hidden");
     $("#btn-cancel-view").classList.add("hidden");
     renderStages(STAGE_SKELETON.map((s) =>
@@ -286,8 +344,11 @@ async function startJob() {
     showView("progress");
     pollJob(job_id);
   } catch (e) {
-    alert("Could not start the job: " + e.message);
-    updateSendEnabled();
+    fileError("Could not start the summary: " + e.message);
+    if (!fileTab) alert("Could not start the summary: " + e.message);
+  } finally {
+    submitting = false;
+    renderFiles();
   }
 }
 
@@ -352,7 +413,7 @@ function showRecord(rec) {
       <dt>Model</dt><dd>${escapeHtml(t.model || "")} (winning configuration, thesis §4.4)</dd>
       <dt>Methodology</dt><dd>Few-shot prompt engineering — 25 physician reference summaries in the system prompt</dd>
       <dt>Generation</dt><dd>temperature 0.0 · top-p 1.0 · seed 42 · max 512 tokens · num_ctx ${t.num_ctx ?? "—"}</dd>
-      <dt>Input</dt><dd>${escapeHtml(input.type || "")}${input.filename ? " — " + escapeHtml(input.filename) : ""} (${input.words ?? "?"} words)</dd>
+      <dt>Input</dt><dd>${escapeHtml(input.type || "")}${input.files ? " — " + input.files.map((f) => escapeHtml(f.filename)).join(", ") : (input.filename ? " — " + escapeHtml(input.filename) : "")} (${input.words ?? "?"} words)</dd>
       <dt>Summary tokens</dt><dd>${t.eval_count ?? "—"} generated in ${t.wall_seconds ?? "—"}s (prompt: ${t.prompt_eval_count ?? "—"} tokens)</dd>
       ${stageRows}
     </dl>`;
@@ -375,8 +436,9 @@ async function openRecord(id) {
 function goHome() {
   activeHistoryId = null;
   viewingJobId = null;  // running jobs keep polling and land in the sidebar
-  selectedFile = null;
-  $("#file-chip").classList.add("hidden");
+  selectedFiles = [];
+  fileError();
+  renderFiles();
   $("#file-input").value = "";
   $("#text-input").value = "";
   updateSendEnabled();
@@ -393,14 +455,8 @@ document.querySelectorAll(".tab").forEach((t) =>
 
 $("#btn-browse").addEventListener("click", () => $("#file-input").click());
 $("#file-input").addEventListener("change", (e) => {
-  if (e.target.files.length) acceptFile(e.target.files[0]);
-});
-$("#file-chip-remove").addEventListener("click", (e) => {
-  e.stopPropagation();
-  selectedFile = null;
-  $("#file-chip").classList.add("hidden");
-  $("#file-input").value = "";
-  updateSendEnabled();
+  acceptFiles(e.target.files);
+  e.target.value = "";
 });
 
 const dz = $("#dropzone");
@@ -420,7 +476,7 @@ dz.addEventListener("drop", (e) => {
   e.preventDefault();
   dragDepth = 0;
   dz.classList.remove("dragover");
-  if (e.dataTransfer.files.length) acceptFile(e.dataTransfer.files[0]);
+  if (e.dataTransfer.files.length) acceptFiles(e.dataTransfer.files);
 });
 
 $("#text-input").addEventListener("input", updateSendEnabled);
@@ -447,9 +503,121 @@ $("#btn-download").addEventListener("click", () => {
   URL.revokeObjectURL(a.href);
 });
 
+/* ---------------- app updates ---------------- */
+
+let updateState = {};
+let updateNoticeRequested = false;
+let dismissedUpdate = null;
+let restartFromInstance = null;
+let installStartedAt = 0;
+let updatePollBusy = false;
+
+function renderUpdate(state) {
+  updateState = state;
+  const wasInstalling = updateInstalling;
+  updateInstalling = ["downloading", "installing", "restarting"].includes(state.phase);
+  const checking = state.phase === "checking";
+  $("#btn-check-updates").disabled = checking || updateInstalling;
+  $("#update-check-label").textContent = checking ? "Checking…" :
+    state.available ? "Update available" : state.phase === "error" ? "Check unavailable" : "Up to date";
+  $("#btn-check-updates").title = state.message || "";
+  const show = updateInstalling || updateNoticeRequested ||
+    (state.available && dismissedUpdate !== state.latest);
+  $("#update-toast").classList.toggle("hidden", !show);
+  const titles = {
+    downloading: "Downloading update",
+    installing: "Installing update",
+    restarting: "Restarting SmartDoc",
+    checking: "Checking for updates",
+    error: "Update could not be completed",
+    current: "SmartDoc is up to date",
+  };
+  $("#update-title").textContent = titles[state.phase] || "An update is available";
+  $("#update-message").textContent = state.message || "Checking for a newer version…";
+  if (state.available && state.active_jobs > 0 && !updateInstalling)
+    $("#update-message").textContent = "An update is available. You can install it when the current summary finishes.";
+  $("#btn-install-update").classList.toggle("hidden", !state.available || updateInstalling || state.phase === "error");
+  $("#btn-install-update").disabled = !state.can_install || state.active_jobs > 0 || checking;
+  $("#btn-retry-update").classList.toggle("hidden", state.phase !== "error");
+  $("#btn-dismiss-update").classList.toggle("hidden", updateInstalling);
+  $("#btn-dismiss-update").textContent = state.available ? "Later" : "Close";
+  if (wasInstalling !== updateInstalling) renderFiles();
+  else updateSendEnabled();
+}
+
+async function refreshUpdates() {
+  if (updatePollBusy) return;
+  updatePollBusy = true;
+  try {
+    const state = await api("/api/updates");
+    if (restartFromInstance && state.instance_id !== restartFromInstance) {
+      location.reload();
+      return;
+    }
+    if (state.phase === "restarting" && !restartFromInstance) {
+      restartFromInstance = state.instance_id;
+      installStartedAt = Date.now();
+    }
+    if (state.phase === "error" || state.phase === "current") {
+      restartFromInstance = null;
+      installStartedAt = 0;
+    }
+    renderUpdate(state);
+  } catch {
+    if (restartFromInstance) {
+      if (Date.now() - installStartedAt > 120000 && installStartedAt) {
+        renderUpdate({ phase: "error", message: "SmartDoc has not reconnected. Reopen it using the SmartDoc launcher; your saved summaries are kept." });
+      } else {
+        renderUpdate({ phase: "restarting", message: "Waiting for SmartDoc to restart…" });
+      }
+    }
+  } finally {
+    updatePollBusy = false;
+  }
+}
+
+async function checkUpdates() {
+  updateNoticeRequested = true;
+  dismissedUpdate = null;
+  renderUpdate({ ...updateState, phase: "checking", message: "Checking for a newer version…" });
+  try {
+    await api("/api/updates/check", { method: "POST",
+      headers: { "Content-Type": "application/json" }, body: "{}" });
+    await refreshUpdates();
+  } catch (e) {
+    renderUpdate({ phase: "error", message: e.message });
+  }
+}
+
+$("#btn-check-updates").addEventListener("click", checkUpdates);
+$("#btn-retry-update").addEventListener("click", checkUpdates);
+$("#btn-dismiss-update").addEventListener("click", () => {
+  dismissedUpdate = updateState.latest;
+  updateNoticeRequested = false;
+  $("#update-toast").classList.add("hidden");
+});
+$("#btn-install-update").addEventListener("click", async () => {
+  if (updateInstalling) return;
+  updateNoticeRequested = true;
+  installStartedAt = Date.now();
+  renderUpdate({ ...updateState, phase: "downloading", message: "Downloading the latest update…" });
+  try {
+    const result = await api("/api/updates/install", { method: "POST",
+      headers: { "Content-Type": "application/json" }, body: "{}" });
+    restartFromInstance = result.instance_id;
+    await refreshUpdates();
+  } catch (e) {
+    restartFromInstance = null;
+    renderUpdate({ phase: "error", message: e.message });
+  }
+});
+
 /* ---------------- init ---------------- */
 
 refreshStatus();
 setInterval(refreshStatus, 15000);
 refreshHistory();
 showView("home");
+
+refreshUpdates();
+setInterval(refreshUpdates, 2000);

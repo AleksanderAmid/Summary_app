@@ -345,3 +345,45 @@ table.replacements th, table.replacements td {
 table.replacements th { color: var(--text-faint); font-weight: 500; }
 
 .disclaimer { margin-top: 22px; font-size: 12.5px; color: var(--text-faint); text-align: center; }
+
+/* Multi-document selection and app updates */
+button:disabled { cursor: not-allowed; opacity: .6; }
+.dz-limit { margin-top: 10px; font-size: 12px; color: var(--text-muted); }
+.file-count { margin-top: 16px; font-size: 12px; color: var(--text-muted); text-align: left; }
+.file-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 7px; }
+.file-chip { margin: 0; max-width: 100%; text-align: left; }
+.file-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-chip button { flex-shrink: 0; font-size: 18px; min-width: 24px; }
+.file-error { margin-top: 12px; color: var(--red); font-size: 13px; text-align: left; }
+.update-check { padding: 10px 24px; display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+.update-check span { font-size: 11px; color: var(--text-muted); }
+.update-toast {
+  position: fixed; z-index: 20; right: 24px; bottom: 24px;
+  width: min(450px, calc(100vw - 32px)); padding: 20px;
+  border: 1px solid var(--border-strong); border-radius: 14px;
+  background: var(--card); box-shadow: 0 8px 40px rgba(40, 35, 20, .16);
+}
+.update-toast strong { font-size: 15px; }
+.update-toast p { font-size: 13px; line-height: 1.5; color: var(--text-muted); margin: 8px 0 16px; }
+.update-toast-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.primary-btn { background: var(--accent-soft); border: 1px solid var(--accent); color: #315d7b; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13.5px; }
+.primary-btn:hover { background: #d3e6f4; }
+@media (max-width: 760px) {
+  .sidebar { width: 200px; }
+  .greeting { font-size: 32px; }
+  .card-footer { gap: 12px; flex-wrap: wrap; }
+  .model-label { display: none; }
+  .kv { grid-template-columns: 1fr; }
+  .update-toast { bottom: 16px; right: 16px; }
+}
+@media (max-width: 540px) {
+  .layout { height: auto; min-height: 100vh; flex-direction: column; }
+  .sidebar { width: 100%; border-right: none; }
+  .sidebar-top { display: flex; align-items: center; gap: 16px; }
+  .brand { padding-bottom: 0; }
+  .new-chat { width: auto; }
+  .recents { max-height: 160px; }
+  .sidebar-bottom { display: none; }
+  .main { overflow: visible; }
+  .view { padding-top: 20px; }
+}
