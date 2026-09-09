@@ -160,7 +160,9 @@ if ($LASTEXITCODE -eq 0) {
 
 Write-Host ""
 Write-Step "Step 5/5 - Swedish OCR"
-& "$PSScriptRoot\setup_ocr.ps1"
+$setupPython = & cmd /c "$py -c `"import sys; print(sys.executable)`""
+if ($LASTEXITCODE -ne 0 -or -not $setupPython) { throw 'Could not locate the Python installation used by setup.' }
+& "$PSScriptRoot\setup_ocr.ps1" -PythonExecutable $setupPython.Trim()
 
 Write-Host "Setup complete. Start the app with SmartDoc.vbs" -ForegroundColor Green
 Write-Host "(the UI opens at http://localhost:8765)"

@@ -136,9 +136,17 @@ powershell -ExecutionPolicy Bypass -File app/setup_ocr.ps1
 ```
 
 `-SkipPaddle` installs the lightweight Tesseract path only. The full setup uses
-winget for Tesseract when needed, downloads official Swedish/English/orientation
+winget for Tesseract when needed, with a verified direct Windows installer from
+the [Tesseract release](https://github.com/tesseract-ocr/tesseract/releases/tag/5.5.3)
+when winget is missing or cannot install it. The direct installer is checked
+against its pinned SHA256 and uses a dedicated per-user Tesseract directory.
+Setup downloads official Swedish/English/orientation
 language files, and installs the optional pinned packages in `requirements-ocr.txt`.
 It reuses existing PaddleOCR models, otherwise downloads them during setup.
+Setup verifies all three language files and runs a synthetic Swedish reading
+test before reporting success. Missing Tesseract or failed verification stops
+setup with an error. The full setup passes the same Python executable to the OCR
+step so packages are installed into the Python environment it just checked.
 `SMARTDOC_TESSERACT`, `SMARTDOC_TESSDATA` and `SMARTDOC_OCR_MODELS` support custom
 local locations. The checked model files must be present before runtime use.
 
@@ -266,7 +274,14 @@ python -B -m unittest discover -s app/tests -p test_privacy_exports.py -v
 python -B -m unittest discover -s app/tests -p test_improvements.py -v
 python -B -m unittest discover -s app/tests -p test_parallel.py -v
 python -B -m unittest discover -s app/tests -p test_summary_context.py -v
+python -B -m unittest discover -s app/tests -p test_ocr_setup.py -v
 node --check app/frontend/app.js
+```
+
+Windows installer regression checks use Pester with mocked downloads/installers:
+
+```powershell
+Invoke-Pester app/tests/setup_ocr.Tests.ps1
 ```
 
 The tests use synthetic text, model mocks and temporary Git remotes. They cover
