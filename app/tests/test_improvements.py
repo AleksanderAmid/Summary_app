@@ -206,7 +206,11 @@ class UpdateTests(unittest.TestCase):
         self.git(self.seed, "config", "user.name", "SmartDoc Test")
         (self.seed / "app/backend").mkdir(parents=True)
         (self.seed / "app/backend/server.py").write_text("VERSION = 1\n", encoding="utf-8")
-        (self.seed / ".gitignore").write_text("app/data/\n__pycache__/\n", encoding="utf-8")
+        (self.seed / ".gitignore").write_text("app/data/\n__pycache__/\n.env\nignored.txt\n", encoding="utf-8")
+        legacy = self.seed / "app/data/history/legacy.json"
+        legacy.parent.mkdir(parents=True)
+        legacy.write_text('{"legacy":true}', encoding="utf-8")
+        self.git(self.seed, "add", "-f", "app/data/history/legacy.json")
         self.commit("Initial")
         self.git(self.base, "clone", "--bare", str(self.seed), str(self.remote))
         self.git(self.base, "clone", str(self.remote), str(self.clone))
@@ -240,7 +244,7 @@ class UpdateTests(unittest.TestCase):
         self.assertTrue(state["available"])
         self.assertEqual(self.git(self.clone, "rev-parse", "HEAD"), self.old)
         data = self.clone / "app/data/history/user.json"
-        data.parent.mkdir(parents=True)
+        data.parent.mkdir(parents=True, exist_ok=True)
         data.write_text('{"test":true}', encoding="utf-8")
         self.assertEqual(self.install()["phase"], "restarting")
         self.assertNotEqual(self.git(self.clone, "rev-parse", "HEAD"), self.old)
@@ -248,16 +252,95 @@ class UpdateTests(unittest.TestCase):
         self.restart.assert_called_once()
         self.resume.assert_not_called()
 
-    def test_local_edits_are_not_overwritten(self):
+    def test_local_edits_are_backed_up_and_latest_code_is_installed(self):
         self.publish()
         local = self.clone / "app/backend/server.py"
         local.write_text("LOCAL = True\n", encoding="utf-8")
-        self.assertFalse(self.updater.check()["can_install"])
-        self.assertEqual(self.install()["phase"], "error")
+        self.assertTrue(self.updater.check()["can_install"])
+        # Checking must not stash or discard anything.
         self.assertEqual(local.read_text(), "LOCAL = True\n")
+        self.assertEqual(self.install()["phase"], "restarting")
+        self.assertEqual(local.read_text(), "VERSION = 2\n")
+        self.assertEqual(self.git(self.clone, "rev-parse", "HEAD"), self.git(self.seed, "rev-parse", "HEAD"))
+        self.assertIn("LOCAL = True", self.git(self.clone, "show", "stash@{0}:app/backend/server.py"))
+        self.restart.assert_called_once()
+
+    def test_staged_and_unstaged_edits_restore_on_failed_release(self):
+        self.publish("this is invalid python !!!\n")
+        local = self.clone / "app/backend/server.py"
+        local.write_text("STAGED = True\n", encoding="utf-8")
+        self.git(self.clone, "add", "app/backend/server.py")
+        local.write_text("UNSTAGED = True\n", encoding="utf-8")
+        self.assertEqual(self.install()["phase"], "error")
         self.assertEqual(self.git(self.clone, "rev-parse", "HEAD"), self.old)
+        self.assertEqual(local.read_text(), "UNSTAGED = True\n")
+        self.assertEqual(self.git(self.clone, "show", ":app/backend/server.py"), "STAGED = True")
         self.restart.assert_not_called()
-        self.resume.assert_called_once()
+
+    def test_changed_tracked_patient_data_and_local_settings_stay_in_place(self):
+        self.publish()
+        data = self.clone / "app/data/history/legacy.json"
+        data.write_text('{"patient":"synthetic staged"}', encoding="utf-8")
+        self.git(self.clone, "add", "-f", "app/data/history/legacy.json")
+        data.write_text('{"patient":"synthetic current"}', encoding="utf-8")
+        settings = self.clone / ".env"
+        settings.write_text("SYNTHETIC_SETTING=1\n", encoding="utf-8")
+        notes = self.clone / "personal-notes.txt"
+        notes.write_text("Synthetic untracked note", encoding="utf-8")
+        (self.clone / "app/backend/server.py").write_text("LOCAL = True\n", encoding="utf-8")
+        self.assertEqual(self.install()["phase"], "restarting")
+        self.assertEqual(data.read_text(), '{"patient":"synthetic current"}')
+        self.assertEqual(settings.read_text(), "SYNTHETIC_SETTING=1\n")
+        self.assertEqual(notes.read_text(), "Synthetic untracked note")
+        stashed_paths = self.git(self.clone, "diff", "--name-only", "stash@{0}^1", "stash@{0}")
+        self.assertNotIn("app/data", stashed_paths)
+
+    def test_untracked_and_ignored_collisions_are_backed_up(self):
+        for name in ("new.txt", "ignored.txt"):
+            (self.seed / name).write_text("Remote release file", encoding="utf-8")
+            self.git(self.seed, "add", "-f", name)
+            (self.clone / name).write_text("Local file", encoding="utf-8")
+        self.publish()
+        self.assertEqual(self.install()["phase"], "restarting")
+        for name in ("new.txt", "ignored.txt"):
+            self.assertEqual((self.clone / name).read_text(), "Remote release file")
+            copies = list((self.clone / "app/data/update-backups").glob("*/files/" + name))
+            self.assertEqual(len(copies), 1)
+            self.assertEqual(copies[0].read_text(), "Local file")
+
+    def test_untracked_collision_restores_on_failed_release(self):
+        (self.seed / "new.txt").write_text("Remote release file", encoding="utf-8")
+        (self.clone / "new.txt").write_text("Local file", encoding="utf-8")
+        self.publish("invalid python !!!\n")
+        self.assertEqual(self.install()["phase"], "error")
+        self.assertEqual((self.clone / "new.txt").read_text(), "Local file")
+        self.assertEqual(self.git(self.clone, "rev-parse", "HEAD"), self.old)
+
+    def test_file_directory_collisions_are_backed_up(self):
+        (self.seed / "new-folder").mkdir()
+        (self.seed / "new-folder/code.txt").write_text("Remote code", encoding="utf-8")
+        (self.clone / "new-folder").write_text("Local file", encoding="utf-8")
+        (self.seed / "new-file").write_text("Remote file", encoding="utf-8")
+        (self.clone / "new-file").mkdir()
+        (self.clone / "new-file/note.txt").write_text("Local note", encoding="utf-8")
+        self.publish()
+        self.assertEqual(self.install()["phase"], "restarting")
+        self.assertEqual((self.clone / "new-folder/code.txt").read_text(), "Remote code")
+        self.assertEqual((self.clone / "new-file").read_text(), "Remote file")
+        backups = self.clone / "app/data/update-backups"
+        self.assertEqual(next(backups.glob("*/files/new-folder")).read_text(), "Local file")
+        self.assertEqual(next(backups.glob("*/files/new-file/note.txt")).read_text(), "Local note")
+
+    def test_install_uses_new_release_published_during_download(self):
+        self.publish()
+        original_git = self.updater._git
+        def git_with_new_release(*args, **kwargs):
+            if args[0] == "fetch":
+                self.publish("VERSION = 3\n")
+            return original_git(*args, **kwargs)
+        with patch.object(self.updater, "_git", side_effect=git_with_new_release):
+            self.assertEqual(self.install()["phase"], "restarting")
+        self.assertEqual((self.clone / "app/backend/server.py").read_text(), "VERSION = 3\n")
 
     def test_failed_dependency_install_restores_previous_code(self):
         (self.seed / "app/requirements.txt").write_text("synthetic-package==1\n", encoding="utf-8")
@@ -282,7 +365,7 @@ class UpdateTests(unittest.TestCase):
         self.assertEqual((self.clone / "app/backend/server.py").read_text(), "VERSION = 1\n")
         self.restart.assert_not_called()
 
-    def test_diverged_checkout_and_active_jobs_are_blocked(self):
+    def test_diverged_checkout_installs_remote_with_recovery_reference(self):
         self.publish()
         self.git(self.clone, "config", "user.email", "test@example.invalid")
         self.git(self.clone, "config", "user.name", "SmartDoc Test")
@@ -290,8 +373,14 @@ class UpdateTests(unittest.TestCase):
         self.git(self.clone, "add", ".")
         self.git(self.clone, "commit", "-m", "Local commit")
         local_head = self.git(self.clone, "rev-parse", "HEAD")
-        self.assertIn("diverged", self.install()["message"])
-        self.assertEqual(self.git(self.clone, "rev-parse", "HEAD"), local_head)
+        self.assertEqual(self.install()["phase"], "restarting")
+        self.assertEqual(self.git(self.clone, "rev-parse", "HEAD"), self.git(self.seed, "rev-parse", "HEAD"))
+        self.assertIn(local_head, self.git(self.clone, "for-each-ref", "--format=%(objectname)", "refs/smartdoc-backups/"))
+        self.assertFalse((self.clone / "local.txt").exists())
+        self.restart.assert_called_once()
+
+    def test_active_jobs_are_blocked(self):
+        self.publish()
         self.pause.side_effect = RuntimeError("A summary is still running.")
         with self.assertRaisesRegex(RuntimeError, "still running"):
             self.updater.request_install()
@@ -304,6 +393,31 @@ class UpdateTests(unittest.TestCase):
         self.git(self.clone, "remote", "set-url", "origin", str(self.base / "nonexistent"))
         self.assertEqual(self.updater.check()["phase"], "error")
         self.assertEqual(self.git(self.clone, "rev-parse", "HEAD"), self.old)
+
+    def test_failed_download_keeps_local_edits_in_place(self):
+        self.publish()
+        local = self.clone / "app/backend/server.py"
+        local.write_text("LOCAL = True\n", encoding="utf-8")
+        original_git = self.updater._git
+        def failed_fetch(*args, **kwargs):
+            if args[0] == "fetch":
+                raise RuntimeError("Synthetic connection failure")
+            return original_git(*args, **kwargs)
+        with patch.object(self.updater, "_git", side_effect=failed_fetch):
+            self.assertEqual(self.install()["phase"], "error")
+        self.assertEqual(local.read_text(), "LOCAL = True\n")
+        self.assertEqual(self.git(self.clone, "rev-parse", "HEAD"), self.old)
+        self.assertEqual(self.git(self.clone, "stash", "list"), "")
+        self.restart.assert_not_called()
+        self.resume.assert_called_once()
+
+    def test_current_version_with_local_edits_does_not_reinstall(self):
+        local = self.clone / "app/backend/server.py"
+        local.write_text("LOCAL = True\n", encoding="utf-8")
+        self.assertEqual(self.updater.check()["phase"], "current")
+        self.assertEqual(self.install()["phase"], "current")
+        self.assertEqual(local.read_text(), "LOCAL = True\n")
+        self.restart.assert_not_called()
 
     def test_update_cannot_replace_stored_documents(self):
         self.publish()
@@ -363,6 +477,9 @@ class UpdateTests(unittest.TestCase):
             self.fail("Server did not reach expected state")
         original = wait_for(lambda: api("/api/health"))
         wait_for(lambda: api("/api/updates")["phase"] == "current")
+        # The real running updater must accept a dirty installation too.
+        local_code = self.clone / "app/backend/server.py"
+        local_code.write_text(local_code.read_text(encoding="utf-8") + "\n# Local installation edit\n", encoding="utf-8")
         (self.seed / "release.txt").write_text("Synthetic update", encoding="utf-8")
         self.commit("Download test")
         self.git(self.seed, "push", "origin", "main")

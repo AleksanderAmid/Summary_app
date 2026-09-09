@@ -1,6 +1,7 @@
-"""Opt-in Git updates. Checks never change the checkout; installation is ff-only."""
+"""Opt-in Git updates that replace app code while preserving local runtime data."""
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 import shutil
@@ -8,10 +9,12 @@ import subprocess
 import sys
 import threading
 import time
+import uuid
 
 CHECK_INTERVAL = 30 * 60
 BUSY_PHASES = {"downloading", "installing", "restarting"}
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+CODE_PATHS = (".", ":(exclude)app/data")
 
 
 class UpdateError(RuntimeError):
@@ -38,10 +41,12 @@ class Updater:
         with self._lock:
             return dict(self.state)
 
-    def _git(self, *args, timeout=30, check=True):
+    def _git(self, *args, timeout=30, check=True, index_file=None):
         if not self.git:
             raise UpdateError("Install Git for Windows to enable app updates.")
         env = dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never")
+        if index_file is not None:
+            env["GIT_INDEX_FILE"] = str(index_file)
         try:
             result = subprocess.run(
                 [self.git, "-c", "core.hooksPath=" + os.devnull, *args],
@@ -68,8 +73,63 @@ class Updater:
         self._git("check-ref-format", ref)
         return ref
 
-    def _dirty(self):
-        return bool(self._git("status", "--porcelain", "--untracked-files=normal", "--", ".", ":(exclude)app/data").stdout.strip())
+    def _backup_edits(self, previous, backup):
+        # Keep a local recovery reference even when an installation has its own commits.
+        self._git("update-ref", "refs/smartdoc-backups/" + backup.name, previous)
+        edits = None
+        if self._git("status", "--porcelain", "--untracked-files=no", "--", *CODE_PATHS).stdout.strip():
+            # A normal path-limited stash still includes ALL staged files. Build
+            # the stash with a separate index so newly staged patient data never
+            # enters either backup tree. The real index/worktree are untouched.
+            index = self.root / self._git("rev-parse", "--git-path", "index").stdout.strip()
+            temporary_index = backup / "index"
+            shutil.copy2(index, temporary_index)
+            try:
+                if (self._git("ls-files", "--", "app/data").stdout.strip()
+                        or self._git("ls-tree", previous, "--", "app/data").stdout.strip()):
+                    self._git("restore", "--source=" + previous, "--staged", "--", "app/data", index_file=temporary_index)
+                staged_tree = self._git("write-tree", index_file=temporary_index).stdout.strip()
+                identity = ("-c", "user.name=SmartDoc updater", "-c", "user.email=updater@smartdoc.invalid")
+                staged_commit = self._git(*identity, "commit-tree", staged_tree, "-p", previous,
+                                          "-m", "SmartDoc staged code backup").stdout.strip()
+                self._git("add", "-u", "--", *CODE_PATHS, index_file=temporary_index)
+                worktree = self._git("write-tree", index_file=temporary_index).stdout.strip()
+                edits = self._git(*identity, "commit-tree", worktree, "-p", previous, "-p", staged_commit,
+                                 "-m", "SmartDoc before update " + backup.name).stdout.strip()
+                self._git("update-ref", "--create-reflog", "-m", "SmartDoc before update " + backup.name,
+                          "refs/stash", edits)
+            finally:
+                temporary_index.unlink(missing_ok=True)
+        return edits
+
+    def _backup_obstructions(self, target, backup, moved):
+        """Move only untracked/ignored paths that the incoming code would replace."""
+        tracked = set(self._git("ls-files", "-z").stdout.split("\0"))
+        incoming = self._git("ls-tree", "-r", "--name-only", "-z", target).stdout.split("\0")
+        collisions = set()
+        for name in incoming:
+            if not name or name == "app/data" or name.startswith("app/data/"):
+                continue
+            path = self.root / name
+            # A file or symlink can also obstruct a new directory further down the path.
+            for parent in reversed(path.relative_to(self.root).parents):
+                candidate = self.root / parent
+                if candidate.is_symlink() or (candidate.exists() and not candidate.is_dir()):
+                    if parent.as_posix() not in tracked:
+                        collisions.add(candidate)
+                    break
+            else:
+                if name not in tracked and (path.exists() or path.is_symlink()):
+                    collisions.add(path)
+        for path in sorted(collisions, key=lambda p: len(p.parts)):
+            if any(path.is_relative_to(saved) for saved, _ in moved):
+                continue
+            destination = backup / "files" / path.relative_to(self.root)
+            if not path.parent.resolve().is_relative_to(self.root) or not destination.resolve().is_relative_to(backup):
+                raise UpdateError("A local file points outside the app folder. It has been kept.")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            path.rename(destination)
+            moved.append((path, destination))
 
     def _inspect_remote(self):
         ref = self._branch()
@@ -85,13 +145,10 @@ class Updater:
             # A development checkout can be ahead of origin; that is not an update.
             available = self._git("merge-base", "--is-ancestor", latest, current,
                                   check=False).returncode != 0
-        dirty = self._dirty()
         message = ("An update is ready to download. The app will restart after installation."
                    if available else "You're up to date.")
-        if available and dirty:
-            message = "An update is available. Save or commit local changes before installing."
         self._set(current=current, latest=latest, available=available,
-                  checked_at=time.time(), can_install=available and not dirty,
+                  checked_at=time.time(), can_install=available,
                   message=message)
         return ref, current, latest, available
 
@@ -137,37 +194,42 @@ class Updater:
 
     def _install(self):
         previous = None
+        edits = None
+        edits_cleared = False
+        moved = []
         applied = False
         restarting = False
         try:
-            ref, previous, latest, available = self._inspect_remote()
+            ref, previous, _, available = self._inspect_remote()
             if not available:
                 self._set(phase="current", can_install=False)
                 return
-            if self._dirty():
-                raise UpdateError("Local files have changed. Save or commit them before "
-                                  "installing; your changes have been kept.")
             self._set(phase="downloading", can_install=False,
                       message="Downloading the latest update…")
             self._git("fetch", "--no-tags", "origin", ref, timeout=180)
             target = self._git("rev-parse", "FETCH_HEAD").stdout.strip()
-            if target != latest:
-                raise UpdateError("A newer update appeared during download. Please check again.")
-            if self._git("merge-base", "--is-ancestor", previous, target,
-                         check=False).returncode:
-                raise UpdateError("Local and remote versions have diverged. A manual merge "
-                                  "is needed; your files have been kept.")
-            # Recheck after the network call, before modifying any files.
-            if self._dirty() or self._git("rev-parse", "HEAD").stdout.strip() != previous:
-                raise UpdateError("Local files changed during download. Please retry after saving them.")
+            # Use the fetched tip even if a release arrived during the check/download.
+            self._set(latest=target)
+            if self._git("rev-parse", "HEAD").stdout.strip() != previous or self._branch() != ref:
+                raise UpdateError("The app version changed during download. Please retry.")
             # Runtime data is never replaced, including legacy data tracked by the repository.
             data_changes = self._git("diff", "--name-only", previous, target, "--", "app/data").stdout.strip()
             if data_changes:
                 raise UpdateError("This update changes stored app data and requires a manual update. "
                                   "Your documents and history have been kept.")
             self._set(phase="installing", message="Installing and checking the update…")
-            self._git("merge", "--ff-only", "--no-edit", target, timeout=60)
+            backup = self.root / "app/data/update-backups" / uuid.uuid4().hex
+            backup.mkdir(parents=True)
+            edits = self._backup_edits(previous, backup)
+            (backup / "recovery.json").write_text(json.dumps({"previous": previous, "edits": edits}), encoding="utf-8")
+            if edits:
+                edits_cleared = True
+                self._git("restore", "--source=" + previous, "--staged", "--worktree", "--", *CODE_PATHS)
+            self._backup_obstructions(target, backup, moved)
+            # Edits have been backed up. --keep still protects runtime data and any
+            # edits made concurrently, unlike a destructive reset --hard / clean.
             applied = True
+            self._git("reset", "--keep", target, timeout=60)
             requirements_changed = self._git(
                 "diff", "--name-only", previous, target, "--", "app/requirements.txt").stdout.strip()
             if requirements_changed and (self.root / "app/requirements.txt").is_file():
@@ -201,6 +263,18 @@ class Updater:
                     self._git("reset", "--keep", previous)
                 except Exception:
                     message = "Update recovery needs attention. Local edits were preserved; inspect the Git checkout before restarting."
+                    self._set(phase="error", can_install=False, message=message)
+                    return
+            try:
+                if edits_cleared:
+                    self._git("stash", "apply", "--index", edits, timeout=60)
+                for path, saved in reversed(moved):
+                    if path.exists() or path.is_symlink() or not path.parent.resolve().is_relative_to(self.root):
+                        raise UpdateError("A file changed during update recovery.")
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    saved.rename(path)
+            except Exception:
+                message = "The previous code was restored, but some local edits need recovery from app/data/update-backups and the local Git stash."
             self._set(phase="error", can_install=False, message=message)
         finally:
             if not restarting:

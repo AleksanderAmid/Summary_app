@@ -216,16 +216,38 @@ With Git and the full clone, the backend checks the branch tracked on `origin`
 at startup and every 30 minutes. **Check for updates** checks immediately.
 Checking reads the remote version without changing the checkout. When an update
 is available, click **Download and install** in the bottom notification. The
-backend fetches a fast-forward update, installs changed Python requirements,
+backend fetches and installs the latest remote commit, installs changed Python requirements,
 checks imports, and restarts the hidden server. The page reconnects and reloads.
 
-Running summaries block installation. Local edits and divergent history are
-reported instead of overwritten. Uploads and history are excluded from the
-clean-code check; releases changing tracked `app/data/` files require a manual
-update. A failed install or preflight restores the previous Git checkout without
+Running summaries block installation. Local code edits and local commits do not
+require a manual commit or merge: the downloaded app code replaces them. The
+updater first keeps tracked edits in a local Git stash and the previous commit
+under `refs/smartdoc-backups/`. Untracked files stay in place unless they conflict
+with new app files; conflicting files are moved to `app/data/update-backups/`.
+These backups stay on the computer and are never pushed to GitHub.
+
+Patient data in `app/data/`, including locally changed legacy tracked records,
+is excluded from the code backup and replacement. Local environment settings and
+unrelated untracked files are preserved. Releases changing tracked `app/data/`
+files still require a manual update to protect existing records. A failed install
+or preflight restores the previous Git checkout and backed-up edits without
 restarting; packages already changed by pip are not rolled back. A copied app
 without Git still runs but cannot use this updater. Logs are stored under
 `app/data/logs/`.
+
+If an older installation is stuck on "Save or commit local changes", replace
+its updater once. In PowerShell, from the `Summary_app` repository folder, run:
+
+```powershell
+git fetch origin
+if ($LASTEXITCODE -eq 0) {
+    git restore --source=origin/main --worktree -- app/backend/updater.py
+}
+```
+
+This replaces only the old updater file. Restart that computer to stop the old
+background server, open SmartDoc, and click **Download and install**. Subsequent
+updates use the normal in-app button without this repair step.
 
 ## Research and verification
 
