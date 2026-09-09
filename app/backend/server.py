@@ -46,6 +46,8 @@ import pipeline           # noqa: E402
 import summarization      # noqa: E402
 import transcription      # noqa: E402
 import uploads
+import exports
+from urllib.parse import parse_qs, urlsplit
 from updater import Updater, UpdateError, BUSY_PHASES
 
 FRONTEND_DIR = APP_ROOT / "frontend"
@@ -155,6 +157,37 @@ class Handler(BaseHTTPRequestHandler):
             state["active_jobs"] = pipeline.active_job_count()
             return self._send_json(state)
 
+        match = re.fullmatch(r"/api/history/([0-9a-f]+)/export", path)
+        if match:
+            record = history.get_record(match.group(1))
+            if record is None:
+                return self._send_json({"error": "Summary not found."}, 404)
+            query = parse_qs(urlsplit(self.path).query)
+            kind = query.get("kind", ["summary"])[0]
+            format = query.get("format", ["txt"])[0]
+            preview_pages = None
+            try:
+                if query.get("preview") == ["1"] and format == "pdf":
+                    content, preview_pages = exports.preview_pdf(
+                        record, kind, int(query.get("page", ["1"])[0]))
+                    filename, mime = "preview.png", "image/png"
+                else:
+                    filename, mime, content = exports.export_record(record, kind, format)
+            except (ValueError, ImportError) as exc:
+                return self._send_json({"error": str(exc)}, 400)
+            self.send_response(200)
+            self.send_header("Content-Type", mime)
+            disposition = "inline" if query.get("preview") == ["1"] and kind != "both" else "attachment"
+            self.send_header("Content-Disposition", f'{disposition}; filename="{filename}"')
+            if preview_pages is not None:
+                self.send_header("X-Page-Count", str(preview_pages))
+            self.send_header("Content-Length", str(len(content)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers()
+            self.wfile.write(content)
+            return
+
         if path == "/api/status":
             alive = summarization.ollama_alive()
             return self._send_json({
@@ -168,6 +201,8 @@ class Handler(BaseHTTPRequestHandler):
                     "available": transcription.vision_model_available() if alive else False,
                 },
                 "pdf_support": transcription.pdf_support_available(),
+                "ocr": transcription.ocr_engines.status(),
+                "export_formats": exports.available_formats(),
             })
 
         if path == "/api/history":

@@ -1,26 +1,17 @@
-"""Staged processing pipeline for the Medical Summary app.
-
-Stages (exactly the progress indicator of the specification):
-
-    1. "Transcribing file to text..."   — file inputs only; pasted text skips
-    2. "Anonymizing content..."         — future implementation (PHI screen only)
-    3. "Summarizing..."                 — Gemma 3 12B-IT, winning configuration
-    4. "De-anonymizing..."              — inverted study code book
-    5. "Summary complete"
+"""Transcribe, pseudonymise, summarise and restore identifiers in a local job.
 
 Jobs run on a background thread; the frontend polls /api/jobs/<id>.
 """
 from __future__ import annotations
 
 import copy
-import random
 import threading
 import time
 import traceback
 from pathlib import Path
 
 import anonymization
-import deanonymization
+from privacy import MappingVault
 import history
 import summarization
 import transcription
@@ -30,9 +21,9 @@ UPLOAD_DIR = APP_ROOT / "data" / "uploads"
 
 STAGE_DEFS = [
     ("transcribe", "Transcribing file to text..."),
-    ("anonymize", "Anonymizing content..."),
+    ("anonymize", "Pseudonymising documents..."),
     ("summarize", "Summarizing..."),
-    ("deanonymize", "De-anonymizing..."),
+    ("deanonymize", "Restoring summary identifiers..."),
     ("complete", "Summary complete"),
 ]
 
@@ -149,6 +140,7 @@ def _run_job(job_id: str, payload: dict) -> None:
 def _execute(job_id: str, payload: dict) -> dict:
     # ---------------- Stage 1: transcription ----------------
     t0 = time.perf_counter()
+    transcription_warnings = []
     files = payload.get("files")
     if files is None and payload.get("filename"):
         files = [payload]
@@ -167,16 +159,17 @@ def _execute(job_id: str, payload: dict) -> dict:
             def cb(detail: str, label: str = label) -> None:
                 _set_stage(job_id, "transcribe", detail=f"{label} — {detail}")
 
-            trans = transcription.transcribe_file(upload_path, cb)
+            trans = transcription.transcribe_file(upload_path, cb, mode=payload.get("transcription_mode", "balanced"))
+            transcription_warnings.extend(f"Document {index}, {warning}" for warning in trans.get("warnings", []))
             text = trans["full_text"].strip()
             if not text:
                 raise RuntimeError(f"{safe_name}: no text could be extracted. "
                                    "Remove or replace this document and try again.")
             documents.append({"filename": safe_name, "method": trans["method"],
                               "pages": trans["pages"], "chars": len(text),
-                              "words": len(text.split())})
-            texts.append(text if len(files) == 1 else
-                         f"--- Document {index}: {safe_name} ---\n{text}")
+                              "words": len(text.split()), "seconds": trans.get("seconds"),
+                              "review_required": trans.get("review_required", False)})
+            texts.append(f"--- Document {index} ---\n{text}")
         source_text = "\n\n".join(texts)
         input_info = {"type": "file" if len(files) == 1 else "files",
                       "filename": documents[0]["filename"] if len(files) == 1 else None,
@@ -198,43 +191,49 @@ def _execute(job_id: str, payload: dict) -> dict:
     input_info["chars"] = len(source_text)
     input_info["words"] = len(source_text.split())
 
-    # ---------------- Stage 2: anonymization ----------------
-    # The full §3.4 pipeline is not wired in yet; the stage runs the PHI
-    # screen and presents as a normal completing step (per the current UI
-    # requirement), with a randomized 9-27 s duration.
+    # ---------------- Stage 2: pseudonymisation ----------------
     t0 = time.perf_counter()
     _set_stage(job_id, "anonymize", status="active")
-    anon = anonymization.run_anonymization_stage(source_text)
-    time.sleep(random.uniform(9.0, 27.0))
+    anon = anonymization.run_anonymization_stage(
+        source_text, lambda detail: _set_stage(job_id, "anonymize", detail=detail),
+        model=summarization.SUMMARIZER_MODEL,
+        additional=payload.get("additional_identifiers", []))
     n_phi = sum(anon["phi_hits"].values())
     _set_stage(job_id, "anonymize", status="done",
-               detail=f"{n_phi} identifier(s) processed" if n_phi else "",
+               detail=f"{n_phi} identifier occurrences replaced; review before sharing",
                seconds=time.perf_counter() - t0)
 
-    # ---------------- Stage 3: summarization ----------------
-    t0 = time.perf_counter()
-    _set_stage(job_id, "summarize", status="active",
-               detail="Loading Gemma 3 12B-IT…")
+    # No unencrypted codebook is persisted or returned through the API.
+    # Context cleanup removes ciphertext on success and on every error path.
+    with MappingVault(job_id) as vault:
+        mapping = anon.pop("mapping")
+        known_tokens = {entry["token"] for entry in mapping.values()}
+        vault.seal(mapping)
+        del mapping
+        t0 = time.perf_counter()
+        _set_stage(job_id, "summarize", status="active", detail="Preparing source-linked summary")
+        gen = summarization.summarize(
+            anon["text"], lambda detail: _set_stage(job_id, "summarize", detail=detail))
+        if not gen["summary"]:
+            raise RuntimeError("The model returned an empty summary.")
+        # Existing placeholders in already-pseudonymised input are allowed too.
+        source_tokens = set(anonymization.IDENTIFIER_PLACEHOLDER_RE.findall(anon["text"]))
+        generated_text = gen["summary"] + "\n" + "\n".join(gen.get("uncertainties", []))
+        unknown = set(anonymization.IDENTIFIER_PLACEHOLDER_RE.findall(generated_text)) - source_tokens - known_tokens
+        if unknown:
+            raise RuntimeError("The model changed an identifier placeholder. Retry the summary.")
+        tel = gen["telemetry"]
+        _set_stage(job_id, "summarize", status="done",
+                   detail=f"{tel.get('eval_count', '?')} tokens; source references checked",
+                   seconds=time.perf_counter() - t0)
 
-    def sum_cb(detail: str) -> None:
-        _set_stage(job_id, "summarize", detail=detail)
-
-    gen = summarization.summarize(anon["text"], sum_cb)
-    if not gen["summary"]:
-        raise RuntimeError("The model returned an empty summary.")
-    tel = gen["telemetry"]
-    _set_stage(job_id, "summarize", status="done",
-               detail=f"{tel['eval_count']} tokens in {tel['wall_seconds']} s",
-               seconds=time.perf_counter() - t0)
-
-    # ---------------- Stage 4: de-anonymization ----------------
-    t0 = time.perf_counter()
-    _set_stage(job_id, "deanonymize", status="active")
-    deanon = deanonymization.deanonymize(gen["summary"], source_text)
-    n_restored = sum(r["count"] for r in deanon["replacements"])
-    _set_stage(job_id, "deanonymize", status="done",
-               detail=f"{n_restored} identifier(s) restored" if n_restored else "",
-               seconds=time.perf_counter() - t0)
+        t0 = time.perf_counter()
+        _set_stage(job_id, "deanonymize", status="active")
+        restored = vault.restore(gen["summary"])
+        restored_uncertainties = [vault.restore(item) for item in gen.get("uncertainties", [])]
+        _set_stage(job_id, "deanonymize", status="done",
+                   detail="Original identifiers restored in summary; temporary mapping removed",
+                   seconds=time.perf_counter() - t0)
 
     # ---------------- Stage 5: complete + persist ----------------
     name = _derive_name(payload, source_text)
@@ -246,14 +245,18 @@ def _execute(job_id: str, payload: dict) -> dict:
         "name": name,
         "created_at": history.timestamp(),
         "input": input_info,
-        "source_text": source_text,
-        "summary_raw": gen["summary"],
-        "summary": deanon["text"],
-        "deanonymization": {
-            "patient_id": deanon["patient_id"],
-            "detection_hits": deanon["detection_hits"],
-            "replacements": deanon["replacements"],
-        },
+        "transcription": {"mode": payload.get("transcription_mode", "balanced"),
+                          "warnings": transcription_warnings, "review_required": bool(transcription_warnings)},
+        "source_text": anon["text"],
+        "pseudonymised_text": anon["text"],
+        "evidence": gen.get("evidence", summarization.evidence_units(anon["text"])),
+        "summary_pseudonymised": gen["summary"],
+        "summary": restored,
+        "uncertainties": restored_uncertainties,
+        "quality_warnings": gen.get("quality_warnings", []),
+        "pseudonymisation": {key: value for key, value in anon.items() if key != "text"},
+        "privacy": {"mapping_encrypted_at_rest": True, "mapping_retained": False,
+                    "summary_identifiers": "restored"},
         "phi_screen": anon["phi_hits"],
         "telemetry": tel,
         "stages": stages_snapshot,

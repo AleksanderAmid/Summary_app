@@ -41,9 +41,6 @@
 
     <!-- Home view -->
     <section id="view-home" class="view">
-      <div class="plan-chip">
-        Gemma 3 12B-IT · few-shot · <span class="chip-strong">study winner</span>
-      </div>
       <h1 class="greeting"><span id="greeting-text">Afternoon</span>, Doctor</h1>
 
       <div class="input-card">
@@ -70,10 +67,24 @@
             placeholder="Paste the Swedish patient journal text here…"></textarea>
         </div>
 
+        <div class="transcription-options" id="transcription-options">
+          <label for="transcription-mode">Reading scanned documents</label>
+          <select id="transcription-mode" aria-describedby="transcription-mode-hint">
+            <option value="balanced">Balanced</option>
+            <option value="thorough">Thorough cross-check</option>
+            <option value="fast">Fast</option>
+          </select>
+          <p id="transcription-mode-hint">Quick OCR, with a second reader for uncertain text and tables.</p>
+        </div>
+        <details class="identifier-options">
+          <summary>Additional identifiers to replace</summary>
+          <label for="additional-identifiers">Optional names, places or identifiers to replace, one per line</label>
+          <textarea id="additional-identifiers" rows="3" placeholder="One identifier per line"></textarea>
+        </details>
         <div class="card-footer">
-          <div class="footer-hint">Scanned pages are transcribed locally with Gemma 3 12B</div>
+          <div class="footer-hint">Swedish document reading stays on this computer</div>
           <div class="footer-actions">
-            <span class="model-label">Gemma 3 12B <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></span>
+            <span class="model-label">Gemma 4 12B <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></span>
             <button id="btn-send" class="send-btn" disabled title="Generate summary">
               <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
@@ -104,12 +115,34 @@
         <div id="summary-text" class="summary-text"></div>
         <div class="summary-actions">
           <button id="btn-copy" class="ghost-btn">Copy</button>
-          <button id="btn-download" class="ghost-btn">Download .txt</button>
+
         </div>
       </div>
 
+      <section class="export-card" aria-label="Download results">
+        <h3>View or download your results</h3>
+        <p id="privacy-note"></p>
+        <div class="export-controls">
+          <label>Content<select id="export-kind">
+            <option value="summary">Summary</option>
+            <option value="pseudonymised">Pseudonymised documents</option>
+            <option value="both">Both (ZIP download)</option>
+          </select></label>
+          <label>File format<select id="export-format">
+            <option value="docx">Word (.docx)</option>
+            <option value="pdf">PDF (.pdf)</option>
+            <option value="txt">Text (.txt)</option>
+            <option value="md">Markdown (.md)</option>
+          </select></label>
+          <button id="btn-preview" class="ghost-btn">Preview</button>
+          <button id="btn-download" class="primary-btn">Download</button>
+        </div>
+        <p class="export-hint">Pseudonymised downloads contain extracted text in document order, with source references. Original images and file metadata are excluded.</p>
+        <p id="export-error" class="file-error hidden" role="alert"></p>
+      </section>
+      <div id="review-notes" class="review-notes hidden"></div>
       <details class="panel" id="panel-source">
-        <summary>Source text (model input)</summary>
+        <summary>Pseudonymised source and citations</summary>
         <div class="panel-body"><pre id="source-text"></pre></div>
       </details>
 
@@ -120,7 +153,7 @@
 
       <div class="disclaimer">
         Research artefact — generated summaries must be reviewed by a clinician
-        before any clinical use (thesis §4.6: omission &amp; hallucination findings).
+        before any clinical use.
       </div>
     </section>
 
@@ -137,6 +170,15 @@
     <button id="btn-dismiss-update" class="ghost-btn">Later</button>
   </div>
 </aside>
+<dialog id="export-preview" aria-labelledby="preview-title">
+  <div class="preview-toolbar">
+    <h3 id="preview-title">Document preview</h3>
+    <button id="btn-close-preview" class="ghost-btn" aria-label="Close preview">Close</button>
+  </div>
+  <p id="preview-hint"></p>
+  <div id="preview-pdf" class="hidden" aria-label="PDF pages"></div>
+  <article id="preview-paper"><h1 id="preview-heading"></h1><div id="preview-body"></div></article>
+</dialog>
 <script src="/assets/app.js"></script>
 </body>
 </html>

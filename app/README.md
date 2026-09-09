@@ -1,173 +1,185 @@
-# SmartDoc — Medical Summary App
+# SmartDoc medical summaries
 
-Interactive application wrapping the winning configuration from the thesis
-model battle (§4.4), with the full processing pipeline of the specification:
-file transcription → (anonymization, future) → summarization →
-de-anonymization, with staged progress and a persistent run history.
+SmartDoc combines up to 10 documents for one patient, pseudonymises their
+extracted text locally, generates a Swedish summary with source references,
+and restores the original identifiers in the final summary. Choose Word
+(`.docx`), PDF, TXT, or Markdown for the summary, the pseudonymised documents,
+or both in a ZIP file.
 
-## The study configuration it integrates
+## Setup and launch
 
-| Component | Choice | Source |
-|---|---|---|
-| Summarizer | **Gemma 3 12B-IT** (`gemma3:12b-it-q4_K_M`) — best BERTScore-F1 0.672 (inter-reviewer ceiling 0.609), ROUGE-L 0.221 | `report/tables/master_comparison.tex`, §4.4 |
-| Methodology | **Prompt engineering, few-shot variant** — won Gemma's PE cell on 3/5 evaluation patients (CoT 2/5, clinician-brief 0/5) | `scripts/eval/reports/per_run_metrics.json` |
-| Reference panel | **All 25 physician summaries** (5 patients × 5 reviewing physicians) embedded in the system prompt | `data/ground_truth/_master_ground_truth.json` |
-| Generation | temperature 0.0 · top-p 1.0 · num_predict 512 · seed 42 (identical to `scripts/run/run_battle.py`); `num_ctx` sized dynamically (8k–32k) | §3.6 protocol |
-| Transcription | **Gemma 3 12B-IT** (`gemma3:12b-it-q4_K_M`, multimodal) — same model as the summarizer, so no model swap between stages; `/api/generate`, retry strategy + thinking-contamination sanitization from `src/extraction/transcribe.py`, 200 DPI. *Deviation:* the study's Phase-1 corpus was transcribed with Qwen3-VL-8B (chosen for medical content fidelity); set `VISION_MODEL = "qwen3-vl:8b"` in `backend/transcription.py` to restore it | `src/extraction/transcribe.py` |
-| De-anonymization | Inversion of the study's per-patient code books `data/deidentified/<id>/_mapping.json` (real→fake), auto-detected per document | §3.4 pipeline output |
-
-> Note: the published 0.672 score was measured with the original two-exemplar
-> few-shot template. Embedding the full 25-summary panel is this
-> application's configuration (per the app specification), not the evaluated
-> one.
-
-## Requirements
-
-The `app/` folder is **self-contained and portable**: copy it to any machine
-or user account and it runs. The study data it needs (the 25 physician
-reference summaries and the 13 de-anonymization code books) is bundled in
-`study_data/`. On the target machine you need:
-
-- **Python 3.10+** ([python.org](https://www.python.org/downloads/), check
-  "Add python.exe to PATH" during installation)
-- **Ollama** ([ollama.com](https://ollama.com/download)) with the model:
-  `ollama pull gemma3:12b-it-q4_K_M` (~8 GB)
-- *(optional)* **PyMuPDF** for PDF files: `python -m pip install pymupdf`.
-  The launcher installs it automatically when missing; without it the app
-  still runs and PDF uploads show an install hint. Everything else is the
-  Python standard library.
-
-## Setup on a new device
-
-Double-click **`setup.bat`** once. It checks for and installs everything in
-order — Python 3.10+, Ollama, the `gemma3:12b-it-q4_K_M` model (~8 GB pull),
-and PyMuPDF — using winget when available and the official installers
-otherwise, skipping whatever is already present. Safe to re-run at any time.
-
-## Run
-
-Double-click **`SmartDoc.vbs`** to open the app without a console window.
-It reuses the server when SmartDoc is already running. `run_app.bat` remains
-a compatibility launcher, but Windows may briefly show its console; use
-`SmartDoc.vbs` or a shortcut to it for a fully quiet launch.
-
-Run `setup.bat` first on a new device. You can also start manually from the app folder:
+Run `setup.bat` once. It checks Python 3.10+, Ollama, `gemma4:12b`, and the
+packages in `requirements.txt`, followed by Swedish OCR setup (`setup_ocr.ps1`).
+On an existing installation, install the new packages before restarting:
 
 ```powershell
-python backend\server.py
+python -m pip install -r app/requirements.txt
 ```
 
-The UI opens at **http://localhost:8765**.
+Double-click `SmartDoc.vbs` inside `app/` to open http://localhost:8765 without
+a console. It reuses an existing server. `run_app.bat` remains a compatibility
+launcher. For development, run `python app/backend/server.py` from the repo root.
+Set `SMARTDOC_MODEL` before starting to override the summarisation and identifier
+detection model. `SMARTDOC_VISION_MODEL` overrides the vision fallback. Scanned pages normally use
+the dedicated Swedish OCR engines described below.
 
-## Using the app
+The app folder can run independently of the research corpus. Bundled historical
+physician references and codebooks are no longer read by the processing pipeline.
 
-1. **Upload up to 10 documents for the same patient** — PDF, DOCX, TXT,
-   PNG/JPG, or transcription JSON — or **paste text**. Browse or drop several
-   files at once; add more or remove individual files before sending. The
-   combined upload limit is **64 MB**. Files are transcribed in selection
-   order, labelled by filename, and combined into **one summary and one history
-   entry**. Progress identifies the current document. An unreadable file stops
-   the run; oversized model input is rejected instead of silently truncated.
-2. The progress indicator walks through the stages of the specification:
-   - *Transcribing file to text...* — native text layer when available;
-     scanned pages go through Gemma 3 12B-IT vision (~1–2 min per page)
-   - *Anonymizing content...* — presented as a normal completing stage in
-     the UI; under the hood only the regex PHI screen runs today (the full
-     §3.4 pipeline is the integration point in `backend/anonymization.py`)
-   - *Summarizing...* — Gemma 3 12B-IT with the 25 doctor summaries in the
-     system prompt
-   - *De-anonymizing...* — restores real identifiers via the matched
-     code book, or passes through unchanged if none matches
-   - *Summary complete*
-3. The final summary appears with copy/download buttons, plus collapsible
-   panels showing the exact model input and run telemetry. (The full
-   de-anonymization replacement list is still stored in each history JSON
-   under `deanonymization`, it is just not displayed.)
-4. Every run is saved to the **history sidebar** (name + date). Click to
-   re-open, double-click to rename, ✕ to delete. History lives in
-   `app/data/history/` as plain JSON.
+## Processing documents
 
-## Folder structure
+1. Upload up to 10 PDF, DOCX, TXT, PNG/JPG, or transcription JSON files for the
+   same patient, with a combined limit of 64 MB, or paste text. Selection order
+   is retained. All documents contribute to one summary and one history entry.
+2. Optionally enter extra names or identifiers to replace, one per line. These
+   exact strings supplement automatic detection; they are not a substitute for
+   reviewing the pseudonymised output.
+3. Native text is extracted first and checked for incomplete image coverage.
+   Scans use Swedish OCR, with local vision as a last resort.
+   Swedish rules and a local model identify names, identity numbers, contact
+   details, dates, ages, organisations and locations. Only exact source spans
+   from supported categories are accepted from the detector.
+4. Consistent typed placeholders such as `[NAME_PATIENT_MALE_01]` replace the
+   detected identifiers throughout the batch. A sex-specific name placeholder
+   is requested only when sex is explicit in the source. Different spellings
+   or aliases of a person are not guaranteed to resolve to the same placeholder.
+5. The summariser receives the pseudonymised text, with source IDs. Each summary
+   sentence must cite existing source IDs. The output is limited to 200 words,
+   and incomplete output or invalid references trigger one retry, then an error.
+   Inputs estimated to exceed the context budget are rejected instead of being
+   deliberately truncated. Generation instructions preserve negation, uncertainty,
+   time status, doses and units; clinicians still need to check the result.
+6. Original values replace the placeholders present in the summary and its
+   uncertainty notes. The model may omit identifiers that are not relevant to
+   the summary. The temporary encrypted mapping is then deleted.
 
+Open **Pseudonymised source and references** to inspect the extracted text using
+its source IDs. Existing IDs show where a statement points; they do not prove
+that its interpretation is correct. Numeric discrepancy checks are diagnostic,
+not a medical factuality score. Detector failures and possible remaining
+identifiers appear in the review notes.
+
+## Reading scanned documents
+
+The reader uses Swedish Tesseract 5 and PaddleOCR 3.7 with the PP-OCRv6 medium
+recognition and detection models. PDF pages are rendered at 300 DPI (with a
+14-megapixel cap). EXIF orientation, document rotation, small skew and dark
+backgrounds are handled before OCR. Original input files remain unchanged.
+
+- **Balanced** is the default: Tesseract first, then PaddleOCR for uncertain
+  words, uncertain critical tokens, or detected table layouts.
+- **Thorough cross-check** uses both readers on every scanned page. It compares
+  numbers, units, dates, negations, wording and reading order, and displays
+  disagreements. This is the
+  option to use when an extra check is more important than throughput.
+- **Fast** prioritises Tesseract and does not request an additional reader merely
+  because a table was detected. Low-confidence results still receive extra checks.
+
+A successful short page is accepted without length-based retries. Known vision
+truncation and repetition are rejected, with at most two vision attempts. Repeated
+clinical lines are preserved. A nonblank page that fails extraction stops the job;
+blank pages do not create fake text from page markers. Up to two pages are read
+concurrently, preserving source order. Identical raster pages within one PDF reuse
+their OCR result in memory for that file only. No persistent OCR text cache is made.
+
+PaddleOCR runs in one reusable isolated process with a timeout. Its first use loads
+models and is slower; later requests reuse the engine. Tesseract works without it.
+Normal OCR reads local model files without fetching models or uploading images.
+The health indicator reports installed OCR availability. Restart after setup:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File app/setup_ocr.ps1
 ```
-app/
-├── setup.bat / setup.ps1  # one-time installer: Python, Ollama, model, PyMuPDF
-├── run_app.bat            # one-click launcher (any Python 3.10+ on PATH)
-├── requirements.txt       # pymupdf only (optional, for PDF support)
-├── backend/
-│   ├── server.py          # stdlib HTTP server + REST API (entry point)
-│   ├── pipeline.py        # staged job orchestration (background threads)
-│   ├── transcription.py   # file → text (port of the Phase-1 pipeline)
-│   ├── summarization.py   # winning Gemma config + system-prompt builder
-│   ├── anonymization.py   # future stage (PHI screen today)
-│   ├── deanonymization.py # code-book inversion + patient auto-detection
-│   ├── ollama_client.py   # stdlib HTTP client for the Ollama API
-│   └── history.py         # JSON history store
-├── frontend/
-│   ├── index.html         # single-page UI (cream/serif theme)
-│   ├── style.css
-│   └── app.js
-├── study_data/            # bundled copies of the study artifacts
-│   ├── ground_truth.json  #   25 physician summaries (from data/ground_truth/)
-│   └── codebooks/         #   13 per-patient code books (from data/deidentified/)
-├── tests/
-│   └── test_deanonymization.py   # regression tests for the code-book inversion
-└── data/
-    ├── history/           # one JSON per completed run
-    └── uploads/           # uploaded source files
-```
 
-Note: `study_data/` holds **copies** made from `data/ground_truth/` and
-`data/deidentified/` — if those study artifacts ever change, refresh the
-copies. The code books contain real↔fake identifier pairs, so the folder
-must be handled with the same care as the study data itself.
+`-SkipPaddle` installs the lightweight Tesseract path only. The full setup uses
+winget for Tesseract when needed, downloads official Swedish/English/orientation
+language files, and installs the optional pinned packages in `requirements-ocr.txt`.
+It reuses existing PaddleOCR models, otherwise downloads them during setup.
+`SMARTDOC_TESSERACT`, `SMARTDOC_TESSDATA` and `SMARTDOC_OCR_MODELS` support custom
+local locations. The checked model files must be present before runtime use.
 
-## Safety
+Per-page engine, timing, orientation and reading warnings are saved in run details.
+Warnings also appear in summary and pseudonymised-document exports. Confidence is
+an engine-specific routing signal, not a clinical accuracy probability. Readers may
+agree and still be wrong. Column and table reconstruction is heuristic; handwriting,
+complex forms, overlays and damaged scans require comparison with the original.
 
-This is a research artefact. Generated summaries must be reviewed by a
-clinician before any clinical use — see §4.6 of the thesis for omission and
-hallucination findings. All inference is local (Ollama on this machine); no
-patient text leaves the workstation. Note that `app/data/` will contain
-patient text and restored identifiers once the app is used on study
-documents — treat it with the same care as `data/`.
+DOCX extraction retains table row/cell boundaries and includes embedded raster
+images. Headers, footers and package metadata are excluded. Unsupported drawings
+produce a request to export to PDF rather than silently omitting their content.
+UTF-8, UTF-16 with BOM and Windows-1252 text inputs are supported. PDFs over 500
+pages and images over 80 megapixels are rejected with a clear message.
+
+## Preview and download
+
+After a run, select **Summary**, **Pseudonymised documents**, or **Both**, then
+choose Word, PDF, TXT, or Markdown. Both downloads a ZIP containing two files
+in the chosen format. PDF previews the actual PDF. TXT and Markdown preview the
+text. Word shows a local content preview; download the DOCX to view Word's exact
+page layout. No external document viewer receives the content.
+
+The pseudonymised download contains extracted text and source IDs. It is a new
+text document: original page images, document package metadata, and the mapping
+are not copied into it. It is not a redacted copy of the original PDF or scan.
+Automatic detection can miss identifiers, including names and addresses, so
+review it before sharing. Older history entries can export their summary but
+must be processed again to obtain a pseudonymised document.
+
+## Identifier mapping and local storage
+
+Each job encrypts its mapping with authenticated Fernet encryption before
+writing `app/data/private/<job-id>.enc`. A separate random key is held only in
+the running process. The mapping and key are not included in history, API
+responses, exports, or Git. Normal completion and handled errors delete the
+mapping file. A process or machine crash can leave ciphertext with no retained
+key; the job must be run again. This is temporary restoration within a run,
+not a persistent patient codebook. Python does not guarantee memory zeroisation.
+
+**Mapping encryption does not encrypt the whole app's data.** Original uploads
+remain in `app/data/uploads/`. Final restored summaries, input filenames and
+history labels are stored as plain local JSON in `app/data/history/`. Existing
+historical records are not rewritten. Deleting a history entry does not remove
+its original upload files. Protect the workstation and its backups accordingly.
+The identifier detector and summariser use local Ollama; the detector necessarily
+reads the original text. No patient text is sent to Git or an online viewer.
 
 ## App updates
 
-With the full Git clone and Git installed, the backend checks the branch tracked
-on `origin` at startup and every **30 minutes**. Use **Check for updates** at the
-bottom of the sidebar to check immediately. Checking only reads the remote
-version; it does not download or change application files.
+With Git and the full clone, the backend checks the branch tracked on `origin`
+at startup and every 30 minutes. **Check for updates** checks immediately.
+Checking reads the remote version without changing the checkout. When an update
+is available, click **Download and install** in the bottom notification. The
+backend fetches a fast-forward update, installs changed Python requirements,
+checks imports, and restarts the hidden server. The page reconnects and reloads.
 
-A notification appears at the bottom when an update is available. Click
-**Download and install** to fetch the update, install it, check that its backend
-imports successfully, and restart the hidden server. The open page reconnects
-and reloads. **Later** dismisses that version's notification for this page session.
+Running summaries block installation. Local edits and divergent history are
+reported instead of overwritten. Uploads and history are excluded from the
+clean-code check; releases changing tracked `app/data/` files require a manual
+update. A failed install or preflight restores the previous Git checkout without
+restarting; packages already changed by pip are not rolled back. A copied app
+without Git still runs but cannot use this updater. Logs are stored under
+`app/data/logs/`.
 
-Installation waits for the user to finish any running summary. New jobs are
-blocked during installation. Updates require a clean code checkout and a
-fast-forward from the current version; local edits or divergent commits are
-kept and reported instead of overwritten. Runtime uploads and history are
-excluded from the clean-code check, and releases that change tracked
-`app/data/` files require a manual update. A failed backend preflight restores
-the previous Git version without restarting. If a release needs additional
-dependencies, run its setup instructions before retrying the update.
+## Research and verification
 
-The app folder still runs when copied without Git; only automatic updating
-requires the complete clone. When developing, commit and publish changes to
-the tracked branch before testing distribution to other installations.
-Server and launcher errors are logged to `app/data/logs/smartdoc.log`.
+See [TRANSCRIPTION_VERIFICATION.md](TRANSCRIPTION_VERIFICATION.md) for measured
+synthetic OCR checks, and [RESEARCH_NOTES.md](RESEARCH_NOTES.md) for the supplied thesis findings,
+implementation choices, and remaining evaluation work. No study winner or
+clinical quality score is claimed for this app configuration. Evaluation-only
+physician summaries are not generation examples.
 
-## Verification
-
-From the repository root:
+From the repo root:
 
 ```powershell
+python -m pip install -r app/requirements-dev.txt
+python -B -m unittest discover -s app/tests -p test_transcription.py -v
+python -B -m unittest discover -s app/tests -p test_privacy_exports.py -v
 python -B -m unittest discover -s app/tests -p test_improvements.py -v
 node --check app/frontend/app.js
 ```
 
-These tests use synthetic text, mocked model responses, and temporary local Git
-remotes. They verify batch validation, combined input, API errors, update
-conflicts, rollback, data preservation, and a real server restart. The original
-`test_deanonymization.py` still needs the external study corpus described in that
-file; it is not included in this portable test suite.
+The tests use synthetic text, model mocks and temporary Git remotes. They cover
+batch validation, reversible placeholders, encrypted mapping cleanup, source
+references, export contents, local API errors, update rollback and an actual
+server restart. The historical `test_deanonymization.py` requires the original
+external study corpus and tests a legacy module outside the new pipeline.

@@ -1,0 +1,3 @@
+# Optional accurate second reader, verified on Python 3.12
+paddleocr==3.7.0
+paddlepaddle==3.3.1

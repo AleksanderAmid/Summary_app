@@ -22,6 +22,7 @@ import urllib.request
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 import pipeline
+import privacy
 import server
 import uploads
 from updater import Updater
@@ -66,15 +67,12 @@ class PipelineTests(unittest.TestCase):
         self.stack.enter_context(patch.object(pipeline, "UPLOAD_DIR", Path(self.folder.name)))
         self.stack.enter_context(patch.object(pipeline, "_jobs", {}))
         self.stack.enter_context(patch.object(pipeline, "_updates_paused", False))
-        self.stack.enter_context(patch.object(pipeline.time, "sleep"))
+        self.stack.enter_context(patch.object(privacy, "PRIVATE_DIR", Path(self.folder.name) / "private"))
         self.stack.enter_context(patch.object(pipeline.anonymization, "run_anonymization_stage",
-                                             side_effect=lambda text: {"text": text, "phi_hits": {}}))
+                                             side_effect=lambda text, *args, **kwargs: {"text": text, "phi_hits": {}, "mapping": {}, "implemented": True}))
         self.generated = self.stack.enter_context(patch.object(pipeline.summarization, "summarize",
                       return_value={"summary": "Combined test summary",
                                     "telemetry": {"eval_count": 3, "wall_seconds": 0}}))
-        self.stack.enter_context(patch.object(pipeline.deanonymization, "deanonymize",
-                      return_value={"text": "Combined test summary", "replacements": [],
-                                    "patient_id": None, "detection_hits": {}}))
         self.saved = self.stack.enter_context(patch.object(pipeline.history, "save_record"))
 
     def run_payload(self, payload):
@@ -86,7 +84,7 @@ class PipelineTests(unittest.TestCase):
                      for i in range(10)]
         record = self.run_payload({"files": documents})
         source = self.generated.call_args.args[0]
-        self.assertIn("--- Document 1: same.txt ---\nTest document 0\n\n", source)
+        self.assertIn("--- Document 1 ---\nTest document 0\n\n", source)
         self.assertTrue(source.endswith("Test document 9"))
         self.assertEqual(record["input"]["document_count"], 10)
         self.assertEqual(len(list(Path(self.folder.name).glob("*.txt"))), 10)
@@ -154,6 +152,28 @@ class ApiTests(unittest.TestCase):
             start.assert_not_called()
         self.assertEqual(self.request("{}", {"Content-Type": "application/json",
                                             "Origin": "https://unrelated.example"})[0], 403)
+
+    def test_exports_are_uncached_and_pseudonymised_download_keeps_tokens(self):
+        record = {"summary": "Erik Example. [E0001]", "pseudonymised_text": "[NAME_01]",
+                  "pseudonymisation": {"implemented": True}, "evidence": []}
+        with patch.object(server.history, "get_record", return_value=record):
+            for query, mime in (("kind=pseudonymised&format=txt", "text/plain"),
+                                ("kind=both&format=docx", "application/zip"),
+                                ("kind=pseudonymised&format=pdf&preview=1", "image/png")):
+                connection = http.client.HTTPConnection("127.0.0.1", self.port, timeout=5)
+                self.addCleanup(connection.close)
+                connection.request("GET", "/api/history/aabb/export?" + query)
+                response = connection.getresponse()
+                content = response.read()
+                self.assertEqual(response.status, 200)
+                self.assertTrue(response.getheader("Content-Type").startswith(mime))
+                self.assertEqual(response.getheader("Cache-Control"), "no-store")
+                if mime == "text/plain":
+                    self.assertIn(b"[NAME_01]", content)
+                    self.assertNotIn(b"Erik", content)
+                if mime == "image/png":
+                    self.assertEqual(response.getheader("X-Page-Count"), "1")
+                    self.assertTrue(content.startswith(bytes([137,80,78,71])))
 
     def test_update_endpoint_conflict_is_visible(self):
         self.httpd.updater.request_install.side_effect = RuntimeError("A summary is still running.")
@@ -235,6 +255,22 @@ class UpdateTests(unittest.TestCase):
         self.assertFalse(self.updater.check()["can_install"])
         self.assertEqual(self.install()["phase"], "error")
         self.assertEqual(local.read_text(), "LOCAL = True\n")
+        self.assertEqual(self.git(self.clone, "rev-parse", "HEAD"), self.old)
+        self.restart.assert_not_called()
+        self.resume.assert_called_once()
+
+    def test_failed_dependency_install_restores_previous_code(self):
+        (self.seed / "app/requirements.txt").write_text("synthetic-package==1\n", encoding="utf-8")
+        self.publish()
+        actual_run = subprocess.run
+        def fail_pip(command, *args, **kwargs):
+            if command[1:4] == ["-m", "pip", "install"]:
+                return subprocess.CompletedProcess(command, 1, b"", b"Synthetic failure")
+            return actual_run(command, *args, **kwargs)
+        with patch("updater.subprocess.run", side_effect=fail_pip):
+            state = self.install()
+        self.assertEqual(state["phase"], "error")
+        self.assertIn("dependencies", state["message"])
         self.assertEqual(self.git(self.clone, "rev-parse", "HEAD"), self.old)
         self.restart.assert_not_called()
         self.resume.assert_called_once()

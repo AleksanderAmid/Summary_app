@@ -168,6 +168,17 @@ class Updater:
             self._set(phase="installing", message="Installing and checking the update…")
             self._git("merge", "--ff-only", "--no-edit", target, timeout=60)
             applied = True
+            requirements_changed = self._git(
+                "diff", "--name-only", previous, target, "--", "app/requirements.txt").stdout.strip()
+            if requirements_changed and (self.root / "app/requirements.txt").is_file():
+                self._set(message="Installing updated app dependencies…")
+                dependencies = subprocess.run(
+                    [sys.executable, "-m", "pip", "install", "--disable-pip-version-check",
+                     "--no-input", "-r", str(self.root / "app/requirements.txt")],
+                    cwd=self.root, capture_output=True, timeout=600, creationflags=NO_WINDOW)
+                if dependencies.returncode:
+                    raise UpdateError("App dependencies could not be installed. The previous code "
+                                      "version has been restored. Run setup.bat before retrying.")
             # Import the updated server in a separate process before stopping the current one.
             # Missing/new dependencies or invalid Python leave the current app available.
             probe = subprocess.run(

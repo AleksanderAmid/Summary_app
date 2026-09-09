@@ -15,6 +15,9 @@ let selectedFiles = [];
 let submitting = false;
 let updateInstalling = false;
 let activeHistoryId = null;
+let currentRecord = null;
+let previewUrls = [];
+let exportBusy = false;
 let viewingJobId = null;       // job whose progress view is currently on screen
 
 /* ---------------- helpers ---------------- */
@@ -61,9 +64,11 @@ async function refreshStatus() {
     else {
       if (!s.summarizer.available)
         problems.push(`Summarizer model missing — run: ollama pull ${s.summarizer.tag}`);
-      if (!s.vision.available)
-        problems.push(`Vision model missing (file transcription disabled) — run: ollama pull ${s.vision.tag}`);
+      if (!s.vision.available && !s.ocr?.tesseract && !s.ocr?.paddleocr)
+        problems.push(`No scan reader is available. Run setup_ocr.ps1 or install ${s.vision.tag}.`);
     }
+    if (s.ocr && !s.ocr.tesseract && !s.ocr.paddleocr)
+      problems.push("Dedicated Swedish OCR is unavailable; scans will use the slower vision reader. Run setup_ocr.ps1.");
     if (s.pdf_support === false)
       problems.push("PDF support disabled — run: python -m pip install pymupdf (then restart the app)");
     if (problems.length === 0) {
@@ -311,9 +316,9 @@ function renderStages(stages) {
 
 const STAGE_SKELETON = [
   { key: "transcribe", label: "Transcribing file to text..." },
-  { key: "anonymize", label: "Anonymizing content..." },
+  { key: "anonymize", label: "Pseudonymising documents..." },
   { key: "summarize", label: "Summarizing..." },
-  { key: "deanonymize", label: "De-anonymizing..." },
+  { key: "deanonymize", label: "Restoring summary identifiers..." },
   { key: "complete", label: "Summary complete" },
 ];
 
@@ -322,12 +327,15 @@ async function startJob() {
   const fileTab = !$("#pane-file").classList.contains("hidden");
   const files = selectedFiles.slice();
   const pastedText = $("#text-input").value;
+  const additional = $("#additional-identifiers").value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
   submitting = true;
   renderFiles();
   try {
     const body = fileTab
       ? { files: await Promise.all(files.map(readFile)) }
       : { text: pastedText };
+    body.additional_identifiers = additional;
+    body.transcription_mode = $("#transcription-mode").value;
     const { job_id } = await api("/api/jobs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -396,10 +404,25 @@ function pollJob(jobId) {
 /* ---------------- result rendering ---------------- */
 
 function showRecord(rec) {
+  currentRecord = rec;
+  $("#export-error").classList.add("hidden");
+  $("#btn-preview").disabled = false;
   $("#result-title").textContent = rec.name;
   $("#result-date").textContent = fmtDate(rec.created_at);
   $("#summary-text").textContent = rec.summary;
-  $("#source-text").textContent = rec.source_text || "";
+  $("#source-text").textContent = rec.evidence
+    ? rec.evidence.map((u) => "[" + u.id + "] " + u.document + "\n" + u.text).join("\n\n")
+    : rec.source_text || "";
+  const privacy = rec.pseudonymisation || {};
+  $("#privacy-note").textContent = privacy.implemented
+    ? "The summary uses original identifiers. Pseudonymised documents keep placeholders. The temporary encrypted mapping has been deleted."
+    : "This older summary predates pseudonymisation. Process its source again to create a pseudonymised document.";
+  $("#export-kind").querySelector('option[value="pseudonymised"]').disabled = !privacy.implemented;
+  $("#export-kind").querySelector('option[value="both"]').disabled = !privacy.implemented;
+  $("#export-kind").value = "summary";
+  const notes = [...(rec.transcription?.warnings || []), ...(privacy.warnings || []), ...(rec.quality_warnings || []), ...(rec.uncertainties || [])];
+  $("#review-notes").innerHTML = notes.map((note) => "<p>" + escapeHtml(note) + "</p>").join("");
+  $("#review-notes").classList.toggle("hidden", notes.length === 0);
 
   // Run details panel
   const t = rec.telemetry || {};
@@ -410,9 +433,10 @@ function showRecord(rec) {
     .join("");
   $("#run-body").innerHTML = `
     <dl class="kv">
-      <dt>Model</dt><dd>${escapeHtml(t.model || "")} (winning configuration, thesis §4.4)</dd>
-      <dt>Methodology</dt><dd>Few-shot prompt engineering — 25 physician reference summaries in the system prompt</dd>
-      <dt>Generation</dt><dd>temperature 0.0 · top-p 1.0 · seed 42 · max 512 tokens · num_ctx ${t.num_ctx ?? "—"}</dd>
+      <dt>Model</dt><dd>${escapeHtml(t.model || "")} </dd>
+      <dt>Methodology</dt><dd>${escapeHtml(t.method || "Legacy summary configuration")}</dd>
+      <dt>Generation</dt><dd>Source-linked generation · context ${t.num_ctx ?? "—"}</dd>
+      <dt>Document reading</dt><dd>${escapeHtml(rec.transcription?.mode || "Legacy reader")}${input.files ? " — " + input.files.flatMap((f, i) => (f.pages || []).map((p) => "Document " + (i+1) + ", page " + p.page_num + ": " + (p.method || f.method) + (p.cached ? " (reused)" : "") + (p.seconds != null ? " · " + p.seconds + "s" : ""))).map(escapeHtml).join("<br>") : ""}</dd>
       <dt>Input</dt><dd>${escapeHtml(input.type || "")}${input.files ? " — " + input.files.map((f) => escapeHtml(f.filename)).join(", ") : (input.filename ? " — " + escapeHtml(input.filename) : "")} (${input.words ?? "?"} words)</dd>
       <dt>Summary tokens</dt><dd>${t.eval_count ?? "—"} generated in ${t.wall_seconds ?? "—"}s (prompt: ${t.prompt_eval_count ?? "—"} tokens)</dd>
       ${stageRows}
@@ -441,6 +465,8 @@ function goHome() {
   renderFiles();
   $("#file-input").value = "";
   $("#text-input").value = "";
+  $("#additional-identifiers").value = "";
+  currentRecord = null;
   updateSendEnabled();
   refreshHistory();
   showView("home");
@@ -494,13 +520,93 @@ $("#btn-copy").addEventListener("click", async () => {
   setTimeout(() => ($("#btn-copy").textContent = "Copy"), 1500);
 });
 
-$("#btn-download").addEventListener("click", () => {
-  const blob = new Blob([$("#summary-text").textContent], { type: "text/plain;charset=utf-8" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = ($("#result-title").textContent || "summary") + ".txt";
-  a.click();
-  URL.revokeObjectURL(a.href);
+function exportPath(kind, format) {
+  return "/api/history/" + currentRecord.id + "/export?kind=" + encodeURIComponent(kind)
+    + "&format=" + encodeURIComponent(format);
+}
+async function fetchExport(kind, format) {
+  const response = await fetch(exportPath(kind, format), {cache: "no-store"});
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Could not export the document.");
+  }
+  return response.blob();
+}
+function showExportError(error) {
+  $("#export-error").textContent = error.message;
+  $("#export-error").classList.remove("hidden");
+}
+$("#export-kind").addEventListener("change", () => {
+  $("#btn-preview").disabled = $("#export-kind").value === "both";
+});
+$("#btn-download").addEventListener("click", async () => {
+  if (!currentRecord || exportBusy) return;
+  exportBusy = true;
+  $("#btn-download").disabled = true;
+  $("#export-error").classList.add("hidden");
+  const kind = $("#export-kind").value;
+  const format = $("#export-format").value;
+  try {
+    const blob = await fetchExport(kind, format);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = kind === "both" ? "smartdoc-documents.zip"
+      : (kind === "summary" ? "summary" : "pseudonymised-documents") + "." + format;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  } catch (error) { showExportError(error); }
+  finally { exportBusy = false; $("#btn-download").disabled = false; }
+});
+$("#btn-preview").addEventListener("click", async () => {
+  if (!currentRecord || exportBusy) return;
+  const kind = $("#export-kind").value;
+  const format = $("#export-format").value;
+  if (kind === "both") return;
+  exportBusy = true;
+  $("#export-error").classList.add("hidden");
+  try {
+    previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    previewUrls = [];
+    $("#preview-pdf").classList.toggle("hidden", format !== "pdf");
+    $("#preview-paper").classList.toggle("hidden", format === "pdf");
+    const title = kind === "summary" ? "Clinical summary" : "Pseudonymised documents";
+    $("#preview-title").textContent = title + " · " + format.toUpperCase();
+    $("#preview-hint").textContent = format === "docx"
+      ? "Word content preview. Download the .docx file to open it in Word." : "";
+    if (format === "pdf") {
+      $("#preview-pdf").replaceChildren();
+      let pageCount = 1;
+      for (let page = 1; page <= pageCount; page += 1) {
+        const response = await fetch(exportPath(kind, "pdf") + "&preview=1&page=" + page, {cache: "no-store"});
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.error || "Could not preview the PDF.");
+        }
+        pageCount = Number(response.headers.get("X-Page-Count")) || 1;
+        const url = URL.createObjectURL(await response.blob());
+        previewUrls.push(url);
+        const pageImage = document.createElement("img");
+        pageImage.src = url;
+        pageImage.alt = "PDF page " + page + " of " + pageCount;
+        $("#preview-pdf").append(pageImage);
+      }
+    } else {
+      const blob = await fetchExport(kind, format === "docx" ? "txt" : format);
+      const text = await blob.text();
+      $("#preview-heading").textContent = format === "md" ? "" : title;
+      $("#preview-body").textContent = format === "md" ? text : text.slice(text.indexOf("\n\n") + 2);
+      $("#preview-paper").classList.toggle("plain-preview", format !== "docx");
+    }
+    $("#export-preview").showModal();
+  } catch (error) { showExportError(error); }
+  finally { exportBusy = false; }
+});
+$("#btn-close-preview").addEventListener("click", () => $("#export-preview").close());
+$("#export-preview").addEventListener("close", () => {
+  $("#preview-pdf").replaceChildren();
+  previewUrls.forEach((url) => URL.revokeObjectURL(url));
+  previewUrls = [];
 });
 
 /* ---------------- app updates ---------------- */
@@ -621,3 +727,12 @@ showView("home");
 
 refreshUpdates();
 setInterval(refreshUpdates, 2000);
+
+$("#transcription-mode").addEventListener("change", () => {
+  const hints = {
+    balanced: "Quick OCR, with a second reader for uncertain text and tables.",
+    thorough: "Cross-check every scanned page with both OCR readers. First use may take longer while models load.",
+    fast: "Prioritise quick OCR; uncertain results still receive extra checks."
+  };
+  $("#transcription-mode-hint").textContent = hints[$("#transcription-mode").value];
+});

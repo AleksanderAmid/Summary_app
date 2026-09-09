@@ -1,4 +1,8 @@
-# The app is Python-standard-library only, with one optional exception:
-# PyMuPDF renders PDF pages for the vision model and reads PDF text layers.
-# Without it the app still runs; PDF uploads show an install hint instead.
+# Local document reading, encrypted mapping, and exports
 pymupdf>=1.24
+cryptography>=43.0
+python-docx>=1.1
+reportlab>=4.0
+Pillow>=10.4
+numpy>=1.26
+opencv-python-headless>=4.10

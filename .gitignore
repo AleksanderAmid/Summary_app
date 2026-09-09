@@ -5,3 +5,5 @@ app/data/history/
 app/data/uploads/
 app/data/logs/
 SmartDoc.lnk
+app/data/private/
+app/data/ocr/

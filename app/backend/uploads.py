@@ -20,6 +20,16 @@ class UploadError(ValueError):
 def parse_payload(body):
     if not isinstance(body, dict):
         raise UploadError("Request must be a JSON object.")
+    additional = body.get("additional_identifiers", [])
+    if (not isinstance(additional, list) or len(additional) > 50
+            or any(not isinstance(item, str) or not 2 <= len(item.strip()) <= 180 for item in additional)):
+        raise UploadError("Additional identifiers must be up to 50 entries, 2 to 180 characters each.")
+    options = {"additional_identifiers": [item.strip() for item in additional]} if additional else {}
+    mode = body.get("transcription_mode", "balanced")
+    if not isinstance(mode, str) or mode not in ("balanced", "thorough", "fast"):
+        raise UploadError("Choose balanced, thorough or fast transcription.")
+    if "transcription_mode" in body:
+        options["transcription_mode"] = mode
     if "files" in body:
         files = body["files"]
         if not isinstance(files, list) or not 1 <= len(files) <= MAX_DOCUMENTS:
@@ -32,7 +42,7 @@ def parse_payload(body):
         text = body.get("text")
         if not isinstance(text, str) or not text.strip():
             raise UploadError("Provide documents or pasted text.")
-        return {"text": text}
+        return {"text": text, **options}
 
     validated, total = [], 0
     for index, document in enumerate(files, 1):
@@ -63,4 +73,4 @@ def parse_payload(body):
         if total > MAX_UPLOAD_BYTES:
             raise UploadError("Documents exceed the 64 MB combined limit.", 413)
         validated.append({"filename": filename, "content": content})
-    return {"files": validated}
+    return {"files": validated, **options}
