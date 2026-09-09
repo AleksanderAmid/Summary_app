@@ -23,6 +23,7 @@ let viewingJobId = null;       // job whose progress view is currently on screen
 /* ---------------- helpers ---------------- */
 
 function showView(name) {
+  document.querySelectorAll(".input-popover[open]").forEach((panel) => { panel.open = false; });
   Object.entries(views).forEach(([k, el]) => el.classList.toggle("hidden", k !== name));
 }
 
@@ -59,6 +60,7 @@ async function refreshStatus() {
   const banner = $("#status-banner");
   try {
     const s = await api("/api/status");
+    $("#input-model").textContent = s.summarizer.tag === "gemma4:12b" ? "Gemma 4 12B" : s.summarizer.tag;
     const problems = [];
     if (!s.ollama) problems.push("Ollama is not running — start the Ollama app and retry.");
     else {
@@ -134,8 +136,11 @@ async function refreshHistory() {
 /* ---------------- input handling ---------------- */
 
 function setTab(name) {
-  document.querySelectorAll(".tab").forEach((t) =>
-    t.classList.toggle("active", t.dataset.tab === name));
+  document.querySelectorAll(".tab").forEach((t) => {
+    t.classList.toggle("active", t.dataset.tab === name);
+    t.setAttribute("aria-pressed", String(t.dataset.tab === name));
+  });
+  $("#transcription-options").classList.toggle("hidden", name === "text");
   $("#pane-file").classList.toggle("hidden", name !== "file");
   $("#pane-text").classList.toggle("hidden", name !== "text");
   updateSendEnabled();
@@ -175,6 +180,7 @@ function renderFiles() {
     chip.append(name, remove);
     list.appendChild(chip);
   }
+  $("#dropzone").classList.toggle("has-files", selectedFiles.length > 0);
   const bytes = selectedFiles.reduce((total, file) => total + file.size, 0);
   $("#file-count").textContent = selectedFiles.length + " / " + MAX_DOCUMENTS + " documents · " + (bytes / 1024 / 1024).toFixed(1) + " MB";
   $("#file-count").classList.toggle("hidden", selectedFiles.length === 0);
@@ -466,6 +472,7 @@ function goHome() {
   $("#file-input").value = "";
   $("#text-input").value = "";
   $("#additional-identifiers").value = "";
+  refreshInputSettings();
   currentRecord = null;
   updateSendEnabled();
   refreshHistory();
@@ -728,11 +735,36 @@ showView("home");
 refreshUpdates();
 setInterval(refreshUpdates, 2000);
 
-$("#transcription-mode").addEventListener("change", () => {
+function refreshInputSettings() {
   const hints = {
-    balanced: "Quick OCR, with a second reader for uncertain text and tables.",
-    thorough: "Cross-check every scanned page with both OCR readers. First use may take longer while models load.",
-    fast: "Prioritise quick OCR; uncertain results still receive extra checks."
+    balanced: "Extra checks where needed.",
+    thorough: "Cross-check every scan. Takes longer.",
+    fast: "Quicker reading with fewer cross-checks."
   };
   $("#transcription-mode-hint").textContent = hints[$("#transcription-mode").value];
+  const custom = $("#transcription-mode").value !== "balanced" || $("#additional-identifiers").value.trim().length > 0;
+  $("#settings-indicator").classList.toggle("hidden", !custom);
+  $("#input-settings > summary").title = custom ? "Processing settings · customised" : "Processing settings";
+}
+$("#transcription-mode").addEventListener("change", refreshInputSettings);
+$("#additional-identifiers").addEventListener("input", refreshInputSettings);
+document.querySelectorAll(".input-popover").forEach((panel) => {
+  panel.addEventListener("toggle", () => {
+    panel.querySelector("summary").setAttribute("aria-expanded", String(panel.open));
+    if (panel.open) document.querySelectorAll(".input-popover").forEach((other) => {
+      if (other !== panel) other.open = false;
+    });
+  });
+});
+document.addEventListener("click", (event) => {
+  document.querySelectorAll(".input-popover[open]").forEach((panel) => {
+    if (!panel.contains(event.target)) panel.open = false;
+  });
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  document.querySelectorAll(".input-popover[open]").forEach((panel) => {
+    panel.open = false;
+    panel.querySelector("summary").focus();
+  });
 });

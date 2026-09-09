@@ -8,6 +8,15 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='19' font-size='19'%3E%F0%9F%A9%BA%3C/text%3E%3C/svg%3E">
 </head>
 <body>
+<svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="icon-documents" viewBox="0 0 24 24"><path d="M8 3h7l4 4v13H8zM15 3v5h4M5 7H3v14h12M11 12h5M11 16h5"/></symbol>
+    <symbol id="icon-text" viewBox="0 0 24 24"><path d="M5 5h14M12 5v14M8 19h8M5 5v3M19 5v3"/></symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M3 6h3M10 6h11M3 12h11M18 12h3M3 18h5M12 18h9"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6zM8.5 12l2.5 2.5 4.5-5"/></symbol>
+  </defs>
+</svg>
 <div class="layout">
 
   <!-- ============ Sidebar ============ -->
@@ -44,18 +53,30 @@
       <h1 class="greeting"><span id="greeting-text">Afternoon</span>, Doctor</h1>
 
       <div class="input-card">
-        <div class="tabs">
-          <button class="tab active" data-tab="file">Upload documents</button>
-          <button class="tab" data-tab="text">Paste text</button>
+        <div class="input-header">
+          <div class="tabs" aria-label="Input type">
+            <button class="tab active" data-tab="file" aria-pressed="true"><svg class="ui-icon" aria-hidden="true"><use href="#icon-documents"/></svg>Documents</button>
+            <button class="tab" data-tab="text" aria-pressed="false"><svg class="ui-icon" aria-hidden="true"><use href="#icon-text"/></svg>Text</button>
+          </div>
+          <details class="input-popover upload-help" id="upload-help">
+            <summary class="tool-button" role="button" aria-expanded="false" aria-label="Upload details" title="Upload details"><svg class="ui-icon" aria-hidden="true"><use href="#icon-info"/></svg></summary>
+            <div class="popover-panel help-panel">
+              <h3>Adding documents</h3>
+              <p>Up to 10 documents for one patient, combined into one summary.</p>
+              <p>PDF, Word, TXT, JSON, PNG or JPG. Up to 64 MB in total.</p>
+              <p class="popover-note">Processed on this computer, up to 5 pages at once.</p>
+            </div>
+          </details>
         </div>
 
         <div id="pane-file" class="pane">
           <div id="dropzone" class="dropzone">
             <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt,.json,.png,.jpg,.jpeg" hidden>
-            <div class="dz-icon">⤴</div>
-            <div class="dz-title">Drop up to 10 documents here</div>
-            <div class="dz-sub">or <button class="linklike" id="btn-browse">browse files</button> — PDF, DOCX, TXT, JSON, PNG, JPG</div>
-            <div class="dz-limit">Documents for the same patient · One combined summary · 64 MB total</div>
+            <button id="btn-browse" class="dz-action" aria-label="Add documents">
+              <span class="dz-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-documents"/></svg></span>
+              <span class="dz-title">Add documents</span>
+              <span class="dz-caption">Drop here · Up to 10 for one patient</span>
+            </button>
             <div id="file-count" class="file-count hidden" aria-live="polite"></div>
             <ul id="file-list" class="file-list" aria-label="Selected documents"></ul>
             <div id="file-error" class="file-error hidden" role="alert"></div>
@@ -63,32 +84,40 @@
         </div>
 
         <div id="pane-text" class="pane hidden">
-          <textarea id="text-input" rows="9"
-            placeholder="Paste the Swedish patient journal text here…"></textarea>
+          <textarea id="text-input" rows="7" aria-label="Patient journal text"
+            placeholder="Paste journal text…"></textarea>
         </div>
 
-        <div class="transcription-options" id="transcription-options">
-          <label for="transcription-mode">Reading scanned documents</label>
-          <select id="transcription-mode" aria-describedby="transcription-mode-hint">
-            <option value="balanced">Balanced</option>
-            <option value="thorough">Thorough cross-check</option>
-            <option value="fast">Fast</option>
-          </select>
-          <p id="transcription-mode-hint">Quick OCR, with a second reader for uncertain text and tables.</p>
-        </div>
-        <details class="identifier-options">
-          <summary>Additional identifiers to replace</summary>
-          <label for="additional-identifiers">Optional names, places or identifiers to replace, one per line</label>
-          <textarea id="additional-identifiers" rows="3" placeholder="One identifier per line"></textarea>
-        </details>
         <div class="card-footer">
-          <div class="footer-hint">Up to 5 pages at once · All document reading stays local</div>
-          <div class="footer-actions">
-            <span class="model-label">Gemma 4 12B <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></span>
-            <button id="btn-send" class="send-btn" disabled title="Generate summary">
-              <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
+          <div class="footer-tools">
+            <span class="local-status" title="Documents are processed on this computer"><svg class="ui-icon" aria-hidden="true"><use href="#icon-shield"/></svg>Local</span>
+            <details class="input-popover settings-menu" id="input-settings">
+              <summary class="tool-button" role="button" aria-expanded="false" aria-label="Processing settings" title="Processing settings">
+                <svg class="ui-icon" aria-hidden="true"><use href="#icon-settings"/></svg>
+                <span id="settings-indicator" class="settings-indicator hidden" aria-hidden="true"></span>
+              </summary>
+              <div class="popover-panel settings-panel">
+                <h3>Settings</h3>
+                <div class="transcription-options" id="transcription-options">
+                  <label for="transcription-mode">Scan reading</label>
+                  <select id="transcription-mode" aria-describedby="transcription-mode-hint">
+                    <option value="balanced">Balanced</option>
+                    <option value="thorough">Thorough</option>
+                    <option value="fast">Fast</option>
+                  </select>
+                  <p id="transcription-mode-hint">Extra checks where needed.</p>
+                </div>
+                <div class="identifier-options">
+                  <label for="additional-identifiers">Extra identifiers to hide <span class="optional-label">Optional</span></label>
+                  <textarea id="additional-identifiers" rows="3" placeholder="Names, places or IDs. One per line."></textarea>
+                </div>
+                <p class="popover-note">Model <span id="input-model">Gemma 4 12B</span></p>
+              </div>
+            </details>
           </div>
+          <button id="btn-send" class="send-btn" disabled title="Generate summary" aria-label="Generate summary">
+            <svg width="19" height="19" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
       </div>
 
