@@ -26,8 +26,11 @@ refer to PDF pages rather than the printed chapter pagination.
   Gemma 4 12B by default and displays configuration rather than obsolete scores.
 - **Treat context coverage as a requirement.** Serving limits and incomplete
   output can distort results. The app retains all input passages in its direct
-  prompt and rejects inputs estimated to exceed the supported budget. This does
-  not implement or reproduce the thesis retrieval experiments.
+  prompt, sizes the context against the installed model, and lets the runtime's
+  actual tokenizer reject overflow with trimming and shifting disabled. The
+  default ceiling is now 131,072 tokens. This does not implement or reproduce
+  the thesis retrieval experiments. See [LONG_RECORD_RESEARCH.md](LONG_RECORD_RESEARCH.md)
+  for the expanded review and the limits of direct, retrieval and staged methods.
 
 ## Further improvements requiring evaluation
 
@@ -49,8 +52,8 @@ extracted text; this does not redact or modify the original page images.
 Evaluate summary omissions, unsupported claims, conflicting dates, medication
 status, units and negations using held-out cases and clinician review. Keep these
 cases and physician references out of the generation prompt. Source IDs establish
-traceability, not a validated medical quality score. Test long-document context
-coverage against the chosen model's actual tokenizer before raising input limits.
+traceability, not a validated medical quality score. Measure both long-document coverage and clinical omissions at each context size;
+a successfully accepted prompt alone does not establish summary quality.
 
 Implementation reference for structured model responses:
 [Ollama structured outputs](https://docs.ollama.com/capabilities/structured-outputs).

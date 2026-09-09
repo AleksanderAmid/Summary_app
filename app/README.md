@@ -8,7 +8,7 @@ or both in a ZIP file.
 
 ## Setup and launch
 
-Run `setup.bat` once. It checks Python 3.10+, Ollama, `gemma4:12b`, and the
+Run `setup.bat` once. It checks Python 3.10+, Ollama 0.32.1 or newer, `gemma4:12b`, and the
 packages in `requirements.txt`, followed by Swedish OCR setup (`setup_ocr.ps1`).
 On an existing installation, install the new packages before restarting:
 
@@ -46,8 +46,11 @@ physician references and codebooks are no longer read by the processing pipeline
 5. The summariser receives the pseudonymised text, with source IDs. Each summary
    sentence must cite existing source IDs. The output is limited to 200 words,
    and incomplete output or invalid references trigger one retry, then an error.
-   Inputs estimated to exceed the context budget are rejected instead of being
-   deliberately truncated. Generation instructions preserve negation, uncertainty,
+   The context window grows automatically for longer records, up to the smaller
+   of 131,072 tokens and the model's reported capacity. Ollama uses its actual
+   tokenizer to reject overflowing input; the app retries a larger window when
+   possible. Input trimming and context shifting are disabled explicitly.
+   Generation instructions preserve negation, uncertainty,
    time status, doses and units; clinicians still need to check the result.
 6. Original values replace the placeholders present in the summary and its
    uncertainty notes. The model may omit identifiers that are not relevant to
@@ -58,6 +61,43 @@ its source IDs. Existing IDs show where a statement points; they do not prove
 that its interpretation is correct. Numeric discrepancy checks are diagnostic,
 not a medical factuality score. Detector failures and possible remaining
 identifiers appear in the review notes.
+
+## Longer patient records
+
+The app selects an 8K-128K context window according to the combined pseudonymised
+record, instructions, source IDs, and output allowance. It asks Ollama for the
+selected model's native capacity and never requests more than that capacity.
+The size estimate only selects a starting window: it no longer rejects a record
+based on character count. The model's actual tokenizer decides whether it fits.
+
+Ollama 0.32.1 or newer is required for the verified no-truncation controls.
+Oversized requests retry at a larger window within the configured limit. If the
+complete record still cannot fit, the app stops explicitly; it does not produce
+a summary from a shortened record. Memory failures are reported without retrying
+with even larger allocations. Short records continue to use smaller windows.
+
+For a machine with enough memory, the ceiling can be raised before starting
+SmartDoc (Gemma 4 12B reports a native limit of 262,144 tokens):
+
+```powershell
+$env:SMARTDOC_SUMMARY_MAX_CONTEXT = "262144"
+python app/backend/server.py
+```
+
+The default remains 131,072. This setting covers the entire context, including
+instructions and generated output, so it is not an exact source-token allowance.
+It does not change the 10-document, 64-MB or 500-page PDF limits. A larger window
+uses more memory and may take longer, especially with five Ollama slots. The
+256K ceiling is available but has not been established as a safe memory setting
+or a quality target on every workstation. Source inclusion does not guarantee
+that a 200-word summary captures every relevant fact.
+
+See [LONG_RECORD_RESEARCH.md](LONG_RECORD_RESEARCH.md) for the literature review,
+architecture decision, limitations, and local verification evidence. A manual
+synthetic capacity test is available as `app/tests/benchmark_summary_context.py`;
+run it with `--output <folder>` to save its generated source and results. It uses
+the local model, can take several minutes, and measures feasibility rather than
+clinical accuracy.
 
 ## Reading scanned documents
 
@@ -203,6 +243,7 @@ python -B -m unittest discover -s app/tests -p test_transcription.py -v
 python -B -m unittest discover -s app/tests -p test_privacy_exports.py -v
 python -B -m unittest discover -s app/tests -p test_improvements.py -v
 python -B -m unittest discover -s app/tests -p test_parallel.py -v
+python -B -m unittest discover -s app/tests -p test_summary_context.py -v
 node --check app/frontend/app.js
 ```
 

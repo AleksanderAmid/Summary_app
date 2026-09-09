@@ -4,6 +4,7 @@ import os
 import re
 import time
 import ollama_client
+import summary_context
 
 SUMMARIZER_MODEL = os.environ.get("SMARTDOC_MODEL", "gemma4:12b")
 GENERATION_OPTIONS = {"temperature": 0, "top_p": 0.9, "seed": 17, "num_predict": 2048}
@@ -63,12 +64,12 @@ def build_user_prompt(source_text):
     return "\n\n".join("[" + unit["id"] + "]\n" + unit["text"] for unit in units)
 
 
-def choose_num_ctx(system_prompt, user_prompt):
-    needed = (len(system_prompt) + len(user_prompt) + len(json.dumps(SCHEMA))) // 3 + GENERATION_OPTIONS["num_predict"] + 512
-    for size in (8192, 16384, 24576, 32768):
-        if needed <= size:
-            return size, False
-    return 32768, True
+def choose_num_ctx(system_prompt, user_prompt, maximum=None):
+    """Compatibility helper; approximate sizing never proves actual token fit."""
+    maximum = maximum or summary_context.configured_limit()
+    needed = summary_context.estimate_tokens(system_prompt, user_prompt, json.dumps(SCHEMA), GENERATION_OPTIONS["num_predict"])
+    sizes = sorted({size for size in summary_context.CONTEXT_SIZES if size <= maximum} | {maximum})
+    return next((size for size in sizes if needed <= size), maximum), needed > maximum
 
 
 def validate_response(raw, units):
@@ -95,33 +96,55 @@ def summarize(source_text, progress=None):
     units = evidence_units(source_text)
     system = build_system_prompt()
     prompt = build_user_prompt(source_text)
-    num_ctx, too_long = choose_num_ctx(system, prompt)
-    if too_long:
-        raise RuntimeError("The combined documents exceed the model context limit. "
-                           "Use fewer or shorter documents; no source text has been silently omitted.")
     if not units:
         raise RuntimeError("No source text is available.")
+    capabilities = summary_context.runtime_capabilities(SUMMARIZER_MODEL)
+    plan = summary_context.context_plan(system, prompt, json.dumps(SCHEMA),
+                                        GENERATION_OPTIONS["num_predict"], capabilities)
     started = time.perf_counter()
     last_error = None
-    for attempt in range(2):
-        if progress:
-            progress(f"{SUMMARIZER_MODEL}: generating a source-linked summary" +
-                     (" (retrying the output format)" if attempt else ""))
-        request = {"model": SUMMARIZER_MODEL, "system": system, "prompt": prompt,
-                   "format": SCHEMA, "stream": False, "think": False,
-                   "options": dict(GENERATION_OPTIONS, num_ctx=num_ctx)}
-        if attempt:
-            request["prompt"] += "\n\nSvara kortare, högst 150 ord. Varje mening måste hänvisa till giltiga E-ID:n."
-        response = ollama_client.post_json("/api/generate", request, timeout=900)
-        try:
-            if response.get("done_reason") == "length" or response.get("done") is False:
-                raise ValueError("The model stopped before completing the summary.")
-            sentences, uncertainties, words = validate_response(response.get("response", ""), units)
+    attempts = context_retries = 0
+    successful = False
+    for num_ctx in plan["contexts"]:
+        overflowed = False
+        for format_attempt in range(2):
+            if progress:
+                progress(f"Reading all {len(units)} source sections with a {num_ctx:,}-token context" +
+                         (" (retrying the output format)" if format_attempt else ""))
+            request = {"model": SUMMARIZER_MODEL, "system": system, "prompt": prompt,
+                       "format": SCHEMA, "stream": False, "think": False,
+                       "truncate": False, "shift": False,
+                       "options": dict(GENERATION_OPTIONS, num_ctx=num_ctx)}
+            if format_attempt:
+                request["prompt"] += "\n\nSvara kortare, högst 150 ord. Varje mening måste hänvisa till giltiga E-ID:n."
+            attempts += 1
+            try:
+                response = ollama_client.post_json("/api/generate", request, timeout=1800)
+            except ollama_client.OllamaError as exc:
+                if not exc.context_overflow:
+                    raise
+                context_retries += 1
+                overflowed = True
+                last_error = (f"The complete record does not fit within the configured {plan['maximum_context']:,}-token "
+                              f"summary context (model capacity: {plan['model_context']:,}). "
+                              "No source text was trimmed and no partial summary was saved. "
+                              "Split the record or increase SMARTDOC_SUMMARY_MAX_CONTEXT within the model's capacity.")
+                break
+            try:
+                if response.get("done_reason") == "length" or response.get("done") is False:
+                    raise ValueError("The model stopped before completing the summary.")
+                sentences, uncertainties, words = validate_response(response.get("response", ""), units)
+                successful = True
+                break
+            except (ValueError, TypeError) as exc:
+                last_error = str(exc)
+        if successful:
             break
-        except (ValueError, TypeError) as exc:
-            last_error = str(exc)
-    else:
-        raise RuntimeError(last_error + " Try a smaller document batch.")
+        # Format failures are not an excuse to reread the record at every size.
+        if not overflowed:
+            raise RuntimeError(last_error + " Retry the summary.")
+    if not successful:
+        raise RuntimeError(last_error)
     summary = "\n\n".join(item["text"] + " [" + ", ".join(item["evidence"]) + "]" for item in sentences)
     warnings = []
     # This flags numeric discrepancies only; it is not a factuality score.
@@ -139,7 +162,13 @@ def summarize(source_text, progress=None):
                           "wall_seconds": round(time.perf_counter()-started, 2),
                           "prompt_eval_count": response.get("prompt_eval_count"),
                           "eval_count": response.get("eval_count"), "num_ctx": num_ctx,
-                          "done_reason": response.get("done_reason"), "attempts": attempt+1,
+                          "done_reason": response.get("done_reason"), "attempts": attempts,
+                          "context_retries": context_retries,
+                          "configured_context_limit": plan["maximum_context"],
+                          "model_context_limit": plan["model_context"],
+                          "estimated_total_tokens": plan["estimated_tokens"],
+                          "input_truncation_disabled": True, "context_shifting_disabled": True,
+                          "ollama_version": plan["ollama_version"],
                           "summary_words": words, "source_units": len(units), "source_chars": len(source_text), "full_source_in_prompt": True}}
 
 

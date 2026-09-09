@@ -13,6 +13,23 @@ import urllib.request
 OLLAMA_HOST = "http://localhost:11434"
 
 
+class OllamaError(RuntimeError):
+    """Structured local runtime error, without including submitted source text."""
+    def __init__(self, status_code, message):
+        self.status_code = status_code
+        self.message = str(message)[:500]
+        super().__init__(f"Ollama returned HTTP {status_code}: {self.message}" if status_code else self.message)
+
+    @property
+    def context_overflow(self):
+        message = self.message.lower()
+        return any(term in message for term in (
+            "exceeds the context", "exceeds context", "exceed context", "context length exceeded",
+            "exceeds the available context", "exceed_context_size_error",
+            "context size exceeded", "larger than the context", "longer than the context",
+            "input is too long", "context window exceeded", "context shift is disabled"))
+
+
 def post_json(path: str, payload: dict, timeout: float = 600.0) -> dict:
     """POST JSON to the Ollama API and return the parsed JSON response."""
     req = urllib.request.Request(
@@ -23,10 +40,17 @@ def post_json(path: str, payload: dict, timeout: float = 600.0) -> dict:
     )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return json.loads(resp.read().decode("utf-8"))
+            data = json.loads(resp.read().decode("utf-8"))
+            if isinstance(data, dict) and data.get("error"):
+                raise OllamaError(None, data["error"])
+            return data
     except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", "replace")[:300]
-        raise RuntimeError(f"Ollama returned HTTP {e.code}: {body}") from e
+        body = e.read().decode("utf-8", "replace")
+        try:
+            message = json.loads(body).get("error", body)
+        except (ValueError, AttributeError):
+            message = body
+        raise OllamaError(e.code, message) from e
     except urllib.error.URLError as e:
         raise RuntimeError(f"Cannot reach Ollama at {OLLAMA_HOST} — is it "
                            f"running? ({e.reason})") from e

@@ -92,6 +92,12 @@ class PrivacyTests(unittest.TestCase):
 
 
 class SummaryTests(unittest.TestCase):
+    def setUp(self):
+        capabilities = patch.object(summary.summary_context, "runtime_capabilities",
+                                    return_value={"ollama_version": "0.32.1", "model_context": 262144})
+        capabilities.start()
+        self.addCleanup(capabilities.stop)
+
     def test_generation_uses_no_physician_references_and_cites_source(self):
         payload = {"sentences": [{"text": "Ingen penicillinallergi.", "evidence": ["E0001"]}], "uncertainties": []}
         with patch.object(summary.ollama_client, "post_json",
@@ -117,10 +123,12 @@ class SummaryTests(unittest.TestCase):
         text = "Section one.\n\n" + "Section two. " * 250
         units = summary.evidence_units(text)
         self.assertEqual(" ".join(" ".join(u["text"].split()) for u in units), " ".join(text.split()))
-        with patch.object(summary.ollama_client, "post_json") as call:
-            with self.assertRaisesRegex(RuntimeError, "context limit"):
+        error = summary.ollama_client.OllamaError(400, "request exceeds the available context size")
+        with patch.object(summary.ollama_client, "post_json", side_effect=error) as call:
+            with self.assertRaisesRegex(RuntimeError, "No source text was trimmed"):
                 summary.summarize("too much text " * 15000)
-            call.assert_not_called()
+            self.assertTrue(call.called)
+            self.assertTrue(all(not c.args[1]["truncate"] for c in call.call_args_list))
 
 
 class ExportTests(unittest.TestCase):

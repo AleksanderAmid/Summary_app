@@ -124,6 +124,14 @@ if (-not (Test-OllamaApi)) {
 if (Test-OllamaApi) { Write-Ok "Ollama server is running" }
 else { Write-Fail "Could not start the Ollama server - start the Ollama app manually and re-run"; exit 1 }
 
+# Explicit no-truncation controls are verified against Ollama 0.32.1+.
+$summaryRuntimeVersion = (Invoke-RestMethod -Uri "http://localhost:11434/api/version" -TimeoutSec 5).version
+if ($summaryRuntimeVersion -notmatch '^(\d+\.\d+\.\d+)' -or [version]$Matches[1] -lt [version]'0.32.1') {
+    Write-Fail "Ollama 0.32.1 or newer is required. Update Ollama, restart it, and run setup again."
+    exit 1
+}
+Write-Ok "Ollama $summaryRuntimeVersion supports protected long-record summaries"
+
 # ---------------------------------------------------------------- Model
 Write-Step "Step 3/5 - Summarization model ($MODEL_TAG)"
 $tags = (Invoke-RestMethod -Uri "http://localhost:11434/api/tags").models | ForEach-Object { $_.name }
