@@ -45,7 +45,12 @@ physician references and codebooks are no longer read by the processing pipeline
    or aliases of a person are not guaranteed to resolve to the same placeholder.
 5. The summariser receives the pseudonymised text, with source IDs. Each summary
    sentence must cite existing source IDs. The output is limited to 200 words,
-   and incomplete output or invalid references trigger one retry, then an error.
+   with up to eight supporting references per sentence and eight short uncertainty
+   notes. An incomplete response triggers up to two automatic retries with more
+   output space; invalid formatting or references allow one separate repair attempt.
+   These retries reuse the completed transcription and pseudonymisation. The
+   identifier mapping stays encrypted until restoration, then is deleted; it is
+   also deleted if the job ultimately fails. Truncated summaries are never saved.
    The context window grows automatically for longer records, up to the smaller
    of 131,072 tokens and the model's reported capacity. Ollama uses its actual
    tokenizer to reject overflowing input; the app retries a larger window when
@@ -75,6 +80,16 @@ Oversized requests retry at a larger window within the configured limit. If the
 complete record still cannot fit, the app stops explicitly; it does not produce
 a summary from a shortened record. Memory failures are reported without retrying
 with even larger allocations. Short records continue to use smaller windows.
+
+Generation starts with a 4,096-token output allowance and can retry with 8,192,
+then 16,384 tokens when the model stops before finishing. This allowance includes
+JSON, source references, and uncertainty notes; the summary remains at most 200
+words. Context sizing reserves room for this output and uses measured input token
+counts from earlier attempts when available. References and uncertainty notes are
+bounded in both the requested schema and response validation. Run telemetry records
+each attempt's token counts and outcome; incomplete-response logs contain counters,
+not journal or generated text. If all attempts fail, retrying the failed job from
+the start requires document preparation again because its mapping has been deleted.
 
 For a machine with enough memory, the ceiling can be raised before starting
 SmartDoc (Gemma 4 12B reports a native limit of 262,144 tokens):
@@ -274,6 +289,7 @@ python -B -m unittest discover -s app/tests -p test_privacy_exports.py -v
 python -B -m unittest discover -s app/tests -p test_improvements.py -v
 python -B -m unittest discover -s app/tests -p test_parallel.py -v
 python -B -m unittest discover -s app/tests -p test_summary_context.py -v
+python -B -m unittest discover -s app/tests -p test_summary_recovery.py -v
 python -B -m unittest discover -s app/tests -p test_ocr_setup.py -v
 node --check app/frontend/app.js
 ```

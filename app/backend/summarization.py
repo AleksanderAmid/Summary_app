@@ -1,5 +1,6 @@
 """Evidence-linked Swedish summaries, without evaluation references in prompts."""
 import json
+import logging
 import os
 import re
 import time
@@ -7,15 +8,22 @@ import ollama_client
 import summary_context
 
 SUMMARIZER_MODEL = os.environ.get("SMARTDOC_MODEL", "gemma4:12b")
-GENERATION_OPTIONS = {"temperature": 0, "top_p": 0.9, "seed": 17, "num_predict": 2048}
+OUTPUT_BUDGETS = (4096, 8192, 16384)
+MAX_EVIDENCE = 8
+MAX_UNCERTAINTIES = 8
+MAX_NOTE_CHARS = 400
+GENERATION_OPTIONS = {"temperature": 0, "top_p": 0.9, "seed": 17, "num_predict": OUTPUT_BUDGETS[0]}
+logger = logging.getLogger(__name__)
 SCHEMA = {
     "type": "object", "properties": {
         "sentences": {"type": "array", "minItems": 1, "maxItems": 16, "items": {
             "type": "object", "properties": {
-                "text": {"type": "string"},
-                "evidence": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+                "text": {"type": "string", "minLength": 1, "maxLength": 1200},
+                "evidence": {"type": "array", "minItems": 1, "maxItems": MAX_EVIDENCE,
+                             "items": {"type": "string"}},
             }, "required": ["text", "evidence"], "additionalProperties": False}},
-        "uncertainties": {"type": "array", "items": {"type": "string"}},
+        "uncertainties": {"type": "array", "maxItems": MAX_UNCERTAINTIES,
+                          "items": {"type": "string", "minLength": 1, "maxLength": MAX_NOTE_CHARS}},
     }, "required": ["sentences", "uncertainties"], "additionalProperties": False,
 }
 
@@ -31,7 +39,11 @@ def build_system_prompt():
         "åtgärder och planerad uppföljning. Bevara negation, osäkerhet, dos/enhet och tidsstatus. "
         "Skilj historik från aktuellt och genomfört från planerat. Tolka inte frånvaro som nekande. "
         "Varje mening måste ha evidence med de käll-ID:n som stöder hela meningen. "
-        "Lista motsägelser eller saknade uppgifter i uncertainties utan att fylla luckorna. "
+        "Välj högst åtta relevanta käll-ID:n per mening, utan upprepningar; korta eller dela "
+        "meningen om fler behövs för att stödja alla påståenden. Räkna inte upp alla "
+        "upprepningar av samma uppgift i journalen. "
+        "Lista kliniskt relevanta motsägelser eller saknade uppgifter i uncertainties utan "
+        "att fylla luckorna: högst åtta korta anteckningar, högst 400 tecken vardera. "
         "Returnera endast JSON enligt schemat. Inga diagnoser, råd eller samband får uppfinnas."
     )
 
@@ -78,6 +90,9 @@ def validate_response(raw, units):
         raise ValueError("The model did not return a complete summary.")
     if not isinstance(data.get("uncertainties"), list) or not all(isinstance(x, str) for x in data["uncertainties"]):
         raise ValueError("The model returned invalid uncertainty notes.")
+    if (len(data["uncertainties"]) > MAX_UNCERTAINTIES
+            or any(not note.strip() or len(note) > MAX_NOTE_CHARS for note in data["uncertainties"])):
+        raise ValueError("The model exceeded the uncertainty note limits.")
     known = {unit["id"] for unit in units}
     sentences = []
     for item in data["sentences"]:
@@ -86,6 +101,8 @@ def validate_response(raw, units):
                 or not item["evidence"] or any(not isinstance(x, str) or x not in known for x in item["evidence"])):
             raise ValueError("The model returned missing or invalid source references.")
         sentences.append({"text": item["text"].strip(), "evidence": list(dict.fromkeys(item["evidence"]))})
+        if len(item["evidence"]) > MAX_EVIDENCE or len(item["text"]) > 1200:
+            raise ValueError("The model exceeded the sentence or source reference limits.")
     words = sum(len(re.findall(r"\b\w+\b", item["text"])) for item in sentences)
     if words > 200 or len(sentences) > 16:
         raise ValueError("The model exceeded the summary length limit.")
@@ -102,49 +119,81 @@ def summarize(source_text, progress=None):
     plan = summary_context.context_plan(system, prompt, json.dumps(SCHEMA),
                                         GENERATION_OPTIONS["num_predict"], capabilities)
     started = time.perf_counter()
-    last_error = None
-    attempts = context_retries = 0
-    successful = False
-    for num_ctx in plan["contexts"]:
-        overflowed = False
-        for format_attempt in range(2):
-            if progress:
-                progress(f"Reading all {len(units)} source sections with a {num_ctx:,}-token context" +
-                         (" (retrying the output format)" if format_attempt else ""))
-            request = {"model": SUMMARIZER_MODEL, "system": system, "prompt": prompt,
-                       "format": SCHEMA, "stream": False, "think": False,
-                       "truncate": False, "shift": False,
-                       "options": dict(GENERATION_OPTIONS, num_ctx=num_ctx)}
-            if format_attempt:
-                request["prompt"] += "\n\nSvara kortare, högst 150 ord. Varje mening måste hänvisa till giltiga E-ID:n."
-            attempts += 1
-            try:
-                response = ollama_client.post_json("/api/generate", request, timeout=1800)
-            except ollama_client.OllamaError as exc:
-                if not exc.context_overflow:
-                    raise
-                context_retries += 1
-                overflowed = True
-                last_error = (f"The complete record does not fit within the configured {plan['maximum_context']:,}-token "
-                              f"summary context (model capacity: {plan['model_context']:,}). "
-                              "No source text was trimmed and no partial summary was saved. "
-                              "Split the record or increase SMARTDOC_SUMMARY_MAX_CONTEXT within the model's capacity.")
-                break
-            try:
-                if response.get("done_reason") == "length" or response.get("done") is False:
-                    raise ValueError("The model stopped before completing the summary.")
-                sentences, uncertainties, words = validate_response(response.get("response", ""), units)
-                successful = True
-                break
-            except (ValueError, TypeError) as exc:
-                last_error = str(exc)
-        if successful:
-            break
-        # Format failures are not an excuse to reread the record at every size.
-        if not overflowed:
-            raise RuntimeError(last_error + " Retry the summary.")
-    if not successful:
-        raise RuntimeError(last_error)
+    context_index = output_index = format_retries = context_retries = 0
+    prompt_tokens = 0
+    attempt_details = []
+    while True:
+        output_budget = OUTPUT_BUDGETS[output_index]
+        request_prompt = prompt
+        if output_index or format_retries:
+            request_prompt += ("\n\nSvara kortare, högst 150 ord. Varje mening måste hänvisa till giltiga E-ID:n. "
+                               "Välj endast nödvändiga källhänvisningar, högst åtta per mening. "
+                               "Håll uncertainties kort och avsluta hela JSON-objektet.")
+        if format_retries:
+            # A deterministic model needs a changed repair request even when an
+            # earlier output-limit retry already requested a shorter answer.
+            request_prompt += ("\n\nKontrollera formatet extra noga: ett fullständigt JSON-objekt med sentences "
+                               "och uncertainties. Skriv högst 120 ord i sentences. Alla evidence-ID:n måste "
+                               "finnas i källan. Använd en tom uncertainties-lista om ingen osäkerhet finns.")
+        # Once the model reports actual input usage, reserve output space using
+        # that count too. A longer output may need a larger context, not just a
+        # higher num_predict. At the cap, let the tokenizer decide actual fit.
+        needed = max(summary_context.estimate_tokens(system, request_prompt, json.dumps(SCHEMA), output_budget),
+                     prompt_tokens + output_budget + 768)
+        while (context_index + 1 < len(plan["contexts"])
+               and plan["contexts"][context_index] < needed):
+            context_index += 1
+        num_ctx = plan["contexts"][context_index]
+        if progress:
+            progress("Finishing the summary — automatically retrying; document preparation is already complete"
+                     if output_index or format_retries else
+                     f"Reading all {len(units)} source sections with a {num_ctx:,}-token context")
+        request = {"model": SUMMARIZER_MODEL, "system": system, "prompt": request_prompt,
+                   "format": SCHEMA, "stream": False, "think": False,
+                   "truncate": False, "shift": False,
+                   "options": dict(GENERATION_OPTIONS, num_ctx=num_ctx, num_predict=output_budget)}
+        attempt = {"num_ctx": num_ctx, "num_predict": output_budget}
+        attempt_details.append(attempt)
+        try:
+            response = ollama_client.post_json("/api/generate", request, timeout=1800)
+        except ollama_client.OllamaError as exc:
+            if not exc.context_overflow:
+                raise
+            attempt["outcome"] = "context_overflow"
+            if context_index + 1 >= len(plan["contexts"]):
+                raise RuntimeError(
+                    f"The complete record does not fit within the configured {plan['maximum_context']:,}-token "
+                    f"summary context (model capacity: {plan['model_context']:,}). "
+                    "No source text was trimmed and no partial summary was saved. "
+                    "Split the record or increase SMARTDOC_SUMMARY_MAX_CONTEXT within the model's capacity.") from exc
+            context_index += 1
+            context_retries += 1
+            continue
+        attempt.update({key: response.get(key) for key in ("done_reason", "prompt_eval_count", "eval_count")})
+        count = response.get("prompt_eval_count")
+        if isinstance(count, int) and not isinstance(count, bool) and count >= 0:
+            prompt_tokens = max(prompt_tokens, count)
+        if response.get("done_reason") == "length" or response.get("done") is False:
+            attempt["outcome"] = "incomplete"
+            # Record only runtime counters, never source text or generated text.
+            logger.warning("Incomplete summary: attempt=%s context=%s output_limit=%s input_tokens=%s output_tokens=%s",
+                           len(attempt_details), num_ctx, output_budget, count, response.get("eval_count"))
+            if output_index + 1 >= len(OUTPUT_BUDGETS):
+                raise RuntimeError("The model repeatedly stopped before completing the summary, even after "
+                                   "automatic retries with more output space. No partial summary was saved. "
+                                   "Check Ollama's log before retrying.")
+            output_index += 1
+            continue
+        try:
+            sentences, uncertainties, words = validate_response(response.get("response", ""), units)
+        except (ValueError, TypeError) as exc:
+            attempt["outcome"] = "invalid_format"
+            if format_retries:
+                raise RuntimeError(str(exc) + " Retry the summary.") from exc
+            format_retries += 1
+            continue
+        attempt["outcome"] = "complete"
+        break
     summary = "\n\n".join(item["text"] + " [" + ", ".join(item["evidence"]) + "]" for item in sentences)
     warnings = []
     # This flags numeric discrepancies only; it is not a factuality score.
@@ -162,8 +211,10 @@ def summarize(source_text, progress=None):
                           "wall_seconds": round(time.perf_counter()-started, 2),
                           "prompt_eval_count": response.get("prompt_eval_count"),
                           "eval_count": response.get("eval_count"), "num_ctx": num_ctx,
-                          "done_reason": response.get("done_reason"), "attempts": attempts,
+                          "done_reason": response.get("done_reason"), "attempts": len(attempt_details),
                           "context_retries": context_retries,
+                          "output_retries": output_index, "format_retries": format_retries,
+                          "output_token_limit": output_budget, "attempt_details": attempt_details,
                           "configured_context_limit": plan["maximum_context"],
                           "model_context_limit": plan["model_context"],
                           "estimated_total_tokens": plan["estimated_tokens"],
