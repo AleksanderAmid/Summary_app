@@ -105,6 +105,9 @@ if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
     Set-Alias -Name ollama -Value "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" -Scope Script
 }
 
+# Configure the shared model server before starting it on a new installation.
+& "$PSScriptRoot\configure_parallel.ps1"
+
 # Make sure the Ollama server is running before talking to it.
 function Test-OllamaApi {
     try {

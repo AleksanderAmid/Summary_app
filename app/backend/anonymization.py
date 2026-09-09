@@ -7,6 +7,9 @@ from collections import Counter
 from datetime import datetime
 import json
 import re
+import threading
+
+from concurrency import PAGE_WORKERS, IDENTIFIER_SLOTS, ordered_parallel
 
 import ollama_client
 
@@ -126,6 +129,18 @@ def _chunks(text, maximum=3500):
         start = end
 
 
+def _page_chunks(text):
+    """Respect extracted page/document boundaries while retaining absolute offsets."""
+    marker = re.compile(r"(?m)^--- (?:Sida|Document) \d+ ---[ \t]*\r?$")
+    starts = sorted({0, *(match.start() for match in marker.finditer(text)), len(text)})
+    for start, end in zip(starts, starts[1:]):
+        passage = text[start:end]
+        if not marker.sub("", passage).strip():
+            continue
+        for offset, chunk in _chunks(passage):
+            yield start + offset, chunk
+
+
 def _resolve(spans):
     selected = []
     for start, end, kind in sorted(set(spans), key=lambda s: (PRIORITY[s[2]], -(s[1]-s[0]), s[0])):
@@ -151,16 +166,33 @@ def phi_screen(text):
 def run_anonymization_stage(text, progress=None, model="gemma4:12b", additional=None):
     spans = rule_spans(text)
     fallbacks = discarded = passages = 0
-    for offset, chunk in _chunks(text):
+    chunks = list(_page_chunks(text))
+    completed = 0
+    progress_lock = threading.Lock()
+    def detect(item):
+        nonlocal completed
+        offset, chunk = item
+        failed = rejected = 0
+        detected = []
+        with IDENTIFIER_SLOTS:
+            try:
+                detected, rejected = llm_spans(chunk, model)
+            except (RuntimeError, ValueError, OSError, TimeoutError):
+                failed = 1
+        with progress_lock:
+            completed += 1
+            if progress:
+                progress(f"Identifiers checked: {completed}/{len(chunks)} passages · up to {PAGE_WORKERS} in parallel")
+        return offset, detected, rejected, failed
+    if progress:
+        progress(f"Checking identifiers in {len(chunks)} passages · up to {PAGE_WORKERS} in parallel")
+    for offset, detected, rejected, failed in ordered_parallel(detect, chunks):
         passages += 1
-        if progress:
-            progress(f"Checking identifiers in passage {passages}…")
-        try:
-            detected, rejected = llm_spans(chunk, model)
-            discarded += rejected
-            spans.extend((a + offset, b + offset, kind) for a, b, kind in detected)
-        except (RuntimeError, ValueError, OSError, TimeoutError):
-            fallbacks += 1
+        discarded += rejected
+        fallbacks += failed
+        spans.extend((a + offset, b + offset, kind) for a, b, kind in detected)
+    if progress:
+        progress("Combining identifier detections and assigning consistent pseudonyms")
     for value in additional or []:
         spans.extend((a, b, "OTHER_ID") for a, b in _occurrences(text, value))
     # Propagate every identified surface across the entire batch, not just its passage.
@@ -199,5 +231,5 @@ def run_anonymization_stage(text, progress=None, model="gemma4:12b", additional=
     return {"text": pseudonymised, "implemented": True, "mapping": mapping,
             "phi_hits": dict(Counter(kind for _, _, kind in selected)),
             "residual_flags": residual, "fallback_passages": fallbacks,
-            "passages": passages, "discarded_suggestions": discarded,
+            "passages": passages, "parallel_workers": PAGE_WORKERS, "discarded_suggestions": discarded,
             "detector_model": model, "warnings": warnings}

@@ -22,6 +22,7 @@ from xml.etree import ElementTree
 
 import ollama_client
 import ocr_engines
+from concurrency import PAGE_WORKERS, SCAN_SLOTS, ordered_parallel
 try:
     import fitz
 except ImportError:
@@ -231,6 +232,12 @@ def transcribe_image_bytes(png_bytes, model=None):
 
 
 def read_scan(data, mode="balanced", progress=None):
+    # Shared across files and jobs: nested document/page pools never multiply OCR.
+    with SCAN_SLOTS:
+        return _read_scan(data, mode, progress)
+
+
+def _read_scan(data, mode="balanced", progress=None):
     if mode not in MODES:
         raise ValueError("Unknown transcription mode.")
     progress = progress or (lambda _: None)
@@ -355,7 +362,7 @@ def transcribe_pdf(path, progress=None, mode="balanced"):
     started = time.perf_counter()
     pages, pending, duplicates = {}, [], {}
     # Render/read PDF objects on this thread only; OCR workers receive owned bytes.
-    with fitz.open(str(path)) as doc, ThreadPoolExecutor(max_workers=2) as pool:
+    with fitz.open(str(path)) as doc, ThreadPoolExecutor(max_workers=PAGE_WORKERS) as pool:
         if doc.needs_pass:
             raise RuntimeError("This PDF is password protected. Upload an unlocked copy.")
         if len(doc) > MAX_PAGES:
@@ -387,7 +394,7 @@ def transcribe_pdf(path, progress=None, mode="balanced"):
                 callback = lambda message, i=index: progress(f"Page {i+1} of {total_pages} — {message}")
                 duplicates[digest] = pool.submit(read_scan, png, mode, callback)
             pending.append((index, duplicates[digest], cached, native))
-            if len(pending) >= 2:
+            if len(pending) >= PAGE_WORKERS:
                 finish(pending.pop(0))
         for item in pending:
             finish(item)
@@ -400,8 +407,17 @@ _DOCX_NS = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 def transcribe_docx(path, progress=None, mode="balanced"):
     """Read body text/tables in order and OCR inline images. Exclude package metadata."""
     started = time.perf_counter()
-    pages, paragraphs, warnings = [], [], []
-    with zipfile.ZipFile(path) as archive:
+    pages, paragraphs, pending = [], [], []
+    image_count = 0
+    def finish_image(item):
+        number, position, future = item
+        try:
+            result = future.result()
+        except Exception as exc:
+            raise RuntimeError(f"Word image {number}: {exc}") from exc
+        paragraphs[position] = result["text"]
+        pages.append({**result, "page_num": number})
+    with zipfile.ZipFile(path) as archive, ThreadPoolExecutor(max_workers=PAGE_WORKERS) as pool:
         root = ElementTree.fromstring(archive.read("word/document.xml"))
         rels = ElementTree.fromstring(archive.read("word/_rels/document.xml.rels")) if "word/_rels/document.xml.rels" in archive.namelist() else []
         relationships = {r.attrib["Id"]: r.attrib.get("Target", "") for r in rels if r.attrib.get("TargetMode") != "External"}
@@ -428,11 +444,16 @@ def transcribe_docx(path, progress=None, mode="balanced"):
                 name = target.lstrip("/") if target.startswith("/") else "word/"+target
                 if Path(name).suffix.lower() not in (".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"):
                     raise RuntimeError("A Word drawing uses an unsupported image format. Export it as PDF to include it.")
-                if len(pages) >= MAX_PAGES:
+                if image_count >= MAX_PAGES:
                     raise RuntimeError("This Word document contains too many embedded images.")
-                result = read_scan(archive.read(name), mode, progress)
-                paragraphs.append(result["text"])
-                pages.append({**result, "page_num": len(pages)+1})
+                image_count += 1
+                position = len(paragraphs)
+                paragraphs.append("")
+                pending.append((image_count, position, pool.submit(read_scan, archive.read(name), mode, progress)))
+                if len(pending) >= PAGE_WORKERS:
+                    finish_image(pending.pop(0))
+        for item in pending:
+            finish_image(item)
     result = _result(pages, "docx", started)
     result["full_text"] = "\n\n".join(p for p in paragraphs if p)
     return result
@@ -482,6 +503,32 @@ def transcribe_file(path, progress=None, mode="balanced"):
     if ext == ".txt": return transcribe_txt(path)
     if ext == ".json": return transcribe_study_json(path)
     raise ValueError(f"Unsupported file type '{ext}'.")
+
+
+def transcribe_files(paths, progress=None, mode="balanced"):
+    """Read five image/text/Word files at once; PDF page readers also use five.
+
+    PDF library objects stay on the caller thread. Only owned image bytes enter
+    OCR workers. Documents and pages are returned in their original order.
+    """
+    progress = progress or (lambda index, detail: None)
+    def read(item):
+        index, path = item
+        result = transcribe_file(path, lambda detail: progress(index, detail), mode)
+        progress(index, "Reading complete")
+        return index, result
+    batch = []
+    for index, path in enumerate(paths):
+        if path.suffix.lower() == ".pdf":
+            yield from ordered_parallel(read, batch)
+            batch.clear()
+            yield read((index, path))
+        else:
+            batch.append((index, path))
+            if len(batch) == PAGE_WORKERS:
+                yield from ordered_parallel(read, batch)
+                batch.clear()
+    yield from ordered_parallel(read, batch)
 
 
 def vision_model_available():

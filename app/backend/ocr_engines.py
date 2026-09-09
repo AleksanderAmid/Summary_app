@@ -16,6 +16,8 @@ import sys
 import threading
 import time
 
+from concurrency import PAGE_WORKERS
+
 APP_ROOT = Path(__file__).resolve().parent.parent
 OCR_DIR = APP_ROOT / "data" / "ocr"
 MODEL_NAMES = ("PP-OCRv6_medium_det", "PP-OCRv6_medium_rec")
@@ -57,7 +59,7 @@ def status():
     return {"tesseract": bool(tesseract_config()),
             "paddleocr": bool(paddle_model_dirs() and importlib.util.find_spec("paddleocr")
                               and importlib.util.find_spec("paddle")),
-            "language": "Swedish", "mode": "balanced"}
+            "language": "Swedish", "mode": "balanced", "parallel_pages": PAGE_WORKERS}
 
 
 def _row_text(words):
@@ -182,7 +184,27 @@ class PaddleWorker:
                 raise RuntimeError("PaddleOCR failed or timed out on this page; another local reader will be used.") from None
 
 
-PADDLE = PaddleWorker()
+class PaddlePool:
+    """Five independent predictors; prefer an already warm worker when idle."""
+    def __init__(self, size=PAGE_WORKERS):
+        self.workers = [PaddleWorker() for _ in range(size)]
+        self.available = queue.LifoQueue()
+        for worker in self.workers:
+            self.available.put(worker)
+
+    def predict(self, png, timeout=180):
+        worker = self.available.get()
+        try:
+            return worker.predict(png, timeout)
+        finally:
+            self.available.put(worker)
+
+    def close(self):
+        for worker in self.workers:
+            worker.close()
+
+
+PADDLE = PaddlePool()
 atexit.register(PADDLE.close)
 
 

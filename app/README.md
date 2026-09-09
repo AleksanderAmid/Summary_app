@@ -78,12 +78,16 @@ backgrounds are handled before OCR. Original input files remain unchanged.
 A successful short page is accepted without length-based retries. Known vision
 truncation and repetition are rejected, with at most two vision attempts. Repeated
 clinical lines are preserved. A nonblank page that fails extraction stops the job;
-blank pages do not create fake text from page markers. Up to two pages are read
-concurrently, preserving source order. Identical raster pages within one PDF reuse
+blank pages do not create fake text from page markers. Up to five pages are read
+concurrently, preserving source order. A shared limit prevents concurrent files
+or jobs from multiplying the number of active OCR pages. Image uploads and Word
+images run concurrently too. PDF objects are accessed only by the caller thread;
+their rendered pages are sent to the OCR workers. Identical raster pages within one PDF reuse
 their OCR result in memory for that file only. No persistent OCR text cache is made.
 
-PaddleOCR runs in one reusable isolated process with a timeout. Its first use loads
-models and is slower; later requests reuse the engine. Tesseract works without it.
+PaddleOCR uses up to five isolated worker processes with individual timeouts.
+Workers are started only when needed and reused afterwards. First use loads local
+models and is slower; five simultaneous first requests also use more memory. Tesseract works without it.
 Normal OCR reads local model files without fetching models or uploading images.
 The health indicator reports installed OCR availability. Restart after setup:
 
@@ -109,6 +113,29 @@ images. Headers, footers and package metadata are excluded. Unsupported drawings
 produce a request to export to PDF rather than silently omitting their content.
 UTF-8, UTF-16 with BOM and Windows-1252 text inputs are supported. PDFs over 500
 pages and images over 80 megapixels are rejected with a clear message.
+
+## Five-page processing
+
+OCR and identifier detection each allow up to five simultaneous tasks. Identifier
+checks respect page/document boundaries; long pages and pasted text are divided
+into bounded passages. All detections are joined before a single mapping is
+assigned across the entire batch. Summary generation starts only after every
+transcription and identifier task has finished. Failed identifier checks retain
+the rules-based fallback and review warning; unreadable input pages stop the job.
+The combined mapping is encrypted temporarily and removed after restoration.
+
+Ollama must also allow concurrent requests, otherwise it queues the five requests
+and runs them one at a time. Setup configures the Windows user setting. On an
+existing installation, run this once and restart Ollama after active jobs finish:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File app/configure_parallel.ps1
+```
+
+This sets `OLLAMA_NUM_PARALLEL=5` for the local Ollama server. It affects other apps
+using that same server too. On other platforms, set that environment variable for
+`ollama serve` and restart the service. See the [Ollama concurrency documentation](https://docs.ollama.com/faq#how-does-ollama-handle-concurrent-requests).
+Five requests use more context memory and do not guarantee a fivefold speedup.
 
 ## Preview and download
 
@@ -175,6 +202,7 @@ python -m pip install -r app/requirements-dev.txt
 python -B -m unittest discover -s app/tests -p test_transcription.py -v
 python -B -m unittest discover -s app/tests -p test_privacy_exports.py -v
 python -B -m unittest discover -s app/tests -p test_improvements.py -v
+python -B -m unittest discover -s app/tests -p test_parallel.py -v
 node --check app/frontend/app.js
 ```
 

@@ -55,3 +55,30 @@ clinical scans or every identifier category. OCR confidence and agreement are
 routing and review signals. No generative spelling correction, numeric correction,
 clinical inference, or automatic replacement of uncertain digits is applied after
 OCR. Final summaries still need comparison with their sources.
+## Five-page concurrency check, 9 September 2026
+
+The app now uses five OCR slots and five identifier-detection slots. Nine new
+concurrency tests passed, bringing the four app regression suites to 61 passing
+tests. The tests force simultaneous work and out-of-order completion, and verify
+source order, shared concurrency limits, independent Paddle predictors, failure
+handling, global pseudonym consistency, and waiting for all results before
+summary generation. The historical research-corpus test remains separate.
+
+Five copies of the same synthetic clean scan were processed concurrently:
+
+| Check | Wall time | Observed result |
+|---|---:|---|
+| Balanced, five pages | 2.28 s | All five used Tesseract and returned identical text with the expected dose |
+| Thorough, five pages, cold Paddle workers | 84.41 s | Five distinct worker processes; matching text and no reader disagreements |
+
+Ollama was restarted with `OLLAMA_NUM_PARALLEL=5`; its runtime reported
+`n_seq_max = 5`. These are individual local development measurements. Cold model
+loading, available memory, document complexity and competing work affect timing.
+
+A complete browser run with five synthetic scanned documents then finished:
+OCR 2.0 s, identifier detection 56.2 s (including the initial model load), summary
+52.1 s, and identifier restoration under 0.1 s. All five identifier requests
+occupied separate Ollama slots before the first completed. No identifier checks
+fell back to rules. Document order was preserved, the same patient name had one
+consistent placeholder across five pages, the summary contained no unresolved
+name/date placeholders, and no encrypted mapping file remained after completion.

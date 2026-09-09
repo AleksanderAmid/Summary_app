@@ -147,19 +147,21 @@ def _execute(job_id: str, payload: dict) -> dict:
     if files:
         _set_stage(job_id, "transcribe", status="active")
         UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-        documents, texts = [], []
+        documents, texts, paths = [], [], []
         for index, document in enumerate(files, 1):
             safe_name = Path(document["filename"]).name
-            label = f"Document {index} of {len(files)}: {safe_name}"
-            _set_stage(job_id, "transcribe", detail=f"{label} — reading")
             # The index keeps equal filenames from different folders distinct.
             upload_path = UPLOAD_DIR / f"{job_id}_{index:02d}_{safe_name}"
             upload_path.write_bytes(document["content"])
+            paths.append(upload_path)
 
-            def cb(detail: str, label: str = label) -> None:
-                _set_stage(job_id, "transcribe", detail=f"{label} — {detail}")
+        def cb(index, detail):
+            label = f"Document {index+1} of {len(files)}"
+            _set_stage(job_id, "transcribe", detail=f"{label} — {detail} · up to {transcription.PAGE_WORKERS} pages in parallel")
 
-            trans = transcription.transcribe_file(upload_path, cb, mode=payload.get("transcription_mode", "balanced"))
+        for position, trans in transcription.transcribe_files(paths, cb, mode=payload.get("transcription_mode", "balanced")):
+            index = position + 1
+            safe_name = Path(files[position]["filename"]).name
             transcription_warnings.extend(f"Document {index}, {warning}" for warning in trans.get("warnings", []))
             text = trans["full_text"].strip()
             if not text:
@@ -246,7 +248,8 @@ def _execute(job_id: str, payload: dict) -> dict:
         "created_at": history.timestamp(),
         "input": input_info,
         "transcription": {"mode": payload.get("transcription_mode", "balanced"),
-                          "warnings": transcription_warnings, "review_required": bool(transcription_warnings)},
+                          "warnings": transcription_warnings, "review_required": bool(transcription_warnings),
+                          "parallel_workers": transcription.PAGE_WORKERS},
         "source_text": anon["text"],
         "pseudonymised_text": anon["text"],
         "evidence": gen.get("evidence", summarization.evidence_units(anon["text"])),
