@@ -22,6 +22,7 @@ from xml.etree import ElementTree
 
 import ollama_client
 import ocr_engines
+from document_symbols import recognize_symbol
 from concurrency import PAGE_WORKERS, SCAN_SLOTS, ordered_parallel
 try:
     import fitz
@@ -402,41 +403,45 @@ def transcribe_pdf(path, progress=None, mode="balanced"):
 
 
 _DOCX_NS = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+_DOCX_BLIP = "{http://schemas.openxmlformats.org/drawingml/2006/main}blip"
+_DOCX_BOUNDARIES = {_DOCX_NS+"tbl": ({_DOCX_NS+"tr"}, "\n"),
+                    _DOCX_NS+"tr": ({_DOCX_NS+"tc"}, "\t"),
+                    _DOCX_NS+"tc": ({_DOCX_NS+"p", _DOCX_NS+"tbl"}, " / ")}
+
+
+def _read_word_image(data, mode, progress):
+    symbol = recognize_symbol(data)
+    return symbol if symbol is not None else read_scan(data, mode, progress)
 
 
 def transcribe_docx(path, progress=None, mode="balanced"):
-    """Read body text/tables in order and OCR inline images. Exclude package metadata."""
+    """Preserve text, table cells, inline symbols and scanned images in source order."""
+    if mode not in MODES:
+        raise ValueError("Unknown transcription mode.")
     started = time.perf_counter()
-    pages, paragraphs, pending = [], [], []
+    pages, image_text = {}, {}
+    paragraphs, pending = [], []
     image_count = 0
     def finish_image(item):
-        number, position, future = item
+        number, future = item
         try:
             result = future.result()
         except Exception as exc:
             raise RuntimeError(f"Word image {number}: {exc}") from exc
-        paragraphs[position] = result["text"]
-        pages.append({**result, "page_num": number})
+        image_text[number] = result["text"]
+        pages[number] = {**result, "page_num": number}
     with zipfile.ZipFile(path) as archive, ThreadPoolExecutor(max_workers=PAGE_WORKERS) as pool:
         root = ElementTree.fromstring(archive.read("word/document.xml"))
         rels = ElementTree.fromstring(archive.read("word/_rels/document.xml.rels")) if "word/_rels/document.xml.rels" in archive.namelist() else []
         relationships = {r.attrib["Id"]: r.attrib.get("Target", "") for r in rels if r.attrib.get("TargetMode") != "External"}
         body = root.find(_DOCX_NS+"body")
-        def paragraph_text(node):
-            output = []
-            for item in node.iter():
-                if item.tag == _DOCX_NS+"t": output.append(item.text or "")
-                elif item.tag == _DOCX_NS+"tab": output.append("\t")
-                elif item.tag in (_DOCX_NS+"br", _DOCX_NS+"cr"): output.append("\n")
-            return "".join(output).strip()
-        for block in body if body is not None else []:
-            if block.tag == _DOCX_NS+"p":
-                paragraphs.append(paragraph_text(block))
-            elif block.tag == _DOCX_NS+"tbl":
-                for row in block.findall(_DOCX_NS+"tr"):
-                    paragraphs.append("\t".join(" / ".join(paragraph_text(p) for p in cell.findall(_DOCX_NS+"p")) for cell in row.findall(_DOCX_NS+"tc")))
-            for image in block.iter("{http://schemas.openxmlformats.org/drawingml/2006/main}blip"):
-                embed = image.attrib.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed")
+        def fragments(node):
+            nonlocal image_count
+            if node.tag == _DOCX_NS+"t": return [node.text or ""]
+            if node.tag == _DOCX_NS+"tab": return ["\t"]
+            if node.tag in (_DOCX_NS+"br", _DOCX_NS+"cr"): return ["\n"]
+            if node.tag == _DOCX_BLIP:
+                embed = node.attrib.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed")
                 target = relationships.get(embed, "")
                 # Only embedded raster media inside this archive can be read.
                 if not target or ".." in Path(target).parts:
@@ -447,15 +452,34 @@ def transcribe_docx(path, progress=None, mode="balanced"):
                 if image_count >= MAX_PAGES:
                     raise RuntimeError("This Word document contains too many embedded images.")
                 image_count += 1
-                position = len(paragraphs)
-                paragraphs.append("")
-                pending.append((image_count, position, pool.submit(read_scan, archive.read(name), mode, progress)))
+                number = image_count
+                pending.append((number, pool.submit(_read_word_image, archive.read(name), mode, progress)))
                 if len(pending) >= PAGE_WORKERS:
                     finish_image(pending.pop(0))
+                return [number]
+            output = []
+            # Keep row/cell boundaries while traversing nested runs and tables.
+            tags, separator = _DOCX_BOUNDARIES.get(node.tag, ((), ""))
+            seen = False
+            for child in node:
+                if child.tag in tags:
+                    if seen: output.append(separator)
+                    seen = True
+                output.extend(fragments(child))
+            return output
+        for block in body if body is not None else []:
+            paragraphs.append(fragments(block))
         for item in pending:
             finish_image(item)
-    result = _result(pages, "docx", started)
-    result["full_text"] = "\n\n".join(p for p in paragraphs if p)
+    result = _result([pages[i] for i in sorted(pages)], "docx", started)
+    # Leading/trailing tabs can represent empty table cells; retain their columns.
+    text = ["".join("\n"+image_text[part]+"\n" if isinstance(part, int) else part
+                    for part in paragraph).strip(" \r\n") for paragraph in paragraphs]
+    result["full_text"] = "\n\n".join(p for p in text if p)
+    symbols = sum(page["method"] == "embedded_symbol" for page in pages.values())
+    if symbols:
+        result["warnings"].append(f"{symbols} embedded symbols were preserved as descriptions; check their meaning in the original document.")
+        result["review_required"] = True
     return result
 
 

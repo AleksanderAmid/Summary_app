@@ -36,6 +36,11 @@ physician references and codebooks are no longer read by the processing pipeline
    reviewing the pseudonymised output.
 3. Native text is extracted first and checked for incomplete image coverage.
    Scans use Swedish OCR, with local vision as a last resort.
+   Word documents preserve reviewed embedded icons as explicit symbol descriptions
+   in their original position, including within paragraphs and table cells. This
+   requires an exact match of every displayed pixel; unfamiliar graphics and small
+   text images still use OCR. No image is dropped merely because it is small.
+   A review note flags the preserved symbols without inferring their clinical meaning.
    Swedish rules and a local model identify names, identity numbers, contact
    details, dates, ages, organisations and locations. Only exact source spans
    from supported categories are accepted from the detector.
@@ -290,6 +295,7 @@ python -B -m unittest discover -s app/tests -p test_improvements.py -v
 python -B -m unittest discover -s app/tests -p test_parallel.py -v
 python -B -m unittest discover -s app/tests -p test_summary_context.py -v
 python -B -m unittest discover -s app/tests -p test_summary_recovery.py -v
+python -B -m unittest discover -s app/tests -p test_document_symbols.py -v
 python -B -m unittest discover -s app/tests -p test_ocr_setup.py -v
 node --check app/frontend/app.js
 ```
